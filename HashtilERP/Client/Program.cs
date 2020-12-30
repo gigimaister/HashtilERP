@@ -1,12 +1,9 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Syncfusion.Blazor;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HashtilERP.Client
@@ -15,6 +12,7 @@ namespace HashtilERP.Client
     {
         public static async Task Main(string[] args)
         {
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Mzc1MDI1QDMxMzgyZTM0MmUzMEVYdGVwTXNBdWlhTDNqZkVmSXJ1Q25KQThSQzlhY3FCZlhXaER2cmxHc009;Mzc1MDI2QDMxMzgyZTM0MmUzMG1Pci9nVlZUS2tBMENYM3hmS29xT1pSUmJyNDFSaGhGQXJWWXNMY21NTW89");
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
@@ -25,7 +23,7 @@ namespace HashtilERP.Client
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("HashtilERP.ServerAPI"));
 
             builder.Services.AddApiAuthorization();
-
+            builder.Services.AddSyncfusionBlazor();
             await builder.Build().RunAsync();
         }
     }
