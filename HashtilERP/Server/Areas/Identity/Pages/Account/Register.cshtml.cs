@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HashtilERP.Server.Areas.Identity.Pages.Account
 {
-    [AllowAnonymous]
+    [Authorize(Roles = "Administrator")]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
