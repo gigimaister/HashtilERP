@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashtilERP.Server", "HashtilERP\Server\HashtilERP.Server.csproj", "{AB4A1943-53C8-4C4F-8520-4B16758BD6DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtilERP.Server", "HashtilERP\Server\HashtilERP.Server.csproj", "{AB4A1943-53C8-4C4F-8520-4B16758BD6DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashtilERP.Client", "HashtilERP\Client\HashtilERP.Client.csproj", "{F12CEE11-E1ED-4768-9798-81C73421E8DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtilERP.Client", "HashtilERP\Client\HashtilERP.Client.csproj", "{F12CEE11-E1ED-4768-9798-81C73421E8DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HashtilERP.Shared", "HashtilERP\Shared\HashtilERP.Shared.csproj", "{96F204A9-9996-408B-9201-E934381ECA8A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtilERP.Shared", "HashtilERP\Shared\HashtilERP.Shared.csproj", "{96F204A9-9996-408B-9201-E934381ECA8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
