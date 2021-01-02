@@ -6,9 +6,23 @@
 
 <AuthorizeView>
     <Authorized>
-        <a href="">שלום,  @context.User.Identity.Name!</a>
-        <button class="nav-link btn btn-link" @onclick="BeginSignOut">יציאה</button>
-    </Authorized>
+        @if (context.User.IsInRole("Administrator"))
+        {
+            <a href="">שלום,  @context.User.Identity.Name!</a>
+            <button class="nav-link btn btn-link" @onclick="BeginSignOut">יציאה</button>
+            <button class="nav-link btn btn-link" @onclick="BeginSignOut">הרשמה</button>
+        }
+        else
+        {
+            <a href="">שלום,  @context.User.Identity.Name!</a>
+
+            <button class="nav-link btn btn-link" @onclick="BeginSignOut">יציאה</button>
+        }
+
+
+    </Authorized>        
+        
+  
     <NotAuthorized>
 
         <a href="authentication/login">כניסה</a>
@@ -22,4 +36,6 @@
         await SignOutManager.SetSignOutState();
         Navigation.NavigateTo("authentication/logout");
     }
+    
+
 }
