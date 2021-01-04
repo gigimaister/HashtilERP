@@ -24,8 +24,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        private readonly ILogger<RegisterModel> _logger;
-        private readonly IEmailSender _emailSender;
+        
 
         const string ADMINISTRATION_ROLE = "Administrator";
         const string ADMINISTRATOR_USERNAME = "Admin@hashtil";
@@ -39,8 +38,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _logger = logger;
-            _emailSender = emailSender;
+           
         }
 
         [BindProperty]
@@ -109,9 +107,8 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                         .AddToRoleAsync(user, ADMINISTRATION_ROLE);
                     }
                     // Log user in.
-                    await _signInManager.SignInAsync(user, isPersistent:
-                   false);
-                    return LocalRedirect(returnUrl);
+                    
+                    return LocalRedirect("/pages/listroles");
                 }
                 foreach (var error in result.Errors)
                 {
