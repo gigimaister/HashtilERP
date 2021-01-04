@@ -54,19 +54,23 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
         {
             [Required]
             [EmailAddress]
-            [Display(Name = "Email")]
+            [Display(Name = "אימייל")]
             public string Email { get; set; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "סיסמא")]
             public string Password { get; set; }
 
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "אישור סיסמא")]
+            [Compare("Password", ErrorMessage = "!סיסמאות לא תואמות")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            [Display(Name = "פלאפון")]
+            public string PhoneNum { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -81,7 +85,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email ,PhoneNumber = Input.PhoneNum};
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
