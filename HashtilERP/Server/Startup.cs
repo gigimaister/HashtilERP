@@ -35,7 +35,7 @@ namespace HashtilERP.Server
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddDefaultIdentity<ApplicationUser>()
+            services.AddDefaultIdentity<ApplicationUser>(options=>options.SignIn.RequireConfirmedAccount = true)
              .AddRoles<IdentityRole>() // Add roles.
              .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -51,11 +51,17 @@ namespace HashtilERP.Server
             System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler
                 .DefaultInboundClaimTypeMap.Remove("role");
 
-            services.AddAuthentication()
-                .AddIdentityServerJwt();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+                options.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+            })
+
+         .AddIdentityServerJwt();
 
             services.AddControllersWithViews();
-            services.AddRazorPages();
+            services.AddRazorPages(options=>
+            options.Conventions.AuthorizePage("/Pages"));
             services.AddSignalR();
             services.AddResponseCompression(opts =>
             {

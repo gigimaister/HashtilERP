@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HashtilERP.Server.Pages
 {
-    //[Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "Administrator")]
     public class ListRolesModel : PageModel
     {
         private readonly RoleManager<IdentityRole> _roleManager;
