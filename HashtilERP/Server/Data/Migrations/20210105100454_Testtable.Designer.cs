@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HashtilERP.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201231073638_Books")]
-    partial class Books
+    [Migration("20210105100454_Testtable")]
+    partial class Testtable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -86,22 +86,75 @@ namespace HashtilERP.Server.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("HashtilERP.Shared.Book", b =>
+            modelBuilder.Entity("HashtilERP.Shared.Models.KobiPassportModel", b =>
                 {
-                    b.Property<int>("BookId")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("bigint")
                         .UseIdentityColumn();
 
-                    b.Property<string>("BookName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Cost")
+                    b.Property<int?>("Avarage")
                         .HasColumnType("int");
 
-                    b.HasKey("BookId");
+                    b.Property<int?>("Gamlon")
+                        .HasColumnType("int");
 
-                    b.ToTable("Book");
+                    b.Property<string>("Gidul")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GrowingDaysToMarket")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GrowingRoom")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Hamama")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsNeedToBeAudit")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNeedToBeChecked")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MagashAmount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("MarketDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PassportNum")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlantsAmount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SowDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Zan")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KobiPassportModel");
+                });
+
+            modelBuilder.Entity("HashtilERP.Shared.Models.KobiTestTable", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PassportNum")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KobiTestTable");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>

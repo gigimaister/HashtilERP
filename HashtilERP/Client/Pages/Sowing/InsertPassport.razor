@@ -3,10 +3,16 @@
 
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Thai-Guy")]
 
-    <h3>InsertPassport</h3>
+<h3>InsertPassport</h3>
 
 @if (isDevice == "Mobile")
 {
@@ -18,31 +24,116 @@
     </button>
 }
 
-<input  type="text" class="form-control" style="width:auto;margin-right:auto"
-       @bind-value="BarCode"
+<input type="text" class="form-control" style="width:auto;margin-right:auto"
+       @bind-value="@kobipassportModel.PassportNum" 
        placeholder="หมายเลขหนังสือเดินทาง" />
-                    @*PASSPORT NUMBER*@
+@*PASSPORT NUMBER*@
 @if (ShowScanBarcode)
 {
 
-    <BarcodeReader ScanResult="((e) => { BarCode=e; ShowScanBarcode = !ShowScanBarcode; })"
+    <BarcodeReader ScanResult="((e) => { kobipassportModel.PassportNum=e; ShowScanBarcode = !ShowScanBarcode; })"
                    ShowScanBarcode="ShowScanBarcode"
                    Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
 
 }
 
+<button class="btn btn-success"
+        type="button"
+       @onclick="@InsertObject">
+    @*ENTER SCAN*@
+    แทรกการสแกน
+</button>
+
+
+@*GRID SECTION START HERE*@
+<SfGrid DataSource="@kobiPassportModels">
+    <GridColumns>
+        @*PassportNumber*@
+        <GridColumn Field=@nameof(kobipassportModel.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+        @*GrowingRoom*@
+        <GridColumn Field=@nameof(kobipassportModel.GrowingRoom) HeaderText="ห้องปลูก" Width="150"></GridColumn>
+    </GridColumns>
+</SfGrid>
+
 @code {
     bool ShowScanBarcode { get; set; } = false;
     public string? BarCode { get; set; }
-
     private string isDevice { get; set; }
     private bool mobile { get; set; }
+
     public async Task FindResponsiveness()
     {
         mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
         isDevice = mobile ? "Mobile" : "Desktop";
 
     }
+    public async void InsertObject()
+    {
+        await SendNewPassport(kobipassportModel);
+    }
+
+    KobiPassportModel[] kobiPassportModels;
+    KobiPassportModel kobipassportModel = new KobiPassportModel();
+
+    private HubConnection hubConnection;
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+        .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        //await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        kobiPassportModels = await Http.GetFromJsonAsync<KobiPassportModel[]>("api/KobiPassportModels");
+        StateHasChanged();
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+    protected async Task SendNewPassport(KobiPassportModel kobiPassport)
+    {
+        kobiPassport.Id = 1;
+
+        kobiPassport.GrowingRoom = "1";
+        kobiPassport.SowDate = DateTime.Today;
+        kobiPassport.MarketDate = DateTime.Today;
+        kobiPassport.MagashAmount = 25;
+        kobiPassport.PlantsAmount = 1000;
+        kobiPassport.Status = "GrowingRoom";
+        await Http.PostAsJsonAsync("api/KobiPassportModels", kobiPassport);
+        if (IsConnected) await SendMessage();
+
+    }
+
 
 
 }

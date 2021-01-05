@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HashtilERP.Shared.Models;
 
 
 namespace HashtilERP.Server.Data
@@ -18,6 +19,8 @@ namespace HashtilERP.Server.Data
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
+        public DbSet<HashtilERP.Shared.Models.KobiPassportModel> KobiPassportModel { get; set; }
+        public DbSet<HashtilERP.Shared.Models.KobiTestTable> KobiTestTable { get; set; }
        
        
     }

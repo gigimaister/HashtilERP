@@ -1,0 +1,40 @@
+﻿@page "/sowing/test"
+@inject IJSRuntime jsRuntime
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-Guy")]
+
+<h3>Test</h3>
+<input type="text" class="form-control" style="width:auto;margin-right:auto"
+       @bind-value="@kobiTable.PassportNum"
+       placeholder="หมายเลขหนังสือเดินทาง" />
+<br/>
+<br/>
+<button class="btn btn-success"
+        type="button"
+        @onclick="@InsertObject">
+    @*ENTER SCAN*@
+    แทรกการสแกน
+</button>
+
+@code {
+
+    KobiTestTable[] KobiTable;
+    KobiTestTable kobiTable = new KobiTestTable();
+    public async void InsertObject()
+    {
+        await SendNewPassport(kobiTable);
+    }
+    protected async Task SendNewPassport(KobiTestTable kt)
+    {
+        await Http.PostAsJsonAsync("api/KobiTestTables", kt);
+    }
+}

@@ -1,5 +1,5 @@
 ﻿{
-   "ContextClassName": "Roles",
+   "ContextClassName": "HashtilERPContext",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
@@ -10,10 +10,10 @@
    "ProjectRootNamespace": "HashtilERP",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
-   "SelectedToBeGenerated": 2,
+   "SelectedToBeGenerated": 0,
    "Tables": [
       {
-         "Name": "[dbo].[AspNetRoles]",
+         "Name": "[db_datareader].[Kobi_Passport]",
          "ObjectType": 0
       }
    ],
