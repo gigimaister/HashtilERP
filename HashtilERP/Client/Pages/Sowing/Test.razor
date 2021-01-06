@@ -1,11 +1,12 @@
 ﻿@page "/sowing/test"
 @inject IJSRuntime jsRuntime
 
-@using Microsoft.AspNetCore.Authorization
+<!--@using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
 @using Syncfusion.Blazor.Grids
 @using HashtilERP.Shared.Models
 @using Microsoft.AspNetCore.SignalR.Client
+
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -13,6 +14,9 @@
 @attribute [Authorize(Roles = "Administrator,Thai-Guy")]
 
 <h3>Test</h3>
+<input type="text" class="form-control" style="width:auto;margin-right:auto" name="k"
+       @bind-value="@kobiTable.Id"
+       placeholder="หมายเลขหนังสือเดินทาง" />
 <input type="text" class="form-control" style="width:auto;margin-right:auto"
        @bind-value="@kobiTable.PassportNum"
        placeholder="หมายเลขหนังสือเดินทาง" />
@@ -20,9 +24,9 @@
 <br/>
 <button class="btn btn-success"
         type="button"
-        @onclick="@InsertObject">
+        @onclick="@InsertObject">-->
     @*ENTER SCAN*@
-    แทรกการสแกน
+    <!--แทรกการสแกน
 </button>
 
 @code {
@@ -36,5 +40,6 @@
     protected async Task SendNewPassport(KobiTestTable kt)
     {
         await Http.PostAsJsonAsync("api/KobiTestTables", kt);
+       
     }
-}
+}-->
