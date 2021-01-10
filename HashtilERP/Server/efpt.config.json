@@ -13,7 +13,11 @@
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
-         "Name": "[db_datareader].[Kobi_Passport]",
+         "Name": "[db_datareader].[K_Passport]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[@PASSPORT]",
          "ObjectType": 0
       }
    ],
