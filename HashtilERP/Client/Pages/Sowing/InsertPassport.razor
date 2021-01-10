@@ -38,7 +38,7 @@
     <div>
         <label>ห้องปลูก</label>
     </div>
-    <SfDropDownList TValue="string" TItem="GrowingRoomNumber" Index=0 Placeholder="" Width="auto" DataSource="@GrowingRoomNumber.Statuses"
+    <SfDropDownList TValue="string" TItem="GrowingRoomNumber"  Placeholder="ห้องปลูก" Width="auto" DataSource="@GrowingRoomNumber.Statuses"
                     PopupHeight="350px" PopupWidth="350px" @bind-Value="@kobipassportModel.GrowingRoom">
         <DropDownListFieldSettings Value="ID" Text="Text">
 
@@ -123,6 +123,8 @@
     private static string ThaiNotFound = "ไม่พบวัตถุ!";
     private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
     private static string ThaiSaved = "บันทึกแล้ว!";
+    private static string NoEnteredPassport = "aaaa!";
+    private static string NotValidValue = "bbbbbb!";
 
     /// <summary>
     /// Modal Props and actions
@@ -209,10 +211,32 @@
     {
         _ = hubConnection.DisposeAsync();
     }
-
+    //POST NEW PASSPORT
     protected async Task SendNewPassport(K_Passport kobiPassport)
     {
-        kobiPassport.PassportNum = Convert.ToInt32(passportInput);
+        //IF NULL
+        if (passportInput == null)
+        {
+            ModalError = NoEnteredPassport;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            return;
+        }
+        try
+        {
+            kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
+        }
+        //IF LONG OR WRONG FORMAT
+        catch(Exception)
+        {
+            ModalError = NotValidValue;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+        }
+
+
+
+
         var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
         var content = await rslt.Content.ReadAsStringAsync();
 
@@ -240,7 +264,7 @@
             ToastContent = ThaiSaved;
             StateHasChanged();
             await ShowToast();
-            passportInput = "";
+
         }
     }
 
