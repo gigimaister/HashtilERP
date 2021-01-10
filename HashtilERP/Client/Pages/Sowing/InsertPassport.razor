@@ -1,0 +1,138 @@
+﻿@page "/sowing/insertpassport"
+@inject IJSRuntime jsRuntime
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Popups
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-Guy")]
+
+<h3>InsertPassport</h3>
+
+@if (isDevice == "Mobile")
+{
+    <button class="btn btn-primary"
+            type="button"
+            @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+        @*ENTER SCAN*@
+        แทรกการสแกน
+    </button>
+}
+
+<input type="number" class="form-control" style="width:auto;margin-right:auto"
+       @bind-value="@kobipassportModel.PassportNum"
+       placeholder="หมายเลขหนังสือเดินทาง" />
+<br/>
+<input type="number" class="form-control" style="width:auto;margin-right:auto"
+       @bind-value="@kobipassportModel.GrowingRoom"
+       placeholder="หมายเลขหนังสือเดินทาง" />
+@*PASSPORT NUMBER*@
+<br/>
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { kobipassportModel.PassportNum=Convert.ToInt32(e); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
+
+}
+
+<button class="btn btn-success"
+        type="button"
+        @onclick="@InsertObject">
+    @*ENTER SCAN*@
+    แทรกการสแกน
+</button>
+<br/>
+
+@*GRID SECTION START HERE*@
+<SfGrid DataSource="@kobiPassportModels">
+    <GridColumns>
+                                                                    @*GrowingRoom*@
+        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
+                                                                    @*PassportNumber*@
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>        
+    </GridColumns>
+</SfGrid>
+
+@code {
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+    public async void InsertObject()
+    {
+        await SendNewPassport(kobipassportModel);
+    }
+
+    K_Passport[] kobiPassportModels;
+    K_Passport kobipassportModel = new K_Passport();
+
+    private HubConnection hubConnection;
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+        .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports");
+        StateHasChanged();
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+    protected async Task SendNewPassport(K_Passport kobiPassport)
+    {
+        
+            await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
+            if (IsConnected) await SendMessage();
+             
+    }
+
+
+
+}
