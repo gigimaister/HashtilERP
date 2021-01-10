@@ -28,12 +28,12 @@
 <input type="number" class="form-control" style="width:auto;margin-right:auto"
        @bind-value="@kobipassportModel.PassportNum"
        placeholder="หมายเลขหนังสือเดินทาง" />
-<br/>
+<br />
 <input type="number" class="form-control" style="width:auto;margin-right:auto"
        @bind-value="@kobipassportModel.GrowingRoom"
        placeholder="หมายเลขหนังสือเดินทาง" />
 @*PASSPORT NUMBER*@
-<br/>
+<br />
 @if (ShowScanBarcode)
 {
 
@@ -49,41 +49,84 @@
     @*ENTER SCAN*@
     แทรกการสแกน
 </button>
-<br/>
+<br />
 
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@kobiPassportModels">
     <GridColumns>
-                                                                    @*GrowingRoom*@
+        @*GrowingRoom*@
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
-                                                                    @*PassportNumber*@
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>        
+        @*PassportNumber*@
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
     </GridColumns>
 </SfGrid>
 
+
+@*Modal dialog for duplicate or not found passport*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header> !שגיאה </Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
+        
+    </DialogButtons>
+</SfDialog>
+
 @code {
+
+    K_Passport[] kobiPassportModels;
+    K_Passport kobipassportModel = new K_Passport();
+    private HubConnection hubConnection;
+
+    /// <summary>
+    /// Modal Props and actions
+    /// </summary>
+    private bool IsVisible { get; set; } = false;
+    private string ModalError { get; set; } = "";
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+
+
     bool ShowScanBarcode { get; set; } = false;
     public int? BarCode { get; set; }
     private string isDevice { get; set; }
     private bool mobile { get; set; }
 
+    //Check if userAgent is Pc Or Mobile
     public async Task FindResponsiveness()
     {
         mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
         isDevice = mobile ? "Mobile" : "Desktop";
 
     }
+
+    //When insertPassport Button clicked!
     public async void InsertObject()
     {
+
         await SendNewPassport(kobipassportModel);
     }
 
-    K_Passport[] kobiPassportModels;
-    K_Passport kobipassportModel = new K_Passport();
 
-    private HubConnection hubConnection;
 
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -127,10 +170,29 @@
 
     protected async Task SendNewPassport(K_Passport kobiPassport)
     {
-        
-            await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
-            if (IsConnected) await SendMessage();
-             
+
+        var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
+        var content = await rslt.Content.ReadAsStringAsync();
+
+        //Http Response Failed On Insert
+        if (!rslt.IsSuccessStatusCode)
+            if(content == "NOTFOUND")
+            {
+                ModalError = "!אובייקט לא קיים במערכת";
+                OpenDialog();
+
+            }
+            else if(content== "DUPLICATE")
+            {
+                ModalError = "!פספורט קיים במערכת";
+                OpenDialog();
+            }
+
+
+
+
+
+
     }
 
 

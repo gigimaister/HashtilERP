@@ -88,11 +88,24 @@ namespace HashtilERP.Server
         [HttpPost]
         public async Task<ActionResult<KPassport>> PostKPassport(KPassport kPassport)
         {
-            var sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
+            Passport sap;
+            try
+            {
+                 sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
+            }
+            //if no passport in SAP
+            catch (Exception)
+            {
+                return StatusCode(500, "NOTFOUND");
+            }
+            
+            
+           
             var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
+            //if duplicate in K_Passport
             if (dup != null)
             {
-                throw new Exception();
+                return StatusCode(500, "DUPLICATE");
             }
 
             kPassport.SowDate = sap.UDateSow;
