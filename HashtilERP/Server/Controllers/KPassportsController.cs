@@ -15,9 +15,7 @@ namespace HashtilERP.Server
     [ApiController]
     public class KPassportsController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-
-        private readonly RoleManager<IdentityRole> _roleManager;
+        
         private readonly HashtilERPContext _context;
 
         public KPassportsController(HashtilERPContext context)
@@ -109,6 +107,7 @@ namespace HashtilERP.Server
             }
 
             kPassport.SowDate = sap.UDateSow;
+            kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = Convert.ToInt32(sap.UQuanProd);
             kPassport.PassportStatus = Status.GrowingRoom;

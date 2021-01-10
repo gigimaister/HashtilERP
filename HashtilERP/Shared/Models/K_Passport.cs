@@ -16,6 +16,7 @@ namespace HashtilERP.Shared.Models
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
         public int? MagashAmount { get; set; }
+        public int? OriginalMagashAmount { get; set; }
         public int? PlantsAmount { get; set; }
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
