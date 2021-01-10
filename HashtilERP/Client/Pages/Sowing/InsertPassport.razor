@@ -4,7 +4,9 @@
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
 @using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
 @using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
 @using HashtilERP.Shared.Models
 @using Microsoft.AspNetCore.SignalR.Client
 
@@ -13,7 +15,7 @@
 
 @attribute [Authorize(Roles = "Administrator,Thai-Guy")]
 
-<h3>InsertPassport</h3>
+<h3>ห้องปลูก</h3>
 
 @if (isDevice == "Mobile")
 {
@@ -25,14 +27,24 @@
     </button>
 }
 
-<input type="number" class="form-control" style="width:auto;margin-right:auto"
-       @bind-value="@kobipassportModel.PassportNum"
-       placeholder="หมายเลขหนังสือเดินทาง" />
+@*//GROWING ROOM*@
+<input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
+        placeholder="หมายเลขหนังสือเดินทาง"
+       @bind=@passportInput
+       />
 <br />
-<input type="number" class="form-control" style="width:auto;margin-right:auto"
-       @bind-value="@kobipassportModel.GrowingRoom"
-       placeholder="หมายเลขหนังสือเดินทาง" />
-@*PASSPORT NUMBER*@
+
+<div dir="ltr" style="margin-left:auto">
+    <div>
+        <label>ห้องปลูก</label>
+    </div>
+    <SfDropDownList TValue="string" TItem="GrowingRoomNumber" Index=0 Placeholder="" Width="auto" DataSource="@GrowingRoomNumber.Statuses"
+                    PopupHeight="350px" PopupWidth="350px" @bind-Value="@kobipassportModel.GrowingRoom">
+        <DropDownListFieldSettings Value="ID" Text="Text">
+
+        </DropDownListFieldSettings>
+    </SfDropDownList>
+</div>
 <br />
 @if (ShowScanBarcode)
 {
@@ -50,13 +62,13 @@
     แทรกการสแกน
 </button>
 <br />
-
+<br />
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@kobiPassportModels">
+<SfGrid DataSource="@kobiPassportModels" AllowGrouping="true" AllowSorting="true">
     <GridColumns>
-        @*GrowingRoom*@
-        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
-        @*PassportNumber*@
+                                                                     @*GrowingRoom*@
+        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
+                                                                     @*PassportNumber*@
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
     </GridColumns>
 </SfGrid>
@@ -67,20 +79,50 @@
     <DialogEvents OnOverlayClick="@OnOverlayclick">
     </DialogEvents>
     <DialogTemplates>
-        <Header> !שגיאה </Header>
+        <Header> ผิดพลาด! </Header>
         <Content> @ModalError </Content>
     </DialogTemplates>
     <DialogButtons>
         <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
-        
+
     </DialogButtons>
 </SfDialog>
 
+@*Toast Component*@
+<SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+<div class="col-lg-12 col-sm-12 col-md-12 center">
+    <div id="toastBtnDefault" style="margin: auto;text-align: center">
+        <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
+        <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
+    </div>
+</div>
+
 @code {
 
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+
+    string passportInput;
     K_Passport[] kobiPassportModels;
     K_Passport kobipassportModel = new K_Passport();
     private HubConnection hubConnection;
+
+    //Thai-String For NotFound And Duplicate
+    private static string ThaiNotFound = "ไม่พบวัตถุ!";
+    private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
+    private static string ThaiSaved = "บันทึกแล้ว!";
 
     /// <summary>
     /// Modal Props and actions
@@ -132,8 +174,8 @@
     {
 
         hubConnection = new HubConnectionBuilder()
-        .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-        .Build();
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {
@@ -170,29 +212,36 @@
 
     protected async Task SendNewPassport(K_Passport kobiPassport)
     {
-
+        kobiPassport.PassportNum = Convert.ToInt32(passportInput);
         var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
         var content = await rslt.Content.ReadAsStringAsync();
 
         //Http Response Failed On Insert
         if (!rslt.IsSuccessStatusCode)
-            if(content == "NOTFOUND")
+        {
+            if (content == "NOTFOUND")
             {
-                ModalError = "!אובייקט לא קיים במערכת";
+                ModalError = ThaiNotFound;
                 OpenDialog();
+                if (IsConnected) await SendMessage();
 
             }
-            else if(content== "DUPLICATE")
+            else if (content == "DUPLICATE")
             {
-                ModalError = "!פספורט קיים במערכת";
+                ModalError = ThaiDuplicate;
                 OpenDialog();
+                if (IsConnected) await SendMessage();
             }
 
+        }
+        else {
 
-
-
-
-
+            if (IsConnected) await SendMessage();
+            ToastContent = ThaiSaved;
+            StateHasChanged();
+            await ShowToast();
+            passportInput = "";
+        }
     }
 
 

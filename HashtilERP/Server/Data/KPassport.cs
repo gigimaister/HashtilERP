@@ -10,7 +10,7 @@ namespace HashtilERP.Data
     {
         public int KPassportId { get; set; }
         public int PassportNum { get; set; }
-        public int? GrowingRoom { get; set; }
+        public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; } = DateTime.Today;
         public int PassportAge 
         {
