@@ -1,0 +1,107 @@
+﻿@page "/inventory/growingrooms"
+@inject IJSRuntime jsRuntime
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter")]
+
+<h3>חדרי הנבטה</h3>
+
+@*GRID SECTION START HERE*@
+<SfGrid DataSource="@GrowPassports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
+    <GridEvents TValue="K_Passport" RowDataBound="RowBound"></GridEvents>
+    <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+
+    <GridColumns>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="שתילים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+    </GridColumns>
+</SfGrid>
+@*//GRID ROW COND FORMAT COLOR STYLE*@
+<style>
+    .date-pass {
+        background-color: orangered;
+    }
+
+    .below-35 {
+        background-color: yellow;
+    }
+
+    .date-out {
+        background-color: greenyellow
+    }
+</style>
+
+@code {
+    K_Passport GrowPassport = new K_Passport();
+    K_Passport[] GrowPassports;
+    private HubConnection hubConnection;
+
+
+    //INITIALIZED
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        GrowPassports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
+        StateHasChanged();
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+    public void RowBound(RowDataBoundEventArgs<K_Passport> args)
+    {
+        if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days)>2)
+        {
+            args.Row.AddClass(new string[] { "date-pass" });
+        }
+        else if (args.Data.SowDate ==DateTime.Today)
+        {
+            args.Row.AddClass(new string[] { "date-out" });
+        }
+        
+    }
+
+}

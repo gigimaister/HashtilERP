@@ -125,6 +125,7 @@
     private static string ThaiSaved = "บันทึกแล้ว!";
     private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
     private static string NotValidValue = "ผิดค่า!";
+    private static string MustEnterGrowingRoomNumber = "คุณต้องเลือกหมายเลขห้องที่กำลังเติบโต!";
 
     /// <summary>
     /// Modal Props and actions
@@ -163,8 +164,19 @@
     //When insertPassport Button clicked!
     public async void InsertObject()
     {
+        if(kobipassportModel.GrowingRoom==null)
+        {
+            ModalError = MustEnterGrowingRoomNumber;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            passportInput = "";
+            return;
+        }
+        else
+        {
+            await SendNewPassport(kobipassportModel);
+        }
 
-        await SendNewPassport(kobipassportModel);
     }
 
 

@@ -26,12 +26,20 @@
         <AuthorizeView Roles="Administrator,Thai-Guy">
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="sowing/insertpassport" Match="NavLinkMatch.All">
-                                                                            @*GrowingRoom*@
+                    @*GrowingRoom*@
                     <span class="oi oi-inbox" aria-hidden="true"></span>&nbsp ห้องที่กำลังเติบโต
                 </NavLink>
             </li>
         </AuthorizeView>
-       
+        <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="inventory/growingrooms" Match="NavLinkMatch.All">
+                    @*GrowingRoom*@
+                    <span class="oi oi-globe" aria-hidden="true"></span>&nbspחדרי הנבטה
+                </NavLink>
+            </li>
+        </AuthorizeView>
+
     </ul>
 </div>
 
