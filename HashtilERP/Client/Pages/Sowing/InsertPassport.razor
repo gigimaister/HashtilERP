@@ -27,7 +27,7 @@
     </button>
 }
 
-@*//GROWING ROOM*@
+@*//Paasport Input*@
 <input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
         placeholder="หมายเลขหนังสือเดินทาง"
        @bind=@passportInput
@@ -123,8 +123,8 @@
     private static string ThaiNotFound = "ไม่พบวัตถุ!";
     private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
     private static string ThaiSaved = "บันทึกแล้ว!";
-    private static string NoEnteredPassport = "aaaa!";
-    private static string NotValidValue = "bbbbbb!";
+    private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
+    private static string NotValidValue = "ผิดค่า!";
 
     /// <summary>
     /// Modal Props and actions
@@ -171,7 +171,7 @@
 
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
 
-
+    //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
 
@@ -200,7 +200,7 @@
 
     protected async Task LoadData()
     {
-        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports");
+        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/"+"1");
         StateHasChanged();
     }
 
@@ -220,6 +220,7 @@
             ModalError = NoEnteredPassport;
             OpenDialog();
             if (IsConnected) await SendMessage();
+            passportInput = "";
             return;
         }
         try
@@ -231,6 +232,7 @@
         {
             ModalError = NotValidValue;
             OpenDialog();
+            passportInput = "";
             if (IsConnected) await SendMessage();
         }
 
@@ -247,6 +249,7 @@
             {
                 ModalError = ThaiNotFound;
                 OpenDialog();
+                passportInput = "";
                 if (IsConnected) await SendMessage();
 
             }
@@ -254,6 +257,7 @@
             {
                 ModalError = ThaiDuplicate;
                 OpenDialog();
+                passportInput = "";
                 if (IsConnected) await SendMessage();
             }
 
@@ -262,6 +266,7 @@
 
             if (IsConnected) await SendMessage();
             ToastContent = ThaiSaved;
+            passportInput = "";
             StateHasChanged();
             await ShowToast();
 

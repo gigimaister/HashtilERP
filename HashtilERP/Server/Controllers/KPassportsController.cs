@@ -25,14 +25,39 @@ namespace HashtilERP.Server
         }
 
         // GET: api/KPassports
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport()
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport()
+        //{
+        //    var usr =  HttpContext.User?.Identity?.Name;
+        //    return await _context.KPassport.ToListAsync();
+
+        //}
+        [HttpGet("multi/{status}")]
+        public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport(string status)
         {
-            var usr =  HttpContext.User?.Identity?.Name;
-            return await _context.KPassport.Where(x=>x.PassportStatus==Status.GrowingRoom)
-                .ToListAsync();
+            var ChosenList = new List<KPassport>();
+            var usr = HttpContext.User?.Identity?.Name;
+            
+            switch (status)
+            {
+                case "1":
+                    ChosenList =  await _context.KPassport.Where(x=>x.PassportStatus==Status.GrowingRoom).ToListAsync();
+                    break;
+                    
+                case "2":
+                    ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK).ToListAsync();
+                    break;
+                case "3":
+                    ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+                    break;
+                    
+            }
+            return ChosenList;
+           
+           
 
         }
+
 
         // GET: api/KPassports/5
         [HttpGet("{id}")]
