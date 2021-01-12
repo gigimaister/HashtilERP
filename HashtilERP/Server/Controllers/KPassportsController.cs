@@ -37,22 +37,31 @@ namespace HashtilERP.Server
         {
             var ChosenList = new List<KPassport>();
             var usr = HttpContext.User?.Identity?.Name;
-            
-            switch (status)
+            try
             {
-                case "1":
-                    ChosenList =  await _context.KPassport.Where(x=>x.PassportStatus==Status.GrowingRoom).ToListAsync();
-                    break;
-                    
-                case "2":
-                    ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK).ToListAsync();
-                    break;
-                case "3":
-                    ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
-                    break;
-                    
+                switch (status)
+                {
+                    case "1":
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom)
+                            .Include(e => e.Passport)
+                            .ThenInclude(b=> b.Oitm)
+                            .ToListAsync();
+                        break;
+
+                    case "2":
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK).ToListAsync();
+                        break;
+                    case "3":
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+                        break;
+
+                }
+                return ChosenList;
             }
-            return ChosenList;
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
            
            
 
@@ -136,6 +145,8 @@ namespace HashtilERP.Server
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = Convert.ToInt32(sap.UQuanProd);
             kPassport.PassportStatus = Status.GrowingRoom;
+            kPassport.ItemCode = sap.UItemCode;
+            kPassport.SapDocEntry = sap.DocEntry;
             _context.KPassport.Add(kPassport);
             try
             {

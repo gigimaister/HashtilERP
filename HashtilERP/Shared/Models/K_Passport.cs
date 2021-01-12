@@ -6,9 +6,9 @@ namespace HashtilERP.Shared.Models
 {
     public class K_Passport
     {
-        public long K_PassportId { get; set; } 
+        public long K_PassportId { get; set; }
 
-       
+        public int? SapDocEntry { get; set; }
         public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; } = DateTime.Today;
@@ -22,7 +22,11 @@ namespace HashtilERP.Shared.Models
         public bool? IsNeedToBeChecked { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportAVG { get; set; }
-       
+        public string ItemCode { get; set; }
+
+        [ForeignKey("SapDocEntry")]
+        public Passport Passport { get; set; }
+
 
 
 

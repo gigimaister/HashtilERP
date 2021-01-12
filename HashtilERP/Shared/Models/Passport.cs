@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace HashtilERP.Shared.Models
 {
     public  class Passport
     {
-        
+        [Key]
         public int DocEntry { get; set; }
         public int? DocNum { get; set; }
         public int? Period { get; set; }
@@ -80,5 +78,8 @@ namespace HashtilERP.Shared.Models
         public string UNote4 { get; set; }
         public string UZanZl { get; set; }
         public string UBatchCheck { get; set; }
+
+        [ForeignKey("UItemCode")]
+        public Oitms Oitm { get; set; }
     }
 }
