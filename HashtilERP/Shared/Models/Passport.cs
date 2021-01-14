@@ -80,6 +80,6 @@ namespace HashtilERP.Shared.Models
         public string UBatchCheck { get; set; }
 
         [ForeignKey("UItemCode")]
-        public Oitms Oitm { get; set; }
+        public Oitm Oitm { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HashtilERP.Shared.Models
 {
-    public class Oitms
+    public class Oitm
     {
         public string ItemCode { get; set; }
         public string ItemName { get; set; }

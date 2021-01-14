@@ -15,7 +15,7 @@ namespace HashtilERP.Shared.Models
         public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
-        public int? MagashAmount { get; set; }
+        public decimal? MagashAmount { get; set; }
         public int? OriginalMagashAmount { get; set; }
         public int? PlantsAmount { get; set; }
         public bool? IsNeedToBeAudit { get; set; }
@@ -23,6 +23,7 @@ namespace HashtilERP.Shared.Models
         public string PassportStatus { get; set; }
         public int? PassportAVG { get; set; }
         public string ItemCode { get; set; }
+        public string UserName { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public Passport Passport { get; set; }

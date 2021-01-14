@@ -15,13 +15,13 @@ namespace HashtilERP.Server
     [ApiController]
     public class KPassportsController : ControllerBase
     {
-        
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly HashtilERPContext _context;
 
-        public KPassportsController(HashtilERPContext context)
+        public KPassportsController(HashtilERPContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
-           
+            _userManager = userManager;
         }
 
         // GET: api/KPassports
@@ -36,7 +36,9 @@ namespace HashtilERP.Server
         public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport(string status)
         {
             var ChosenList = new List<KPassport>();
-            var usr = HttpContext.User?.Identity?.Name;
+            var user = await _userManager.GetUserAsync(User);
+            var email = user.Email;
+            var email2 = user.PhoneNumber;
             try
             {
                 switch (status)
@@ -130,20 +132,21 @@ namespace HashtilERP.Server
             {
                 return StatusCode(500, "NOTFOUND");
             }
-            
-            
-           
+
+
+            var usr = HttpContext.User?.Identity?.Name;
+      
             var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
             //if duplicate in K_Passport
             if (dup != null)
             {
                 return StatusCode(500, "DUPLICATE");
             }
-
+            kPassport.UserName = usr;
             kPassport.SowDate = sap.UDateSow;
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
-            kPassport.PlantsAmount = Convert.ToInt32(sap.UQuanProd);
+            kPassport.PlantsAmount = sap.UQuanProd*1000;
             kPassport.PassportStatus = Status.GrowingRoom;
             kPassport.ItemCode = sap.UItemCode;
             kPassport.SapDocEntry = sap.DocEntry;

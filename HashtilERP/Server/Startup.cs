@@ -12,7 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 using HashtilERP.Data;
-
+using System.Globalization;
+using System.Collections.Generic;
+using Syncfusion.Blazor;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 
 namespace HashtilERP.Server
@@ -73,6 +77,8 @@ namespace HashtilERP.Server
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
+
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -100,6 +106,8 @@ namespace HashtilERP.Server
             app.UseIdentityServer();
             app.UseAuthentication();
             app.UseAuthorization();
+
+           
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,6 +1,7 @@
 ﻿@page "/inventory/growingrooms"
 @inject IJSRuntime jsRuntime
 
+
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
 @using Syncfusion.Blazor.Grids
@@ -32,7 +33,8 @@
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PlantsAmount) HeaderText="שתילים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PlantsAmount) HeaderText="שתילים"  Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 </SfGrid>
 @*//GRID ROW COND FORMAT COLOR STYLE*@
@@ -55,7 +57,7 @@
     public K_Passport[] GrowPassports;
     private HubConnection hubConnection;
 
-   
+
 
 
 

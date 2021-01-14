@@ -30,6 +30,12 @@
     <script>navigator.serviceWorker.register('service-worker.js');</script>
     <script src="_content/ZXingBlazor/lib/barcodereader/zxing.js"></script>
     <script src="_content/ZXingBlazor/lib/barcodereader/barcode.js"></script>
+    <script>
+        window.cultureInfo = {
+            get: () => window.localStorage['BlazorCulture'],
+            set: (value) => window.localStorage['BlazorCulture'] = value
+        };
+    </script>
 </body>
 
 </html>
