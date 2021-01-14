@@ -6,6 +6,7 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Notifications
 @using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
 @using Syncfusion.Blazor.DropDowns
 @using HashtilERP.Shared.Models
 @using Microsoft.AspNetCore.SignalR.Client
@@ -16,6 +17,15 @@
 @attribute [Authorize(Roles = "Administrator,Thai-Guy")]
 
 <h3>ห้องปลูก</h3>
+
+@if (kobiPassportModels == null)
+{
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="กำลังโหลดข้อมูล ..." Type="SpinnerType.Bootstrap4" Visible="true" CssClass="e-customClass"></SfSpinner>
+        </div>
+    </div>
+}
 
 @if (isDevice == "Mobile")
 {
@@ -29,16 +39,15 @@
 
 @*//Paasport Input*@
 <input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
-        placeholder="หมายเลขหนังสือเดินทาง"
-       @bind=@passportInput
-       />
+       placeholder="หมายเลขหนังสือเดินทาง"
+       @bind=@passportInput />
 <br />
 
 <div dir="ltr" style="margin-left:auto">
     <div>
         <label>ห้องปลูก</label>
     </div>
-    <SfDropDownList TValue="string" TItem="GrowingRoomNumber"  Placeholder="ห้องปลูก" Width="auto" DataSource="@GrowingRoomNumber.Statuses"
+    <SfDropDownList TValue="string" TItem="GrowingRoomNumber" Placeholder="ห้องปลูก" Width="auto" DataSource="@GrowingRoomNumber.Statuses"
                     PopupHeight="350px" PopupWidth="350px" @bind-Value="@kobipassportModel.GrowingRoom">
         <DropDownListFieldSettings Value="ID" Text="Text">
 
@@ -66,9 +75,9 @@
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@kobiPassportModels" AllowGrouping="true" AllowSorting="true">
     <GridColumns>
-                                                                     @*GrowingRoom*@
+        @*GrowingRoom*@
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
-                                                                     @*PassportNumber*@
+        @*PassportNumber*@
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
     </GridColumns>
 </SfGrid>
@@ -98,6 +107,13 @@
         <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
     </div>
 </div>
+
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+        
+    }
+</style>
 
 @code {
 
@@ -164,7 +180,7 @@
     //When insertPassport Button clicked!
     public async void InsertObject()
     {
-        if(kobipassportModel.GrowingRoom==null)
+        if (kobipassportModel.GrowingRoom == null)
         {
             ModalError = MustEnterGrowingRoomNumber;
             OpenDialog();
@@ -212,7 +228,7 @@
 
     protected async Task LoadData()
     {
-        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/"+"1");
+        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
         StateHasChanged();
     }
 
@@ -240,7 +256,7 @@
             kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
         }
         //IF LONG OR WRONG FORMAT
-        catch(Exception)
+        catch (Exception)
         {
             ModalError = NotValidValue;
             OpenDialog();
@@ -274,7 +290,8 @@
             }
 
         }
-        else {
+        else
+        {
 
             if (IsConnected) await SendMessage();
             ToastContent = ThaiSaved;
@@ -283,6 +300,8 @@
             await ShowToast();
 
         }
+
+
     }
 
 

@@ -146,6 +146,8 @@ namespace HashtilERP.Server
             }
             kPassport.UserName = usr;
             kPassport.SowDate = sap.UDateSow;
+            kPassport.DateEnd = sap.UDateEnd;
+            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = sap.UQuanProd*1000;

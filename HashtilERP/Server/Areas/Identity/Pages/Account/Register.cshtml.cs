@@ -69,6 +69,17 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
             [Required]
             [Display(Name = "פלאפון")]
             public string PhoneNum { get; set; }
+
+            [Required]
+            [Display(Name = "שם תצוגה")]
+            public string SreenName { get; set; }
+
+            [Required]
+            [Display(Name = "מחלקה")]
+            public string Department { get; set; }
+            
+            [Display(Name = "חממה")]
+            public string Hamama { get; set; }
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -83,7 +94,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email ,PhoneNumber = Input.PhoneNum};
+                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email ,PhoneNumber = Input.PhoneNum,ScreenName = Input.SreenName,DepartmentName=Input.Department,Hamama=Input.Hamama};
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

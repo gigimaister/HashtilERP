@@ -18,25 +18,61 @@
 
 <h3>חדרי הנבטה</h3>
 
-
+@if (GrowPassports == null)
+{
+<div class="col-sm">
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="true"></SfSpinner>
+    </div>
+</div> 
+}
 
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@GrowPassports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
     <GridEvents TValue="K_Passport" RowDataBound="RowBound"></GridEvents>
     <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+    <GridTemplates>
+        <DetailTemplate>
+            @{
+                var passport = (context as K_Passport);
+                <table class="detailtable" dir="rtl">
 
+                    <tbody>
+                        @foreach (var cx in passport.Passport.Passprods)
+                        {
+                            <tr>
+                                <td>
+                                    <span style="font-weight: 500;">לקוח:</span> @cx.UCustName
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+        </DetailTemplate>
+    </GridTemplates>
     <GridColumns>
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.GrowingDays) HeaderText="ימי גידול" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PlantsAmount) HeaderText="שתילים"  Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PlantsAmount) HeaderText="שתילים" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 </SfGrid>
+@*Spinner Style*@
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+    }
+</style>
+
 @*//GRID ROW COND FORMAT COLOR STYLE*@
 <style>
     .date-pass {
@@ -110,13 +146,14 @@
         _ = hubConnection.DisposeAsync();
     }
 
+    //ROW COLOR FORMAT
     public void RowBound(RowDataBoundEventArgs<K_Passport> args)
     {
-        if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days) > 2)
+        if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days) > Convert.ToInt32(args.Data.Passport.UNights))
         {
             args.Row.AddClass(new string[] { "date-pass" });
         }
-        else if (args.Data.SowDate == DateTime.Today)
+        else if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days) == Convert.ToInt32(args.Data.Passport.UNights))
         {
             args.Row.AddClass(new string[] { "date-out" });
         }

@@ -15,6 +15,8 @@ namespace HashtilERP.Data
         public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; }
+        public DateTime? DateEnd { get; set; }
+        public int? GrowingDays { get; set; }
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
         public int? MagashAmount { get; set; }

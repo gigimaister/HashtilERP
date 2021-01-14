@@ -12,7 +12,9 @@ namespace HashtilERP.Shared.Models
         public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; } = DateTime.Today;
-        public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
+        public DateTime? DateEnd { get; set; } = DateTime.Today;
+        public int? GrowingDays { get; set; }
+        public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);      
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
         public decimal? MagashAmount { get; set; }
@@ -28,7 +30,7 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("SapDocEntry")]
         public Passport Passport { get; set; }
 
-
+        
 
 
     }
