@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -81,5 +82,9 @@ namespace HashtilERP.Shared.Models
 
         [ForeignKey("UItemCode")]
         public Oitm Oitm { get; set; }
+
+
+        [ForeignKey("DocEntry")]
+        public List<Passprod> Passprods { get; set; }
     }
 }

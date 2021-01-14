@@ -11,6 +11,7 @@ namespace HashtilERP.Data
     {
         public int KPassportId { get; set; }
         public int? SapDocEntry { get; set; }
+
         public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; }
@@ -28,6 +29,5 @@ namespace HashtilERP.Data
 
         [ForeignKey("SapDocEntry")]
         public Passport Passport { get; set; }
-        
     }
 }

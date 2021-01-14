@@ -45,8 +45,10 @@ namespace HashtilERP.Server
                 {
                     case "1":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom)
-                            .Include(e => e.Passport)
-                            .ThenInclude(b=> b.Oitm)
+                           .Include(e=>e.Passport)
+                           .ThenInclude(e=>e.Passprods)
+                           .Include(e=>e.Passport)
+                           .ThenInclude(e=>e.Oitm)
                             .ToListAsync();
                         break;
 

@@ -85,5 +85,7 @@ namespace HashtilERP.Data
         [ForeignKey("UItemCode")]
         public Oitm Oitm { get; set; }
 
+        [ForeignKey("DocEntry")]        
+        public List<Passprod> Passprods { get; set; }
     }
 }

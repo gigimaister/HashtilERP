@@ -21,10 +21,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[@PASSPROD]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[OITM]",
          "ObjectType": 0
       }
    ],
+   "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDbContextSplitting": false,
    "UseFluentApiOnly": true,
