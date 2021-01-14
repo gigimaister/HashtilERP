@@ -17,6 +17,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[db_datareader].[K_PassportInsertAudit]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[@PASSPORT]",
          "ObjectType": 0
       },

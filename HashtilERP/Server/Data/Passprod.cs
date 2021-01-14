@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
@@ -27,7 +26,5 @@ namespace HashtilERP.Data
         public decimal? UPqtyOpn { get; set; }
         public decimal? UQuaOpen { get; set; }
         public string UCustSeed { get; set; }
-
-        
     }
 }
