@@ -136,15 +136,16 @@ namespace HashtilERP.Server
             }
 
 
-            var usr = HttpContext.User?.Identity?.Name;
-      
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+
             var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
             //if duplicate in K_Passport
             if (dup != null)
             {
                 return StatusCode(500, "DUPLICATE");
             }
-            kPassport.UserName = usr;
+            kPassport.UserName = screenName;
             kPassport.SowDate = sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
             kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
