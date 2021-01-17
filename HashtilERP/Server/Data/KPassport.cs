@@ -13,8 +13,8 @@ namespace HashtilERP.Data
         public int? SapDocEntry { get; set; }
         public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
-        public DateTime? SowDate { get; set; }
-        public DateTime? DateEnd { get; set; }
+        public DateTime? SowDate { get; set; } = DateTime.Today;
+        public DateTime? DateEnd { get; set; } = DateTime.Today;
         public int? GrowingDays { get; set; }
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
