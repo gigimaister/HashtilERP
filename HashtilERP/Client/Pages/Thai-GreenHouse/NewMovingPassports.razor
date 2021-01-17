@@ -1,0 +1,23 @@
+﻿@page "/thai-greenhouse/newmovingpassports"
+@inject IJSRuntime jsRuntime
+
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-GreenHouse")]
+
+<h3>ใหม่หรือปรับปรุง</h3>
+
+@code {
+
+}
