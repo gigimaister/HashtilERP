@@ -30,7 +30,9 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("SapDocEntry")]
         public Passport Passport { get; set; }
 
-        
+        [ForeignKey("KPassportId")]
+        public KPassportInsertAudit KPassportInsertAudit { get; set; }
+
 
 
     }

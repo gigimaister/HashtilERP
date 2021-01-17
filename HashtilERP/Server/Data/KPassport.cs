@@ -29,5 +29,8 @@ namespace HashtilERP.Data
         public string UserName { get; set; }
         [ForeignKey("SapDocEntry")]
         public Passport Passport { get; set; }
+
+        [ForeignKey("KPassportId")]
+        public KPassportInsertAudit KPassportInsertAudit { get; set; }
     }
 }

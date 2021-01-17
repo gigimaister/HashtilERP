@@ -16,7 +16,7 @@
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter")]
 
-<h3>חדרי הנבטה</h3>
+<h3 style="margin-left: 50rem">חדרי הנבטה</h3>
 
 @if (GrowPassports == null)
 {
@@ -33,25 +33,38 @@
     <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
     <GridTemplates>
         <DetailTemplate>
-            @{
-                var passport = (context as K_Passport);
-                <table class="detailtable" dir="rtl">
+            @{ var passport = (context as K_Passport);
 
-                    <tbody>
-                        @foreach (var cx in passport.Passport.Passprods)
-                        {
-                            <tr>
-                                <td>
-                                    <span style="font-weight: 500;">לקוח:</span> @cx.UCustName
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="card mb-3"  style="width:15rem" dir="rtl">
+                    <div class="card-header" style="text-align:right">
+                        הוכנסה ע"י: @passport.KPassportInsertAudit.UserName
+                    </div>
+                    <div class="card-body" style="text-align:right" >
+                        <h5 class="card-title">ב:@passport.KPassportInsertAudit.Date</h5>
+                    </div>                   
+                </div>
+
             }
+       
+                @{
+                    var passport2 = (context as K_Passport);
+                    <table class="detailtable" dir="rtl">
 
-        </DetailTemplate>
-    </GridTemplates>
+                        <tbody>
+                            @foreach (var cx in passport2.Passport.Passprods)
+                            {
+                                <tr>
+                                    <td>
+                                        <span style="font-weight: 500;text-align:right;">לקוח:</span> @cx.UCustName
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </DetailTemplate>
+</GridTemplates>
     <GridColumns>
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
