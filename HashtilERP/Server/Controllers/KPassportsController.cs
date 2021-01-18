@@ -33,12 +33,11 @@ namespace HashtilERP.Server
 
         //}
         [HttpGet("multi/{status}")]
-        public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport(string status)
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetKPassport(string status)
         {
-            var ChosenList = new List<KPassport>();
+            var ChosenList = new List<K_Passport>();
             var user = await _userManager.GetUserAsync(User);
-            var email = user.Email;
-            var email2 = user.PhoneNumber;
+           
             try
             {
                 switch (status)
@@ -71,11 +70,25 @@ namespace HashtilERP.Server
            
 
         }
+        //Thai Green Before Update Passport Hamama And or Gamlon
+        [HttpGet("Thai/GreenHouse/{id}")]
+        public async Task<ActionResult<K_Passport>> GetThaiKPassport(int id)
+        {
+
+            var kPassport = await _context.KPassport.Where(x=>x.PassportNum==id).FirstOrDefaultAsync();
+
+            if (kPassport == null)
+            {
+                return NotFound();
+            }
+
+            return kPassport;
+        }
 
 
         // GET: api/KPassports/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<KPassport>> GetKPassport(int id)
+        public async Task<ActionResult<K_Passport>> GetKPassport(int id)
         {
 
             var kPassport = await _context.KPassport.FindAsync(id);
@@ -88,12 +101,50 @@ namespace HashtilERP.Server
             return kPassport;
         }
 
+
+        // PUT: /Thai/Update/Passport/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("Thai/Passport/Update/{id}")]
+        public async Task<IActionResult> PutThaiKPassport(int id, K_Passport kPassport)
+        {
+            if (id != kPassport.K_PassportId)
+            {
+                return BadRequest();
+            }
+
+
+            _context.Entry(kPassport).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                if (!KPassportExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Ok();
+        }
+
+
+
+
+
         // PUT: api/KPassports/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutKPassport(int id, KPassport kPassport)
+        public async Task<IActionResult> PutKPassport(int id, K_Passport kPassport)
         {
-            if (id != kPassport.KPassportId)
+            if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
             }
@@ -123,7 +174,7 @@ namespace HashtilERP.Server
         // POST: api/KPassports
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<KPassport>> PostKPassport(KPassport kPassport)
+        public async Task<ActionResult<K_Passport>> PostKPassport(K_Passport kPassport)
         {
             Passport sap;
             try
@@ -161,19 +212,19 @@ namespace HashtilERP.Server
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch (Exception e)
             {
-                if (KPassportExists(kPassport.KPassportId))
+                if (KPassportExists(kPassport.K_PassportId))
                 {
                     return Conflict();
                 }
                 else
                 {
-                    throw;
+                    throw new Exception(e.Message);
                 }
             }
 
-            return CreatedAtAction("GetKPassport", new { id = kPassport.KPassportId }, kPassport);
+            return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
         }
 
         // DELETE: api/KPassports/5
@@ -194,7 +245,52 @@ namespace HashtilERP.Server
 
         private bool KPassportExists(int id)
         {
-            return _context.KPassport.Any(e => e.KPassportId == id);
+            return _context.KPassport.Any(e => e.K_PassportId == id);
         }
+
+
+        //[HttpPut("Thai/Passport/Update/{id}")]
+        //public async Task<IActionResult> PutThai2KPassport(int id, K_Passport kPassport)
+        //{
+        //    try
+        //    {
+        //        var passport = await _context.KPassport.Where(x => x.K_PassportId == id).SingleOrDefaultAsync();
+        //    }
+
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(500, "NOTFOUND");
+        //    }
+
+        //    if (id != kPassport.K_PassportId)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    _context.Entry(kPassport).State = EntityState.Modified;
+
+        //    try
+        //    {
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!KPassportExists(id))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+
+        //    return NoContent();
+        //}
     }
+
+
+
+
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace HashtilERP.Shared.Models
 {
     public class Oitm
     {
+        [Key]
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string FrgnName { get; set; }

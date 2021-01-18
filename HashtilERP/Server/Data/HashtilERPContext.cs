@@ -18,9 +18,10 @@ namespace HashtilERP.Data
         {
         }
 
-        public virtual DbSet<KPassport> KPassport { get; set; }
+        public virtual DbSet<K_Passport> KPassport { get; set; }
         public virtual DbSet<KPassportInsertAudit> KPassportInsertAudit { get; set; }
         public virtual DbSet<Oitm> Oitm { get; set; }
+        public virtual DbSet<Owor> Owor { get; set; }
         public virtual DbSet<Passport> Passport { get; set; }
         public virtual DbSet<Passprod> Passprod { get; set; }
 
@@ -28,32 +29,39 @@ namespace HashtilERP.Data
         {
             modelBuilder.HasDefaultSchema("db_datareader")
                 .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP850_CI_AS");
-            modelBuilder.Entity<KPassport>()
-        .HasOne(p => p.Passport)
-        .WithOne();
+
+            modelBuilder.Entity<K_Passport>()
+          .HasOne(x => x.Passport)
+          .WithOne();
+          
+
+            modelBuilder.Entity<K_Passport>()
+          .HasOne(X=>X.KPassportInsertAudit)
+          .WithOne();
+
 
 
 
             modelBuilder.Entity<Passport>()
-         .HasMany(x => x.Passprods)
-         .WithOne()
-         .HasPrincipalKey(c => c.DocEntry);
+        .HasMany(x => x.Passprods)
+        .WithOne()
+        .HasPrincipalKey(c => c.DocEntry)
+        .HasForeignKey(e=>e.DocEntry);
+            
 
             modelBuilder.Entity<Passport>()
            .HasOne(x => x.Oitm)
            .WithOne();
 
 
-            modelBuilder.Entity<Passport>()
-                    .Navigation(b => b.Passprods)
-                        .UsePropertyAccessMode(PropertyAccessMode.Property);
-
-
-            modelBuilder.Entity<KPassport>(entity =>
+          
+            modelBuilder.Entity<K_Passport>(entity =>
+            
+           
             {
                 entity.ToTable("K_Passport");
 
-                entity.Property(e => e.KPassportId).HasColumnName("K_PassportId");
+                entity.Property(e => e.K_PassportId).HasColumnName("K_PassportId").ValueGeneratedOnAdd();
 
                 entity.Property(e => e.DateEnd).HasColumnType("date");
 
@@ -1233,10 +1241,131 @@ namespace HashtilERP.Data
                     .IsFixedLength(true);
             });
 
+            modelBuilder.Entity<Owor>(entity =>
+            {
+                entity.HasKey(e => e.DocEntry)
+                    .HasName("OWOR_PRIMARY");
+
+                entity.ToTable("OWOR", "dbo");
+
+                entity.HasIndex(e => new { e.DocNum, e.Pindicator }, "OWOR_NUM")
+                    .IsUnique();
+
+                entity.Property(e => e.DocEntry).ValueGeneratedNever();
+
+                entity.Property(e => e.CardCode).HasMaxLength(15);
+
+                entity.Property(e => e.CloseDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CmpltQty).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.Comments).HasMaxLength(254);
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.DueDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ItemCode).HasMaxLength(20);
+
+                entity.Property(e => e.JrnlMemo).HasMaxLength(50);
+
+                entity.Property(e => e.OcrCode).HasMaxLength(8);
+
+                entity.Property(e => e.OcrCode2).HasMaxLength(8);
+
+                entity.Property(e => e.OcrCode3).HasMaxLength(8);
+
+                entity.Property(e => e.OcrCode4).HasMaxLength(8);
+
+                entity.Property(e => e.OcrCode5).HasMaxLength(8);
+
+                entity.Property(e => e.OriginType)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.PickRmrk).HasMaxLength(254);
+
+                entity.Property(e => e.Pindicator)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .HasColumnName("PIndicator");
+
+                entity.Property(e => e.PlannedQty).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.PostDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Printed)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Project).HasMaxLength(20);
+
+                entity.Property(e => e.RjctQty).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.RlsDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SeriesStr).HasMaxLength(3);
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.SubStr).HasMaxLength(3);
+
+                entity.Property(e => e.SupplCode).HasMaxLength(254);
+
+                entity.Property(e => e.Type)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.UAltPath)
+                    .HasMaxLength(254)
+                    .HasColumnName("U_AltPath");
+
+                entity.Property(e => e.UCustSeed)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("U_CustSeed")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.UPassNum).HasColumnName("U_PassNum");
+
+                entity.Property(e => e.USedrRprt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("U_SedrRprt")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.USlineNum).HasColumnName("U_SLineNum");
+
+                entity.Property(e => e.UYeshZraiim)
+                    .HasMaxLength(10)
+                    .HasColumnName("U_YeshZraiim");
+
+                entity.Property(e => e.UYeshZraim)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("U_YeshZraim")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Uom).HasMaxLength(100);
+
+                entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Warehouse).HasMaxLength(8);
+
+                entity.Property(e => e.Wor1count).HasColumnName("WOR1Count");
+            });
+
             modelBuilder.Entity<Passport>(entity =>
             {
                 entity.HasKey(e => e.DocEntry)
                     .HasName("KPASSPORT_PR");
+
 
                 entity.ToTable("@PASSPORT", "dbo");
 
@@ -1485,7 +1614,7 @@ namespace HashtilERP.Data
 
             modelBuilder.Entity<Passprod>(entity =>
             {
-                entity.HasKey(e => new { e.DocEntry, e.LineId })
+                entity.HasKey(e =>e.DocEntry)
                     .HasName("KPASSPROD_PR");
 
                 entity.ToTable("@PASSPROD", "dbo");

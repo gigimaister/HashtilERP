@@ -11,6 +11,7 @@ namespace HashtilERP.Data
     {
         [Key]
         public int DocEntry { get; set; }
+        
         public int LineId { get; set; }
         public int? VisOrder { get; set; }
         public string Object { get; set; }

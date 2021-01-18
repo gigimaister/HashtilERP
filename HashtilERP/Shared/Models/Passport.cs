@@ -81,10 +81,10 @@ namespace HashtilERP.Shared.Models
         public string UBatchCheck { get; set; }
 
         [ForeignKey("UItemCode")]
-        public Oitm Oitm { get; set; }
+        public virtual Oitm Oitm { get; set; }
 
 
         [ForeignKey("DocEntry")]
-        public List<Passprod> Passprods { get; set; }
+        public virtual List<Passprod> Passprods { get; set; }
     }
 }

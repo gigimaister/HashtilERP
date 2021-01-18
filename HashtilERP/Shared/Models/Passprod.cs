@@ -12,7 +12,7 @@ namespace HashtilERP.Shared.Models
     {
         [Key]
         public int DocEntry { get; set; }
-        [Key]
+       
         public int LineId { get; set; }
         public int? VisOrder { get; set; }
         public string Object { get; set; }

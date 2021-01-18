@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HashtilERP.Shared.Models
 {
     public class K_Passport
     {
+        [Key]
         public long K_PassportId { get; set; }
 
         public int? SapDocEntry { get; set; }
-        public int PassportNum { get; set; }
+        public int? PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; } = DateTime.Today;
         public DateTime? DateEnd { get; set; } = DateTime.Today;
@@ -28,10 +30,10 @@ namespace HashtilERP.Shared.Models
         public string UserName { get; set; }
 
         [ForeignKey("SapDocEntry")]
-        public Passport Passport { get; set; }
+        public virtual Passport Passport { get; set; }
 
-        [ForeignKey("KPassportId")]
-        public KPassportInsertAudit KPassportInsertAudit { get; set; }
+        [ForeignKey("K_PassportId")]
+        public virtual KPassportInsertAudit KPassportInsertAudit { get; set; }
 
 
 

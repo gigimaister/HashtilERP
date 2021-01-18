@@ -1,0 +1,309 @@
+﻿@page "/thai-greenhouse/newmovingpassports"
+@inject IJSRuntime jsRuntime
+
+@using Syncfusion.Blazor.Data
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-GreenHouse")]
+
+<h3>ใหม่หรือปรับปรุง</h3>
+
+
+
+@if (isDevice == "Mobile")
+{
+    <button class="btn btn-primary"
+            type="button"
+            @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+        @*ENTER SCAN*@
+        แทรกการสแกน
+    </button>
+}
+
+@*//Paasport Input*@
+<input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
+       placeholder="หมายเลขหนังสือเดินทาง"
+       @bind=@passportInput />
+<br />
+
+<div class="card mb-3" style="width:15rem;margin-right:auto">
+
+    <div class="card-header" style="text-align:left">
+        @*Select Hamama*@
+        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" Placeholder="เลือกเรือนกระจก" AllowFiltering="true"
+                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas"
+                        @bind-Value="@Hamama">
+            <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string" ValueChange="ChangeCountry"></DropDownListEvents>
+            <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
+        </SfDropDownList>
+    </div>
+    <div class="card-header">
+        @*Select a number*@
+        <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlons"
+                        AllowFiltering="true" @bind-Value="@Gamlon" Placeholder="เลือกหมายเลข" Query="@StateQuery"
+                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.gamlons">
+            <DropDownListEvents TItem="GreenHouseToGamlon.Gamlons" TValue="string" ValueChange="ChangeState"></DropDownListEvents>
+            <DropDownListFieldSettings Text="GamlonName" Value="GamlonName"></DropDownListFieldSettings>
+        </SfDropDownList>
+    </div>
+
+</div>
+<br />
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { kobipassportModel.PassportNum=Convert.ToInt32(e); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
+
+}
+
+<button class="btn btn-success"
+        type="button"
+        @onclick="@InsertObject">
+    @*ENTER SCAN*@
+    แทรกการสแกน
+</button>
+<br />
+<br />
+
+@*Modal dialog for duplicate or not found passport*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header> ผิดพลาด! </Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+
+@*Toast Component*@
+<SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+<div class="col-lg-12 col-sm-12 col-md-12 center">
+    <div id="toastBtnDefault" style="margin: auto;text-align: center">
+        <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
+        <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
+    </div>
+</div>
+
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+    }
+</style>
+@code {
+    public K_Passport K_Passport = new K_Passport();
+
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+
+    string passportInput,Hamama,Gamlon;
+    string status = Status.WaitingForOK;
+    K_Passport kobipassportModel = new K_Passport();
+    private HubConnection hubConnection;
+
+    private static string WrongGreenHouseValue = "ค่าเรือนกระจกผิด!";
+    private static string ThaiNotFound = "ไม่พบวัตถุ!";
+    private static string ThaiSaved = "บันทึกแล้ว!";
+    private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
+    private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
+    private static string ThaiPassportNotExist = "ไม่มีหนังสือเดินทาง!";
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    public bool IsConnected =>
+      hubConnection.State == HubConnectionState.Connected;
+
+    /// <summary>
+    /// Modal Props and actions
+    /// </summary>
+    private bool IsVisible { get; set; } = false;
+    private string ModalError { get; set; } = "";
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+
+
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+
+
+    //INIT
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+
+    }
+
+
+
+
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+
+    //When insertPassport Button clicked!
+    public async void InsertObject()
+    {
+
+        if (passportInput == null)
+        {
+            ModalError = NoEnteredPassport;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            passportInput = "";
+            return;
+        }
+        else if (Hamama == null || Gamlon == null)
+        {
+            ModalError = WrongGreenHouseValue;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            passportInput = "";
+            return;
+        }
+        else
+        {
+            try
+            {
+                kobipassportModel = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
+            }
+            catch (Exception)
+            {
+                ModalError = ThaiPassportNotExist;
+                OpenDialog();
+                if (IsConnected) await SendMessage();
+                passportInput = "";
+                return;
+            }
+
+
+            kobipassportModel.Hamama = Hamama;
+            kobipassportModel.Gamlon = Gamlon;
+
+            if (kobipassportModel.PassportStatus.Trim() == Status.GrowingRoom)
+            {
+                kobipassportModel.PassportStatus = status;
+            }
+
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{kobipassportModel.K_PassportId}", kobipassportModel);
+            var content = await rslt.Content.ReadAsStringAsync();
+
+            //Http Response Failed On Insert
+            if (!rslt.IsSuccessStatusCode)
+            {
+                if (content == "NOTFOUND")
+                {
+                    ModalError = ThaiNotFound;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+
+                }
+                else if (content == "DUPLICATE")
+                {
+                    ModalError = ThaiDuplicate;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+                }
+
+
+            }
+            else
+            {
+
+
+                if (IsConnected) await SendMessage();
+                ToastContent = ThaiSaved;
+                passportInput = "";
+                StateHasChanged();
+                await ShowToast();
+
+            }
+
+
+        }
+    }
+
+
+    //2 DROPLIST HAMAMA AND GAMLON SETTINGS
+    public bool EnableStateDropDown = false;
+    public bool EnableCitytDropDown = false;
+    public string StateValue { get; set; } = null;
+    public Query StateQuery { get; set; } = null;
+    public string CityValue { get; set; } = null;
+    public Query CityQuery { get; set; } = null;
+
+    public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
+    {
+        this.EnableStateDropDown = true;
+        this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
+        this.StateValue = null;
+        this.CityValue = null;
+    }
+
+    public void ChangeState(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Gamlons> args)
+    {
+        this.EnableCitytDropDown = true;
+        this.CityQuery = new Query().Where(new WhereFilter() { Field = "GamlonId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
+        this.CityValue = null;
+    }
+    //END DROPDOWN SETTINGS
+
+}

@@ -81,10 +81,11 @@ namespace HashtilERP.Data
         public string UNote4 { get; set; }
         public string UZanZl { get; set; }
         public string UBatchCheck { get; set; }
-        [ForeignKey("UItemCode")]
-        public Oitm Oitm { get; set; }
 
         [ForeignKey("DocEntry")]
-        public List<Passprod> Passprods { get; set; }
+        public virtual List<Passprod> Passprods { get; set; }
+
+        [ForeignKey("UItemCode")]
+        public virtual  Oitm  Oitm { get; set; }
     }
 }
