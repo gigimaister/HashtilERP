@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HashtilERP.Data;
@@ -24,14 +23,9 @@ namespace HashtilERP.Server
             _userManager = userManager;
         }
 
-        // GET: api/KPassports
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<KPassport>>> GetKPassport()
-        //{
-        //    var usr =  HttpContext.User?.Identity?.Name;
-        //    return await _context.KPassport.ToListAsync();
-
-        //}
+        
+        #region GET
+        //GET WITH PASSPORT STATUS CONDITION
         [HttpGet("multi/{status}")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetKPassport(string status)
         {
@@ -53,8 +47,15 @@ namespace HashtilERP.Server
                         break;
 
                     case "2":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK).ToListAsync();
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .ToListAsync();
                         break;
+
                     case "3":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
                         break;
@@ -70,7 +71,9 @@ namespace HashtilERP.Server
            
 
         }
-        //Thai Green Before Update Passport Hamama And or Gamlon
+
+
+        //GET FOR OBJECT RETURN TO RAZOR PAGE
         [HttpGet("Thai/GreenHouse/{id}")]
         public async Task<ActionResult<K_Passport>> GetThaiKPassport(int id)
         {
@@ -101,9 +104,11 @@ namespace HashtilERP.Server
             return kPassport;
         }
 
+        #endregion
 
-        // PUT: /Thai/Update/Passport/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        #region PUT
+        // PUT: GREENHOUSE THAI HAMAMA AND GAMLON UPDATE       
         [HttpPut("Thai/Passport/Update/{id}")]
         public async Task<IActionResult> PutThaiKPassport(int id, K_Passport kPassport)
         {
@@ -135,12 +140,41 @@ namespace HashtilERP.Server
             return Ok();
         }
 
+        // PUT: GREENHOUSE MANAGER STATUS TO CONFIRMED
+        [HttpPut("GreenManager/Passport/UpdateStatus/{id}")]
+        public async Task<IActionResult> PutGreenManagerKPassportStatus(int id, K_Passport kPassport)
+        {
+            if (id != kPassport.K_PassportId)
+            {
+                return BadRequest();
+            }
 
 
+            _context.Entry(kPassport).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                if (!KPassportExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return Ok();
+        }
 
 
         // PUT: api/KPassports/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //PUT DEFAULT
         [HttpPut("{id}")]
         public async Task<IActionResult> PutKPassport(int id, K_Passport kPassport)
         {
@@ -170,7 +204,9 @@ namespace HashtilERP.Server
 
             return NoContent();
         }
+        #endregion
 
+        #region POST
         // POST: api/KPassports
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -226,6 +262,10 @@ namespace HashtilERP.Server
 
             return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
         }
+        #endregion
+
+
+
 
         // DELETE: api/KPassports/5
         [HttpDelete("{id}")]
@@ -249,45 +289,7 @@ namespace HashtilERP.Server
         }
 
 
-        //[HttpPut("Thai/Passport/Update/{id}")]
-        //public async Task<IActionResult> PutThai2KPassport(int id, K_Passport kPassport)
-        //{
-        //    try
-        //    {
-        //        var passport = await _context.KPassport.Where(x => x.K_PassportId == id).SingleOrDefaultAsync();
-        //    }
-
-        //    catch (Exception)
-        //    {
-        //        return StatusCode(500, "NOTFOUND");
-        //    }
-
-        //    if (id != kPassport.K_PassportId)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    _context.Entry(kPassport).State = EntityState.Modified;
-
-        //    try
-        //    {
-        //        await _context.SaveChangesAsync();
-        //    }
-
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!KPassportExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-
-        //    return NoContent();
-        //}
+        
     }
 
 
