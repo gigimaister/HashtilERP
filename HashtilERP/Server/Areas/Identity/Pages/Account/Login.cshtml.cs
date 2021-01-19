@@ -95,6 +95,10 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                 {
                     returnUrl = "~/sowing/insertpassport";
                 }
+                else if(await _userManager.IsInRoleAsync(user, "Thai-GreenHouse"))
+                {
+                    returnUrl = "~/Thai-GreenHouse/NewMovingPassports";
+                }
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
