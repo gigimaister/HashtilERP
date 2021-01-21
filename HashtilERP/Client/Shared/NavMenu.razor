@@ -39,6 +39,30 @@
                 </NavLink>
             </li>
         </AuthorizeView>
+        <AuthorizeView Roles="Administrator,Thai-GreenHouse">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="thai-greenhouse/newmovingpassports" Match="NavLinkMatch.All">
+                    @*GrowingRoom*@
+                    <span class="oi oi-yen" aria-hidden="true"></span>&nbsp ใหม่หรือปรับปรุง
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,AuditAvgCounter">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="inventory/WaitingForConfirmation" Match="NavLinkMatch.All">
+                    @*GrowingRoom*@
+                    <span class="oi oi-command" aria-hidden="true"></span>&nbsp ממתינים לאישור
+                </NavLink>
+            </li>
+        </AuthorizeView>
+        <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All">
+                    @*GrowingRoom*@
+                    <span class="oi oi-grid-three-up" aria-hidden="true"></span>&nbsp מצאי
+                </NavLink>
+            </li>
+        </AuthorizeView>
 
     </ul>
 </div>

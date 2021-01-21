@@ -14,9 +14,9 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter")]
+@attribute [Authorize(Roles = "Administrator,Manager-GreenHouse,AuditAvgCounter")]
 
-<h3 style="margin-left: 50rem">ממתינים לאישור</h3>
+<h3 style="text-align:center">ממתינים לאישור</h3>
 
 @if (K_Passports == null)
 {
@@ -42,15 +42,15 @@
                 </GridCommandColumn>
             </GridCommandColumns>
         </GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חממה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמלון" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חממה" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמלון" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
 
 
     </GridColumns>

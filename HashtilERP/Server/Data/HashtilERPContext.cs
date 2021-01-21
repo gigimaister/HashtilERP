@@ -1614,7 +1614,7 @@ namespace HashtilERP.Data
 
             modelBuilder.Entity<Passprod>(entity =>
             {
-                entity.HasKey(e =>e.DocEntry)
+                entity.HasKey(e => new { e.DocEntry, e.LineId })
                     .HasName("KPASSPROD_PR");
 
                 entity.ToTable("@PASSPROD", "dbo");

@@ -30,6 +30,7 @@ namespace HashtilERP.Data
         public string UserName { get; set; }
         public DateTime? DateEnd { get; set; }
         public int? GrowingDays { get; set; }
+        public string PassportCondition { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport  Passport { get; set; }

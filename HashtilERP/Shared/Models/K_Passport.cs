@@ -28,6 +28,7 @@ namespace HashtilERP.Shared.Models
         public int? PassportAVG { get; set; }
         public string ItemCode { get; set; }
         public string UserName { get; set; }
+        public string PassportCondition { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
@@ -61,5 +62,6 @@ public static class Status
     public const string InGreenHouse = "פרוס בחממה";
     public const string Finished = "נגמר";
     public const string Destroyed = "הושמד";
+    public const string NotChecked = "לא נבדק";
 
 }

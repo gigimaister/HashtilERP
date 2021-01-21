@@ -57,7 +57,13 @@ namespace HashtilERP.Server
                         break;
 
                     case "3":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
+                            .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .ToListAsync();
                         break;
 
                 }
@@ -243,6 +249,7 @@ namespace HashtilERP.Server
             kPassport.PassportStatus = Status.GrowingRoom;
             kPassport.ItemCode = sap.UItemCode;
             kPassport.SapDocEntry = sap.DocEntry;
+            kPassport.PassportCondition = Status.NotChecked;
             _context.KPassport.Add(kPassport);
             try
             {

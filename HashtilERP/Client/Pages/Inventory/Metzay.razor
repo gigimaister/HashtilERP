@@ -1,0 +1,306 @@
+﻿@page "/inventory/Metzay"
+@inject IJSRuntime jsRuntime
+
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Navigations
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers")]
+
+<h3 style="text-align:center">מצאי</h3>
+
+@if (K_Passports == null)
+{
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="true"></SfSpinner>
+        </div>
+    </div>
+}
+
+@*GRID SECTION START HERE*@
+<SfGrid DataSource="@K_Passports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
+    <GridEvents TValue="K_Passport"></GridEvents>
+    <GridEvents QueryCellInfo="CustomizeCell" TValue="K_Passport"></GridEvents>
+    <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+    <GridTemplates>
+        <DetailTemplate>
+            <div style="text-align:right;width:auto">
+                <SfTab HeaderPlacement="HeaderPosition.Top">
+                    <TabItems>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="לקוחות"></TabHeader>
+                            </ChildContent>
+
+                            <ContentTemplate>
+                                @{ var passport = (context as K_Passport);
+                                    <table class="table" style="text-align:right">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    לקוח
+                                                </th>
+                                                <th>
+                                                    הזמנה
+                                                </th>
+
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (var cx in passport.Passport.Passprods)
+                                            {
+                                                var temp = (cx.UQuantity * 1000);
+                                                var display = string.Format("{0:#,0}", temp);
+                                                <tr>
+                                                    <td>
+                                                        @cx.UCustName
+                                                    </td>
+                                                    <td>
+                                                        @display
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </ContentTemplate>
+                        </TabItem>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="היסטוריית עריכה"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+
+                            </ContentTemplate>
+                        </TabItem>
+                    </TabItems>
+                </SfTab>
+            </div>
+        </DetailTemplate>
+    </GridTemplates>
+    <GridColumns>
+        <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
+            <GridCommandColumns>
+                <GridCommandColumn Type=CommandButtonType.None
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "עריכה" ,CssClass="e-warning"})">
+                </GridCommandColumn>
+               
+                <GridCommandColumn Type=CommandButtonType.None
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת" ,CssClass="e-primary"})">
+                </GridCommandColumn>
+               
+            </GridCommandColumns>
+        </GridColumn>
+
+        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" HeaderTextAlign="TextAlign.Right" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Right" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+
+
+    </GridColumns>
+</SfGrid>
+
+
+
+@code {
+    public K_Passport K_Passport = new K_Passport();
+    public K_Passport[] K_Passports;
+    private HubConnection hubConnection;
+    private static string HebSaved = "נשמר!";
+
+    //TOAST
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+
+
+
+    // Property to control the delete dialog.
+    public bool DeleteRecordConfirmVisibility { get; set; } = false;
+
+    //INITIALIZED
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        try
+        {
+            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "3");
+            StateHasChanged();
+        }
+
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+
+    //CELL MAGASH TYPE STYLE
+    public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
+    {
+        if (args.Column.Field == "Passport.Oitm.UCelsTray")
+        {
+            if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.180)
+            {
+                args.Cell.AddClass(new string[] { "magash-180" });
+            }
+            else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.187)
+            {
+                args.Cell.AddClass(new string[] { "magash-187" });
+            }
+            else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.442)
+            {
+                args.Cell.AddClass(new string[] { "magash-442" });
+            }
+            else
+            {
+                args.Cell.AddClass(new string[] { "magash-308" });
+            }
+        }
+        ////PASSPORT STYLE
+        //if (args.Column.Field == "PassportNum")
+        //{
+        //    args.Cell.AddClass(new string[] { "passport" });
+        //}
+        //HAMAMA STYLE
+        if (args.Column.Field == "Hamama")
+        {
+            if (args.Data.Hamama.Trim()=="1")
+            {
+                args.Cell.AddClass(new string[] { "hamama1" });
+            }
+            else if (args.Data.Hamama.Trim() == "2")
+            {
+                args.Cell.AddClass(new string[] { "hamama2" });
+            }
+            else if (args.Data.Hamama.Trim() == "4")
+            {
+                args.Cell.AddClass(new string[] { "hamama4" });
+            }
+            else if (args.Data.Hamama.Trim() == "5")
+            {
+                args.Cell.AddClass(new string[] { "hamama5" });
+            }
+            else if (args.Data.Hamama.Trim() == "6")
+            {
+                args.Cell.AddClass(new string[] { "hamama6" });
+            }
+            else if (args.Data.Hamama.Trim() == "7")
+            {
+                args.Cell.AddClass(new string[] { "hamama7" });
+            }
+        }
+    }
+}
+
+<style>
+    .magash-180 {
+        background-color: plum;
+    }
+
+    .magash-187{
+        background-color: lightyellow;
+    }
+
+    .magash-442{
+        background-color: grey;
+        font-weight:bold;
+    }
+    .magash-308 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+    .passport {
+        background-color: powderblue;
+        font-weight: bold;
+    }
+    .hamama1 {
+        background-color: cornflowerblue;
+        font-weight: bold;
+    }
+    .hamama2 {
+        background-color: yellow;
+        font-weight: bold;
+    }
+    .hamama4 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+    .hamama5 {
+        background-color: gray;
+        font-weight: bold;
+    }
+    .hamama6 {
+        background-color: cadetblue;
+        font-weight: bold;
+    }
+    .hamama7 {
+        background-color: palevioletred;
+        font-weight: bold;
+    }
+</style>
