@@ -113,6 +113,30 @@ namespace HashtilERP.Data
                 entity.Property(e => e.UserName).HasMaxLength(50);
             });
 
+            modelBuilder.Entity<PassportAuditForm>(entity =>
+            {
+                entity.HasKey(e => e.PassportAuditFormId)
+                    .HasName("PK_PassportAuditForm");
+
+                entity.ToTable("PassportAuditForm");
+
+                entity.Property(e => e.PassportAuditFormId)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("PassportAuditFormId");
+
+                entity.Property(e => e.K_PassportId).HasColumnType("long");
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UserName);
+
+                entity.Property(e => e.AuditStatus);
+
+                entity.Property(e => e.AuditStatus).HasMaxLength(250);
+
+
+            });
+
             modelBuilder.Entity<Oitm>(entity =>
             {
                 entity.HasKey(e => e.ItemCode)
