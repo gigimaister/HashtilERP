@@ -24,6 +24,7 @@ namespace HashtilERP.Data
         public virtual DbSet<Owor> Owor { get; set; }
         public virtual DbSet<Passport> Passport { get; set; }
         public virtual DbSet<Passprod> Passprod { get; set; }
+        public virtual DbSet<PassportAuditForm>  PassportAuditForm { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +34,13 @@ namespace HashtilERP.Data
             modelBuilder.Entity<K_Passport>()
           .HasOne(x => x.Passport)
           .WithOne();
-          
+
+            modelBuilder.Entity<K_Passport>()
+        .HasMany(x => x.PassportAuditForms)
+        .WithOne()
+        .HasPrincipalKey(x => x.K_PassportId)
+        .HasForeignKey(x => x.K_PassportId);
+
 
             modelBuilder.Entity<K_Passport>()
           .HasOne(X=>X.KPassportInsertAudit)

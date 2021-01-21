@@ -36,6 +36,9 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("K_PassportId")]
         public virtual KPassportInsertAudit KPassportInsertAudit { get; set; }
 
+        [ForeignKey("K_PassportId")]
+        public List<PassportAuditForm> PassportAuditForms { get; set; }
+
 
 
     }

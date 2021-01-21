@@ -4,11 +4,14 @@
 
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
+@using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Notifications
 @using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Spinner
 @using HashtilERP.Shared.Models
+@using Syncfusion.Blazor.Inputs
 @using Microsoft.AspNetCore.SignalR.Client
 @using Syncfusion.Blazor.Navigations
 
@@ -27,12 +30,16 @@
         </div>
     </div>
 }
+@*Toast Component*@
+<SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
 
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
+<SfGrid DataSource="@K_Passports" AllowGrouping="true" AllowSorting="true" AllowResizing="true">
     <GridEvents TValue="K_Passport"></GridEvents>
-    <GridEvents QueryCellInfo="CustomizeCell" TValue="K_Passport"></GridEvents>
-    <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+    <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+
     <GridTemplates>
         <DetailTemplate>
             <div style="text-align:right;width:auto">
@@ -85,6 +92,55 @@
 
                             </ContentTemplate>
                         </TabItem>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="הערות"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                @{ var passport1 = (context as K_Passport);
+                                    <table class="table" style="text-align:right">
+                                        <thead>
+                                        <tr>
+                                         <th>
+                                               תאריך
+                                          </th>
+                                          <th>
+                                           נוספה ע"י
+                                          </th>
+                                          <th>
+                                                 מצב
+                                          </th>
+                                          <th>
+                                               תיאור
+                                          </th>
+
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+
+                                            @foreach (var form in K_Passport.PassportAuditForms)
+                                            {
+                                                
+                                            <tr>
+                                                <td>
+                                                    @form.CreateDate
+                                                </td>
+                                                <td>
+                                                    @form.UserName
+                                                </td>
+                                                <td>
+                                                    @form.AuditStatus
+                                                </td>
+                                                <td>
+                                                    @form.Remark
+                                                </td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </ContentTemplate>
+                        </TabItem>
                     </TabItems>
                 </SfTab>
             </div>
@@ -94,13 +150,13 @@
         <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
             <GridCommandColumns>
                 <GridCommandColumn Type=CommandButtonType.None
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "עריכה" ,CssClass="e-warning"})">
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-warning" })">
                 </GridCommandColumn>
-               
+
                 <GridCommandColumn Type=CommandButtonType.None
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת" ,CssClass="e-primary"})">
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-primary" })">
                 </GridCommandColumn>
-               
+
             </GridCommandColumns>
         </GridColumn>
 
@@ -122,16 +178,55 @@
     </GridColumns>
 </SfGrid>
 
+@*Confirm Dialog Setting*@
+<SfDialog Target="#target"
+          Width="250px"
+          Height="350px"
+          IsModal="true"
+          ShowCloseIcon="false"
+          @bind-Visible="DeleteRecordConfirmVisibility">
+    <DialogTemplates>
+        <Header>ביקורת חדשה</Header>
+        <Content>
+            <EditForm Model="@PassportAuditForm">
+                <DataAnnotationsValidator />
+                <div style="text-align:right">
+                    <SfDropDownList TValue="string" TItem="AuditFormStatus" Placeholder="מצב" Width="auto" DataSource="@AuditFormStatus.Statuses"
+                                    PopupHeight="350px" PopupWidth="200px" @bind-Value="@PassportAuditForm.AuditStatus">
+                        <DropDownListFieldSettings Value="Text" Text="Text">
+
+                        </DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <ValidationMessage For="@(() => PassportAuditForm.AuditStatus)"></ValidationMessage>
+                </div>
+                <br />
+                <div style="text-align:right">
+                    <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark"></SfTextBox>
+                    <ValidationMessage For="@(() => PassportAuditForm.Remark)"></ValidationMessage>
+                </div>
+                <br />
+                <div class="button-container" style="text-align:center">
+                    <button type="submit" style="margin-right:25px"
+                            class="btn btn-danger"
+                            @onclick="ConfirmDeleteNo">
+                        ביטול
+                    </button>
+                    <button type="submit"
+                            class="btn btn-success"
+                            @onclick="ConfirmDeleteYes">
+                        אישור
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
 
 
 @code {
-    public K_Passport K_Passport = new K_Passport();
-    public K_Passport[] K_Passports;
-    private HubConnection hubConnection;
-    private static string HebSaved = "נשמר!";
 
     //TOAST
-    SfToast ToastObj;
+    public SfToast ToastObj;
     private string ToastContent { get; set; } = "";
     private async Task ShowToast()
     {
@@ -143,18 +238,89 @@
         await this.ToastObj.Hide("All");
     }
 
+    public K_Passport K_Passport = new K_Passport();
+    public K_Passport[] K_Passports;
+    public PassportAuditForm PassportAuditForm = new PassportAuditForm();
+    private HubConnection hubConnection;
+    private static string HebSaved = "נשמר!";
+    long passporrtId;
 
+
+    //CheckBox Selected Default Property
+    private bool isChecked = true;
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
+
+    //Command Button Clicked In grid
+    public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
+    {
+        if (args.CommandColumn.ButtonOption.Content == "ביקורת")
+        {
+            this.DeleteRecordConfirmVisibility = true;
+            passporrtId = args.RowData.K_PassportId;
+            PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+            PassportAuditForm.CreateDate = DateTime.Now;
+
+        }
+    }
+
+    //DIALOG CANCEL
+    public void ConfirmDeleteNo()
+    {
+        // Open the dialog
+        // to give the user a chance
+        // to confirm they want to delete the record.
+        this.DeleteRecordConfirmVisibility = false;
+    }
+
+    //DIALOG CONFIRMED
+    public async void ConfirmDeleteYes()
+    {
+        try
+        {
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+            if(PassportAuditForm.AuditStatus!="תקין")
+            {
+                K_Passport.IsNeedToBeAudit = true;
+
+            }
+            K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            this.DeleteRecordConfirmVisibility = false;
+            var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
+            var content = await rslt.Content.ReadAsStringAsync();
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+                PassportAuditForm = new PassportAuditForm();
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+        }
+
+
+
+
+    }
+
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
-
+        PassportAuditForm = new PassportAuditForm();
         hubConnection = new HubConnectionBuilder()
-    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-    .Build();
+.WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+.Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {
@@ -230,7 +396,7 @@
         //HAMAMA STYLE
         if (args.Column.Field == "Hamama")
         {
-            if (args.Data.Hamama.Trim()=="1")
+            if (args.Data.Hamama.Trim() == "1")
             {
                 args.Cell.AddClass(new string[] { "hamama1" });
             }
@@ -256,6 +422,17 @@
             }
         }
     }
+
+    //ROW IsNeedToBeAudit STYLE
+    public void RowBound(RowDataBoundEventArgs<K_Passport> args)
+    {
+        if (args.Data.IsNeedToBeAudit==true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        }
+
+
+    }
 }
 
 <style>
@@ -263,44 +440,66 @@
         background-color: plum;
     }
 
-    .magash-187{
+    .magash-187 {
         background-color: lightyellow;
     }
 
-    .magash-442{
+    .magash-442 {
         background-color: grey;
-        font-weight:bold;
+        font-weight: bold;
     }
+
     .magash-308 {
         background-color: darkseagreen;
         font-weight: bold;
     }
+
     .passport {
         background-color: powderblue;
         font-weight: bold;
     }
+
     .hamama1 {
         background-color: cornflowerblue;
         font-weight: bold;
     }
+
     .hamama2 {
         background-color: yellow;
         font-weight: bold;
     }
+
     .hamama4 {
         background-color: darkseagreen;
         font-weight: bold;
     }
+
     .hamama5 {
         background-color: gray;
         font-weight: bold;
     }
+
     .hamama6 {
         background-color: cadetblue;
         font-weight: bold;
     }
+
     .hamama7 {
         background-color: palevioletred;
         font-weight: bold;
     }
+   
+    
+    #toast_default .e-toast-container  {
+        color: black;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+ /*   GRID ROW STYLE*/
+    .is-need-to-be-audit {
+        background-color: orange;
+    }
+
+    
 </style>

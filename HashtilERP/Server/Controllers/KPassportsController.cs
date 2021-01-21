@@ -63,6 +63,7 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Passprods)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Oitm)
+                           .Include(e=>e.PassportAuditForms)
                            .ToListAsync();
                         break;
 
