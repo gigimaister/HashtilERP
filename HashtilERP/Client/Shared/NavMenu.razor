@@ -8,7 +8,7 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <AuthorizeView Roles="Administrator,Thai-GreenHouse">
+        <AuthorizeView Roles="Administrator">
             <li class="nav-item px-3">
                 <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                     <span class="oi oi-home" aria-hidden="true"></span>&nbsp ראשי
@@ -39,23 +39,7 @@
                 </NavLink>
             </li>
         </AuthorizeView>
-        <AuthorizeView Roles="Administrator,Thai-GreenHouse">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="thai-greenhouse/newmovingpassports" Match="NavLinkMatch.All">
-                    @*GrowingRoom*@
-                    <span class="oi oi-yen" aria-hidden="true"></span>&nbsp ใหม่หรือปรับปรุง
-                </NavLink>
-            </li>
-        </AuthorizeView>
-        <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
-            <li class="nav-item px-3">
-                <NavLink class="nav-link" href="inventory/WaitingForConfirmation" Match="NavLinkMatch.All">
-                    @*GrowingRoom*@
-                    <span class="oi oi-command" aria-hidden="true"></span>&nbsp ממתינים לאישור
-                </NavLink>
-            </li>
-        </AuthorizeView>
-        
+
     </ul>
 </div>
 
