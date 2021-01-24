@@ -63,7 +63,8 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Passprods)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Oitm)
-                           .Include(e=>e.PassportAuditForms)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
                            .ToListAsync();
                         break;
 
@@ -119,6 +120,10 @@ namespace HashtilERP.Server
         [HttpPut("Thai/Passport/Update/{id}")]
         public async Task<IActionResult> PutThaiKPassport(int id, K_Passport kPassport)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kPassport.UserName = screenName;
+
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -151,6 +156,9 @@ namespace HashtilERP.Server
         [HttpPut("GreenManager/Passport/UpdateStatus/{id}")]
         public async Task<IActionResult> PutGreenManagerKPassportStatus(int id, K_Passport kPassport)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kPassport.UserName = screenName;
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();

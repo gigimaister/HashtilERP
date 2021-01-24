@@ -25,6 +25,7 @@ namespace HashtilERP.Data
         public virtual DbSet<Passport> Passport { get; set; }
         public virtual DbSet<Passprod> Passprod { get; set; }
         public virtual DbSet<PassportAuditForm>  PassportAuditForm { get; set; }
+        public virtual DbSet<UpdateK_PassportAudit> UpdateK_PassportAudits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,7 +48,11 @@ namespace HashtilERP.Data
           .WithOne();
 
 
-
+            modelBuilder.Entity<K_Passport>()
+       .HasMany(x => x.UpdateK_PassportAudit)
+       .WithOne()
+       .HasPrincipalKey(x => x.K_PassportId)
+       .HasForeignKey(x => x.K_PassportId);
 
             modelBuilder.Entity<Passport>()
         .HasMany(x => x.Passprods)
@@ -60,9 +65,34 @@ namespace HashtilERP.Data
            .HasOne(x => x.Oitm)
            .WithOne();
 
+            modelBuilder.Entity<UpdateK_PassportAudit>(entity =>
+            {
 
-          
-            modelBuilder.Entity<K_Passport>(entity =>
+                entity.HasKey(e => e.UpdateK_PassportAuditId)
+                    .HasName("PK_UpdateK_PassportAudit");
+
+                entity.ToTable("UpdateK_PassportAudit");
+                entity.Property(e => e.UpdateK_PassportAuditId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("UpdateK_PassportAuditId");
+
+                entity.Property(e => e.Date).HasColumnType("datetime");
+                entity.Property(e => e.UserName).HasMaxLength(50);
+                entity.Property(e => e.HamBefore).HasMaxLength(50);
+                entity.Property(e => e.HamAfter).HasMaxLength(50);
+                entity.Property(e => e.GamBefore).HasMaxLength(50);
+                entity.Property(e => e.GamAfter).HasMaxLength(50);
+                entity.Property(e => e.MagBefore).HasColumnName("MagBefore");
+                entity.Property(e => e.MagAfter).HasColumnName("MagAfter");
+                entity.Property(e => e.AVGBefore).HasColumnName("AVGBefore");
+                entity.Property(e => e.AVGAfter).HasColumnName("AVGAfter");
+                entity.Property(e => e.StatBefore).HasMaxLength(50);
+                entity.Property(e => e.StatAfter).HasMaxLength(50);
+
+
+            });
+
+                modelBuilder.Entity<K_Passport>(entity =>
             
            
             {

@@ -41,6 +41,8 @@ namespace HashtilERP.Data
         [ForeignKey("K_PassportId")]
         public List<PassportAuditForm>  PassportAuditForms { get; set; }
 
+        [ForeignKey("K_PassportId")]
+        public List<UpdateK_PassportAudit> UpdateK_PassportAudit { get; set; }
 
     }
 }

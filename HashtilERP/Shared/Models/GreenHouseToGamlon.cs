@@ -21,6 +21,9 @@ namespace HashtilERP.Shared.Models
             public string GamlonId { get; set; }
             
         }
+        public class Gamlonim {
+            public string gamlon { get; set; }
+        }
 
         public static List<Hamama> Hamamas = new List<Hamama>() {
         new Hamama(){ HamamaName= "1", HamamaId= "1" },
@@ -31,6 +34,44 @@ namespace HashtilERP.Shared.Models
         new Hamama(){ HamamaName= "7", HamamaId= "7" },
     };
 
+        public static List<Gamlonim> AllGamlonim = new List<Gamlonim>()
+        {
+            new Gamlonim() {gamlon="1"},
+            new Gamlonim() {gamlon="2"},
+            new Gamlonim() {gamlon="3"},
+            new Gamlonim() {gamlon="4"},
+            new Gamlonim() {gamlon="5"},
+            new Gamlonim() {gamlon="6"},
+            new Gamlonim() {gamlon="7"},
+            new Gamlonim() {gamlon="8"},
+            new Gamlonim() {gamlon="9"},
+            new Gamlonim() {gamlon="10"},
+            new Gamlonim() {gamlon="11"},
+            new Gamlonim() {gamlon="12"},
+            new Gamlonim() {gamlon="13"},
+            new Gamlonim() {gamlon="14"},
+            new Gamlonim() {gamlon="15"},
+            new Gamlonim() {gamlon="16"},
+            new Gamlonim() {gamlon="17"},
+            new Gamlonim() {gamlon="18"},
+            new Gamlonim() {gamlon="19"},
+            new Gamlonim() {gamlon="20"},
+            new Gamlonim() {gamlon="21"},
+            new Gamlonim() {gamlon="22"},
+            new Gamlonim() {gamlon="23"},
+            new Gamlonim() {gamlon="24"},
+            new Gamlonim() {gamlon="25"},
+            new Gamlonim() {gamlon="26"},
+            new Gamlonim() {gamlon="27"},
+            new Gamlonim() {gamlon="28"},
+            new Gamlonim() {gamlon="29"},
+            new Gamlonim() {gamlon="30"},
+            new Gamlonim() {gamlon="31"},
+            new Gamlonim() {gamlon="32"},
+            new Gamlonim() {gamlon="33"},
+
+        };
+        
         public static List<Gamlons> gamlons = new List<Gamlons>() {
         new Gamlons() { GamlonName= "5", HamamaId= "1", GamlonId= "105" },
         new Gamlons() { GamlonName= "6", HamamaId= "1", GamlonId= "106"},
@@ -148,6 +189,7 @@ namespace HashtilERP.Shared.Models
         new Gamlons() { GamlonName= "4", HamamaId= "7", GamlonId= "704" },
         new Gamlons() { GamlonName= "5", HamamaId= "7", GamlonId= "705" },
         new Gamlons() { GamlonName= "6", HamamaId= "7", GamlonId= "706" },
+        new Gamlons() { GamlonName= "7", HamamaId= "7", GamlonId= "707" },
         new Gamlons() { GamlonName= "8", HamamaId= "7", GamlonId= "708" },
         new Gamlons() { GamlonName= "9", HamamaId= "7", GamlonId= "709" },
         new Gamlons() { GamlonName= "10", HamamaId= "7", GamlonId= "710"},
