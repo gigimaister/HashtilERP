@@ -43,6 +43,8 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("K_PassportId")]
         public List<UpdateK_PassportAudit> UpdateK_PassportAudit { get; set; }
 
+        [ForeignKey("K_PassportId")]
+        public List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
     }
 
    

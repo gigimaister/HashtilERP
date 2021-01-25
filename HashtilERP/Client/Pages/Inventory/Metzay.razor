@@ -36,9 +36,12 @@
     <ToastPosition X="Center"></ToastPosition>
 </SfToast>
 
-@*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" AllowGrouping="true" AllowSorting="true" AllowResizing="true">
 
+@{
+    var Tool = (new List<string>() { "Search" });
+}
+@*GRID SECTION START HERE*@
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -50,53 +53,52 @@
         <Template>
             @{
                 var Passport = (context as K_Passport);
-                       
-                            <div class="form-row" dir="rtl">
-                                <div class="form-group col-md-5">
-                                    <label class="e-float-text e-label-top" style="text-align:right">חממה</label>
-                                    <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" AllowFiltering="true"
-                                                    PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas" Placeholder="@Passport.Hamama"
-                                                    @bind-Value="@Passport.Hamama">
-                                        <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string" 
-                                                            ValueChange="ChangeCountry">
 
-                                        </DropDownListEvents>
-                                        <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
-                                    </SfDropDownList>
-                                </div>
-                            </div>
-                            <div class="form-row" dir="rtl">
-                                <div class="form-group col-md-5">
-                                    <label class="e-float-text e-label-top" style="text-align:right">גמלון</label>
-                                    <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlonim"
-                                                    AllowFiltering="true" @bind-Value="@Passport.Gamlon" Placeholder="@Passport.Gamlon"
-                                                    PopupHeight="auto" DataSource="@GreenHouseToGamlon.AllGamlonim">
-                                        <DropDownListEvents TItem="GreenHouseToGamlon.Gamlonim" TValue="string" 
-                                                            >
+                <div class="form-row" dir="rtl">
+                    <div class="form-group col-md-5">
+                        <label class="e-float-text e-label-top" style="text-align:right">חממה</label>
+                        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" AllowFiltering="true"
+                                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas" Placeholder="@Passport.Hamama"
+                                        @bind-Value="@Passport.Hamama">
+                            <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string"
+                                                ValueChange="ChangeCountry">
 
-                                        </DropDownListEvents>
-                                        <DropDownListFieldSettings Text="gamlon" Value="gamlon"></DropDownListFieldSettings>
-                                    </SfDropDownList>
-                                </div>
-                            </div>
-                            <div class="form-row" dir="rtl">
-                                <div class="form-group col-md-6">
-                                    <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
-                                    <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
-                                </div>
-                            </div>
-                       
+                            </DropDownListEvents>
+                            <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </div>
+                </div>
+                <div class="form-row" dir="rtl">
+                    <div class="form-group col-md-5">
+                        <label class="e-float-text e-label-top" style="text-align:right">גמלון</label>
+                        <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlonim"
+                                        AllowFiltering="true" @bind-Value="@Passport.Gamlon" Placeholder="@Passport.Gamlon"
+                                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.AllGamlonim">
+                            <DropDownListEvents TItem="GreenHouseToGamlon.Gamlonim" TValue="string">
+
+                            </DropDownListEvents>
+                            <DropDownListFieldSettings Text="gamlon" Value="gamlon"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </div>
+                </div>
+                <div class="form-row" dir="rtl">
+                    <div class="form-group col-md-6">
+                        <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
+                        <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
+                    </div>
+                </div>
+
             }
 
         </Template>
         <FooterTemplate>
-            <button class="btn btn-danger" style="margin-left:10px">ביטול</button>
-            <button class="btn btn-success">שמירה</button>
+            <button class="btn btn-danger" @onclick="@(_ => {CloseUpdateDialog();})" style="margin-left:10px">ביטול</button>
+            <button class="btn btn-success" @onclick="@(_ => { if (context != null) UpdatePassport((context as K_Passport));})">שמירה</button>
         </FooterTemplate>
     </GridEditSettings>
 
     <GridEvents TValue="K_Passport"></GridEvents>
-    <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+    <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
 
     <GridTemplates>
 
@@ -157,127 +159,28 @@
                                                     תאריך
                                                 </th>
                                                 <th>
-                                                    נוספה ע"י
+                                                    נערכה ע"י
                                                 </th>
                                                 <th>
-                                                    מחממה
+                                                    תיאור
                                                 </th>
-                                                <th>
-                                                    לחממה
-                                                </th>
-                                                <th>
-                                                    מגמלון
-                                                </th>
-                                                <th>
-                                                    לגמלון
-                                                </th>
-                                                <th>
-                                                    ממגש
-                                                </th>
-                                                <th>
-                                                    למגש
-                                                </th>
-                                                <th>
-                                                    מממוצע
-                                                </th>
-                                                <th>
-                                                    לממוצע
-                                                </th>
-                                                <th>
-                                                    מסטאטוס
-                                                </th>
-                                                <th>
-                                                    לסטאטוס
-                                                </th>
-
                                             </tr>
                                         </thead>
                                         <tbody>
-
-                                            @foreach (var updateAudit in passport2.UpdateK_PassportAudit)
+                                            @foreach (var updateAudit in passport2.k_PassportAuditTblVer2s.OrderByDescending(x => x.Date))
                                             {
-                                                if (passport2.UpdateK_PassportAudit.Count == 0)
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                    </tr>
-                                                }
-                                                else
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            @updateAudit.Date
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.UserName
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.HamBefore
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.HamAfter
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.GamBefore
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.GamAfter
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.MagBefore
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.MagAfter
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.AVGBefore
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.AVGAfter
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.StatBefore
-                                                        </td>
-                                                        <td>
-                                                            @updateAudit.StatAfter
-                                                        </td>
-                                                    </tr>
-                                                }
+
+                                                <tr>
+                                                    <td>
+                                                        @updateAudit.Date
+                                                    </td>
+                                                    <td>
+                                                        @updateAudit.UserName
+                                                    </td>
+                                                    <td>
+                                                        @updateAudit.AuditString
+                                                    </td>
+                                                </tr>
                                             }
                                         </tbody>
                                     </table>
@@ -309,7 +212,7 @@
                                         </thead>
                                         <tbody>
 
-                                            @foreach (var form in passport1.PassportAuditForms)
+                                            @foreach (var form in passport1.PassportAuditForms.OrderByDescending(x => x.CreateDate))
                                             {
                                                 if (passport1.PassportAuditForms.Count == 0)
                                                 {
@@ -358,20 +261,22 @@
 
     </GridTemplates>
     <GridColumns>
-        <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
-            <GridCommandColumns>
-                <GridCommandColumn Type=CommandButtonType.None
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
-                </GridCommandColumn>
-                <GridCommandColumn Type=CommandButtonType.None
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-primary" })">
-                </GridCommandColumn>
-                <GridCommandColumn Type=CommandButtonType.Edit
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-warning" })">
-                </GridCommandColumn>
-            </GridCommandColumns>
-        </GridColumn>
-
+        <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
+                <GridCommandColumns>
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
+                    </GridCommandColumn>
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-primary" })">
+                    </GridCommandColumn>
+                    <GridCommandColumn Type=CommandButtonType.Edit
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-warning" })">
+                    </GridCommandColumn>
+                </GridCommandColumns>
+            </GridColumn>
+        </AuthorizeView>
+        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -388,6 +293,7 @@
 
 
     </GridColumns>
+
 </SfGrid>
 
 @*Confirm Dialog Setting*@
@@ -413,7 +319,7 @@
                 </div>
                 <br />
                 <div style="text-align:right">
-                    <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark"></SfTextBox>
+                    <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark" Width="194px"></SfTextBox>
                     <ValidationMessage For="@(() => PassportAuditForm.Remark)"></ValidationMessage>
                 </div>
                 <br />
@@ -434,11 +340,115 @@
     </DialogTemplates>
 </SfDialog>
 
+@*Update Passport Hamama And Or Gamlon NULL Dialog Setting*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header>שגיאה!</Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+
+@*Destroy Passport Dialog Setting*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="250px"
+          Height="175px"
+          IsModal="true"
+          ShowCloseIcon="false"
+          @bind-Visible="@DestroyVisability">
+    <DialogTemplates>
+        <Header>להשמיד פספורט?</Header>
+        <Content>
+            <div class="button-container">
+                <button type="submit" style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="ConfirmDestroyNo">
+                    ביטול
+                </button>
+                <button type="submit"
+                        class="btn btn-success"
+                        @onclick="ConfirmDestroyYes">
+                    אישור
+                </button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
 
 @code {
 
+    SfGrid<K_Passport> SfGrid;
+    public void CloseUpdateDialog()
+    {
+        this.SfGrid.CloseEdit();
+    }
+    public async void UpdatePassport(K_Passport context)
+    {
+        if (context.Hamama != null && context.Gamlon != null)
+        {
+
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
+            //Http Response Failed On Insert
+            if (!rslt.IsSuccessStatusCode)
+            {
+
+                ToastContent = rslt.StatusCode.ToString();
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            else
+            {
+
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+
+            }
+        }
+        else
+        {
+            ModalError = "יש להזין חממה וגמלון";
+            OpenDialog();
+        }
+
+    }
     string Hamama, Gamlon;
 
+    #region MODAL Hamama Gamlon NULL
+    /// <summary>
+    /// Modal Props and actions
+    /// </summary>
+    private bool IsVisible { get; set; } = false;
+
+    //DESTROY MODAL VISABILITY
+    private bool DestroyVisability { get; set; } = false;
+
+    private string ModalError { get; set; } = "";
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+    #endregion
+
+    #region DROPDOWN
     //2 DROPLIST HAMAMA AND GAMLON SETTINGS
     public bool EnableStateDropDown = true;
     public bool EnableCitytDropDown = false;
@@ -446,7 +456,8 @@
     public Query StateQuery { get; set; } = null;
     public string CityValue { get; set; } = null;
     public Query CityQuery { get; set; } = null;
-    
+
+
 
     public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
     {
@@ -455,7 +466,7 @@
         this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
         this.StateValue = null;
         this.CityValue = null;
-       
+
 
 
     }
@@ -467,6 +478,9 @@
         this.CityValue = null;
     }
     //END DROPDOWN SETTINGS
+    #endregion
+
+    #region TOAST
     //TOAST
     public SfToast ToastObj;
     private string ToastContent { get; set; } = "";
@@ -479,6 +493,7 @@
     {
         await this.ToastObj.Hide("All");
     }
+    #endregion
 
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
@@ -506,10 +521,56 @@
             PassportAuditForm.CreateDate = DateTime.Now;
 
         }
+        if (args.CommandColumn.ButtonOption.Content == "השמדה")
+        {
+            this.DestroyVisability = true;
+            passporrtId = args.RowData.K_PassportId;
+
+        }
 
     }
 
-    //DIALOG CANCEL
+    //DIALOG Destroy CANCEL
+    public void ConfirmDestroyNo()
+    {
+        this.DestroyVisability = false;
+    }
+
+    //DIALOG Destroy CONFIRMED
+    public async void ConfirmDestroyYes()
+    {
+        try
+        {
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+            K_Passport.PassportStatus = Status.Destroyed;
+
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            this.DestroyVisability = false;
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+                PassportAuditForm = new PassportAuditForm();
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+        }
+
+
+
+
+    }
+
+    //DIALOG AuditForm CANCEL
     public void ConfirmDeleteNo()
     {
         // Open the dialog
@@ -682,6 +743,18 @@
 
 
     }
+
+    public void ActionBegin(ActionEventArgs<K_Passport> arg)
+    {
+        //Handles add operation
+
+
+        //Handles edit operation. During edit operation, original object will be cloned.
+        if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+
+        }
+    }
 }
 
 <style>
@@ -753,6 +826,7 @@
     .clean {
         background-color: white;
     }
+
     .form-group.col-md-6 {
         width: 200px;
     }

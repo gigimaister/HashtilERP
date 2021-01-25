@@ -37,6 +37,12 @@ namespace HashtilERP.Data
           .WithOne();
 
             modelBuilder.Entity<K_Passport>()
+     .HasMany(x => x.k_PassportAuditTblVer2s)
+     .WithOne()
+     .HasPrincipalKey(x => x.K_PassportId)
+     .HasForeignKey(x => x.K_PassportId);
+
+            modelBuilder.Entity<K_Passport>()
         .HasMany(x => x.PassportAuditForms)
         .WithOne()
         .HasPrincipalKey(x => x.K_PassportId)
