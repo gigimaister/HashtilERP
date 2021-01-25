@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using System.Security.Claims;
 
 namespace HashtilERP.Server.Areas.Identity.Pages.Account
 {
@@ -95,9 +96,12 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email ,PhoneNumber = Input.PhoneNum,ScreenName = Input.SreenName,DepartmentName=Input.Department,Hamama=Input.Hamama};
+                
                 var result = await _userManager.CreateAsync(user, Input.Password);
+                
                 if (result.Succeeded)
                 {
+                    await _userManager.AddClaimAsync(user, new Claim("FullName", user.ScreenName));
                     user.EmailConfirmed = true;
                     await _userManager.UpdateAsync(user);
                     // Ensure there is a ADMINISTRATION_ROLE

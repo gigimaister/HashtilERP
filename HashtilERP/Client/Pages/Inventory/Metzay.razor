@@ -1,6 +1,7 @@
 ﻿@page "/inventory/Metzay"
 @inject IJSRuntime jsRuntime
 
+@using System.Security.Claims;
 
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
@@ -261,35 +262,33 @@
 
     </GridTemplates>
     <GridColumns>
-        <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
-                <GridCommandColumns>
-                    <GridCommandColumn Type=CommandButtonType.None
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
-                    </GridCommandColumn>
-                    <GridCommandColumn Type=CommandButtonType.None
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-primary" })">
-                    </GridCommandColumn>
-                    <GridCommandColumn Type=CommandButtonType.Edit
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-warning" })">
-                    </GridCommandColumn>
-                </GridCommandColumns>
-            </GridColumn>
-        </AuthorizeView>
-        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" AutoFit="true">
+            <GridCommandColumns>
+                <GridCommandColumn Type=CommandButtonType.None
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
+                </GridCommandColumn>
+                <GridCommandColumn Type=CommandButtonType.None
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
+                </GridCommandColumn>
+                <GridCommandColumn Type=CommandButtonType.Edit
+                                   ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
+                </GridCommandColumn>
+            </GridCommandColumns>
+        </GridColumn>
+        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
 
 
     </GridColumns>
@@ -502,6 +501,10 @@
     private static string HebSaved = "נשמר!";
     long passporrtId;
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
 
     //CheckBox Selected Default Property
     private bool isChecked = true;
@@ -580,7 +583,7 @@
         this.DeleteRecordConfirmVisibility = false;
     }
 
-    //DIALOG CONFIRMED
+    //DIALOG AuditForm CONFIRMED
     public async void ConfirmDeleteYes()
     {
         try
@@ -627,6 +630,7 @@
     protected override async Task OnInitializedAsync()
     {
         PassportAuditForm = new PassportAuditForm();
+        await LoadData();
         hubConnection = new HubConnectionBuilder()
 .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
 .Build();
@@ -638,8 +642,10 @@
         });
 
         await hubConnection.StartAsync();
+        CurrentUser = (await authenticationStateTask).User;
+        var t = CurrentUser.Claims;
 
-        await LoadData();
+
     }
 
     private void CallLoadData()
