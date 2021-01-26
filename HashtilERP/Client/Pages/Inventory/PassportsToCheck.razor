@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -88,6 +88,7 @@
                         <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
                     </div>
                 </div>
+
 
             }
 
@@ -262,11 +263,13 @@
 
     </GridTemplates>
     <GridColumns>
+        
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Right" AutoFit="true">
                 <GridCommandColumns>
-                    <GridCommandColumn Type=CommandButtonType.None
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "פרוס", CssClass = "e-success" })">
+                 
+                    <GridCommandColumn  Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "פריסה מחדש", CssClass = "e-success" })">
                     </GridCommandColumn>
                     <GridCommandColumn Type=CommandButtonType.Edit
                                        ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
@@ -277,7 +280,8 @@
                 </GridCommandColumns>
             </GridColumn>
         </AuthorizeView>
-        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        
+        <GridColumn  Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -316,15 +320,15 @@
         <Header>לפרוס פספורט?</Header>
         <Content>
             <div class="button-container">
-                <button type="submit" style="margin-right:25px"
-                        class="btn btn-danger"
-                        @onclick="ConfirmDestroyNo">
-                    ביטול
-                </button>
                 <button type="submit"
                         class="btn btn-success"
                         @onclick="ConfirmDestroyYes">
                     אישור
+                </button>
+                <button type="submit" style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="ConfirmDestroyNo">
+                    ביטול
                 </button>
             </div>
         </Content>
@@ -342,15 +346,15 @@
         <Header>לאשר מצב?</Header>
         <Content>
             <div class="button-container">
-                <button type="submit" style="margin-right:25px"
-                        class="btn btn-danger"
-                        @onclick="ConfirmStatusNo">
-                    ביטול
-                </button>
                 <button type="submit"
                         class="btn btn-success"
                         @onclick="ConfirmStatusYes">
                     אישור
+                </button>
+                <button type="submit" style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="ConfirmStatusNo">
+                    ביטול
                 </button>
             </div>
         </Content>
@@ -452,8 +456,7 @@
     long passporrtId;
 
 
-    //CheckBox Selected Default Property
-    private bool isChecked = true;
+   
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -504,16 +507,26 @@
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
+        ModalError = "";
 
-        if (args.CommandColumn.ButtonOption.Content == "פרוס")
+        if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
         {
-            this.ActivVisability = true;
-            passporrtId = args.RowData.K_PassportId;
+            if(args.RowData.PassportStatus != Status.Destroyed)
+            {
+                ModalError = "פספורט כבר פרוס";
+                IsVisible = true;
+            }
+            else
+            {
+                this.ActivVisability = true;
+                passporrtId = args.RowData.K_PassportId;
+
+            }
 
         }
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
-            this.ActivVisability = true;
+            this.ConfirmPassportVisability = true;
             passporrtId = args.RowData.K_PassportId;
 
         }
@@ -522,7 +535,7 @@
     //DIALOG Confirm Status CANCEL
     public void ConfirmStatusNo()
     {
-        this.ActivVisability = false;
+        this.ConfirmPassportVisability = false;
     }
 
     //DIALOG Confirm Status CONFIRMED
@@ -531,7 +544,7 @@
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
-           
+
             K_Passport.IsNeedToBeChecked = false;
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
