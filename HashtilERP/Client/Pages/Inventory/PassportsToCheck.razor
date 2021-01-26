@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -95,7 +95,7 @@
         </Template>
         <FooterTemplate>
             <button class="btn btn-danger" @onclick="@(_ => {CloseUpdateDialog();})" style="margin-left:10px">ביטול</button>
-            <button class="btn btn-success" @onclick="@(_ => { if (context != null) UpdatePassport((context as K_Passport));})">שמירה</button>
+            <button class="btn btn-success" @onclick="@(_ => { if (context != null) {}UpdatePassport((context as K_Passport));})">שמירה</button>
         </FooterTemplate>
     </GridEditSettings>
 
@@ -456,7 +456,7 @@
     long passporrtId;
 
 
-   
+
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -546,9 +546,13 @@
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
 
             K_Passport.IsNeedToBeChecked = false;
+            if (K_Passport.MagashAmount == 0)
+            {
+                K_Passport.PassportStatus = Status.Finished;
+            }
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
-            this.ActivVisability = false;
+            this.ConfirmPassportVisability = false;
 
             if (rslt.IsSuccessStatusCode)
             {
