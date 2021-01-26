@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using HashtilERP.Data;
 using Microsoft.AspNetCore.Identity;
 using HashtilERP.Server.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HashtilERP.Server
 {
@@ -71,6 +72,18 @@ namespace HashtilERP.Server
 
                     case "4":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsNeedToBeAudit == true)
+                            .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                        break;
+                    case "5":
+                        ChosenList = await _context.KPassport.Where(x => x.IsNeedToBeChecked == true)
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)
@@ -167,6 +180,7 @@ namespace HashtilERP.Server
         }
 
         // PUT: GREENHOUSE MANAGER STATUS TO CONFIRMED
+        
         [HttpPut("GreenManager/Passport/UpdateStatus/{id}")]
         public async Task<IActionResult> PutGreenManagerKPassportStatus(int id, K_Passport kPassport)
         {

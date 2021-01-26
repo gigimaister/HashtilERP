@@ -390,7 +390,10 @@
     {
         if (context.Hamama != null && context.Gamlon != null)
         {
-
+            if(context.MagashAmount==0)
+            {
+                context.IsNeedToBeChecked = true;
+            }
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
             //Http Response Failed On Insert
             if (!rslt.IsSuccessStatusCode)
@@ -419,7 +422,7 @@
         }
 
     }
-    string Hamama, Gamlon;
+  
 
     #region MODAL Hamama Gamlon NULL
     /// <summary>
@@ -506,8 +509,7 @@
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
 
-    //CheckBox Selected Default Property
-    private bool isChecked = true;
+   
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -546,6 +548,7 @@
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             K_Passport.PassportStatus = Status.Destroyed;
+            K_Passport.IsNeedToBeChecked = true;
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
             this.DestroyVisability = false;
