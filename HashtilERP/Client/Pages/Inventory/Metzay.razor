@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -60,7 +60,7 @@
                         <label class="e-float-text e-label-top" style="text-align:right">חממה</label>
                         <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" AllowFiltering="true"
                                         PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas" Placeholder="@Passport.Hamama"
-                                        @bind-Value="@Passport.Hamama">
+                                        @bind-Value="@(Passport.Hamama)">
                             <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string"
                                                 ValueChange="ChangeCountry">
 
@@ -73,7 +73,7 @@
                     <div class="form-group col-md-5">
                         <label class="e-float-text e-label-top" style="text-align:right">גמלון</label>
                         <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlonim"
-                                        AllowFiltering="true" @bind-Value="@Passport.Gamlon" Placeholder="@Passport.Gamlon"
+                                        AllowFiltering="true" @bind-Value="@(Passport.Gamlon)" Placeholder="@Passport.Gamlon"
                                         PopupHeight="auto" DataSource="@GreenHouseToGamlon.AllGamlonim">
                             <DropDownListEvents TItem="GreenHouseToGamlon.Gamlonim" TValue="string">
 
@@ -86,6 +86,7 @@
                     <div class="form-group col-md-6">
                         <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
                         <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
+                        
                     </div>
                 </div>
 
@@ -388,41 +389,34 @@
     }
     public async void UpdatePassport(K_Passport context)
     {
-        if (context.Hamama != null && context.Gamlon != null)
+        if(context.MagashAmount==0)
         {
-            if(context.MagashAmount==0)
-            {
-                context.IsNeedToBeChecked = true;
-            }
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
-            //Http Response Failed On Insert
-            if (!rslt.IsSuccessStatusCode)
-            {
+            context.IsNeedToBeChecked = true;
+        }
+        var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
+        //Http Response Failed On Insert
+        if (!rslt.IsSuccessStatusCode)
+        {
 
-                ToastContent = rslt.StatusCode.ToString();
-                StateHasChanged();
-                await ShowToast();
+            ToastContent = rslt.StatusCode.ToString();
+            StateHasChanged();
+            await ShowToast();
 
-            }
-            else
-            {
-
-
-                if (IsConnected) await SendMessage();
-                ToastContent = HebSaved;
-                StateHasChanged();
-                await ShowToast();
-
-            }
         }
         else
         {
-            ModalError = "יש להזין חממה וגמלון";
-            OpenDialog();
+
+
+            if (IsConnected) await SendMessage();
+            ToastContent = HebSaved;
+            StateHasChanged();
+            await ShowToast();
+
         }
 
+
     }
-  
+
 
     #region MODAL Hamama Gamlon NULL
     /// <summary>
@@ -458,7 +452,6 @@
     public Query StateQuery { get; set; } = null;
     public string CityValue { get; set; } = null;
     public Query CityQuery { get; set; } = null;
-
 
 
     public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
@@ -509,7 +502,7 @@
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
 
-   
+
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -738,6 +731,10 @@
             {
                 args.Cell.AddClass(new string[] { "hamama7" });
             }
+            else if (args.Data.Hamama.Trim() == null)
+            {
+                args.Cell.AddClass(new string[] { "null" });
+            }
         }
     }
 
@@ -789,7 +786,10 @@
         background-color: powderblue;
         font-weight: bold;
     }
-
+    .null {
+        background-color: antiquewhite;
+        font-weight: bold;
+    }
     .hamama1 {
         background-color: cornflowerblue;
         font-weight: bold;
