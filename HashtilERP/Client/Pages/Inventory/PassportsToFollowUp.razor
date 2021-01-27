@@ -211,10 +211,10 @@
     <GridColumns>
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
             <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
-                <GridCommandColumns>    
+                <GridCommandColumns>
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
-                    </GridCommandColumn>              
+                    </GridCommandColumn>
                 </GridCommandColumns>
             </GridColumn>
         </AuthorizeView>
@@ -225,7 +225,15 @@
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>        
+        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            <Template>
+                @{
+                    var value = (context as K_Passport);
+                    var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
+                    <b>@Zan</b>
+                }
+            </Template>
+        </GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -336,7 +344,7 @@
     long passporrtId;
 
 
-    
+
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -487,10 +495,10 @@
             }
         }
         ////PASSPORT STYLE
-        //if (args.Column.Field == "PassportNum")
-        //{
-        //    args.Cell.AddClass(new string[] { "passport" });
-        //}
+        if (args.Column.Field == "PassportNum")
+        {
+            args.Cell.AddClass(new string[] { "passport" });
+        }
         //HAMAMA STYLE
         if (args.Column.Field == "Hamama")
         {
@@ -568,6 +576,7 @@
     .passport {
         background-color: powderblue;
         font-weight: bold;
+        color: red;
     }
 
     .hamama1 {

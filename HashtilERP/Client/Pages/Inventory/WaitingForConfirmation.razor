@@ -50,7 +50,15 @@
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמלון" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebZan" HeaderText="זן" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            <Template>
+                @{
+                    var value = (context as K_Passport);
+                    var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
+                    <b>@Zan</b>
+                }
+            </Template>
+        </GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" HeaderTextAlign="TextAlign.Right" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
