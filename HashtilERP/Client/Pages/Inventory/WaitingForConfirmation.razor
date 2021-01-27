@@ -27,8 +27,11 @@
         </div>
     </div>
 }
+@{
+    var Tool = (new List<string>() { "Search" });
+}
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
+<SfGrid DataSource="@K_Passports" AllowGrouping="true" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents CommandClicked="OnCommandClicked"
                 TValue="K_Passport">
@@ -60,7 +63,6 @@
           Width="100px"
           Height="130px"
           IsModal="true"
-          
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
@@ -86,7 +88,7 @@
 @*Toast Component*@
 <SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent" EnableRtl="true">
     <ToastPosition X="Center"></ToastPosition>
-    
+
 </SfToast>
 
 @code{
@@ -94,7 +96,7 @@
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
     private HubConnection hubConnection;
-   
+
     private static string HebSaved = "נשמר!";
 
     //TOAST
@@ -178,7 +180,7 @@
             {
                 K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + PassportNumber);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 ToastContent = e.Message;
                 await ShowToast();

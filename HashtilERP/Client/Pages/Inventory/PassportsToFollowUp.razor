@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports"  Toolbar=@Tool AllowGrouping="true" AllowSorting="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports"  Toolbar=@Tool AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
    
 
     <GridEvents TValue="K_Passport"></GridEvents>

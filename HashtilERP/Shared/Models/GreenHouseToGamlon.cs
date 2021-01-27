@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HashtilERP.Shared.Models
 {
-    public class GreenHouseToGamlon
+    public  class GreenHouseToGamlon
     {
         public class Hamama
         {
@@ -24,6 +24,34 @@ namespace HashtilERP.Shared.Models
         public class Gamlonim {
             public string gamlon { get; set; }
         }
+
+        public static bool CheckIfHamamaAndGamlonExsist(string hamama, string gamlon = "0")
+        {
+            int t = 0;
+            foreach(var i in Hamamas)
+            {
+                if(i.HamamaId==hamama)
+                {
+                    t++;
+                }
+            }
+            if(t==1 && gamlon=="0")
+            {
+                return true;
+            }
+            if (t == 1 && gamlon != "0")
+            {
+                foreach(var i in gamlons)
+                {
+                    if( i.GamlonName == gamlon && i.HamamaId==hamama)
+                    {
+                        return true;
+                    }
+                }
+            }            
+            return false;
+        }
+
 
         public static List<Hamama> Hamamas = new List<Hamama>() {
         new Hamama(){ HamamaName= "1", HamamaId= "1" },

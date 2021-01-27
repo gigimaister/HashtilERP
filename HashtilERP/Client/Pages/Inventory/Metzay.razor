@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true"  AllowSorting="true" EnableRtl="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -56,37 +56,34 @@
                 var Passport = (context as K_Passport);
 
                 <div class="form-row" dir="rtl">
-                    <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align:right">חממה</label>
-                        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" AllowFiltering="true"
-                                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas" Placeholder="@Passport.Hamama"
-                                        @bind-Value="@(Passport.Hamama)">
-                            <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string"
-                                                ValueChange="ChangeCountry">
-
-                            </DropDownListEvents>
-                            <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
-                        </SfDropDownList>
-                    </div>
-                </div>
+                            <div class="form-group col-md-5">
+                                <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
+                                <label class="e-float-text e-label-top" style="text-align:right">@Passport.Hamama</label>
+                            </div>
+                            <div class="form-group col-md-5">
+                                <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
+                                @*Select a hamama*@
+                                <input type="text" class="form-control"  @bind="InputHamama" placeholder="שינוי חממה" />
+                            </div>
+                        </div>            
                 <div class="form-row" dir="rtl">
                     <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align:right">גמלון</label>
-                        <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlonim"
-                                        AllowFiltering="true" @bind-Value="@(Passport.Gamlon)" Placeholder="@Passport.Gamlon"
-                                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.AllGamlonim">
-                            <DropDownListEvents TItem="GreenHouseToGamlon.Gamlonim" TValue="string">
+                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
+                        <label class="e-float-text e-label-top" style="text-align:right">@Passport.Gamlon</label>
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
+                        @*Select a gamlon*@
+                        <input type="text" class="form-control" @bind="InputGamlon" placeholder="שינוי גמלון" />
 
-                            </DropDownListEvents>
-                            <DropDownListFieldSettings Text="gamlon" Value="gamlon"></DropDownListFieldSettings>
-                        </SfDropDownList>
                     </div>
                 </div>
+                
                 <div class="form-row" dir="rtl">
                     <div class="form-group col-md-6">
                         <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
                         <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
-                        
+
                     </div>
                 </div>
 
@@ -381,14 +378,49 @@
 </SfDialog>
 
 @code {
-
+    string InputHamama, InputGamlon;
     SfGrid<K_Passport> SfGrid;
     public void CloseUpdateDialog()
     {
         this.SfGrid.CloseEdit();
+        InputHamama = "";
+        InputGamlon = "";
     }
     public async void UpdatePassport(K_Passport context)
     {
+
+        if(InputHamama != null)
+        {
+            if(InputGamlon != null)
+            {
+                if(GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama,InputGamlon))
+                {
+                    context.Hamama = InputHamama;
+                    context.Gamlon = InputGamlon;
+                }
+                else
+                {
+                    ModalError = "יש להזין חממה וגמלון מתאימים";
+                    IsVisible = true;
+                    return;
+                }
+            }
+            else
+            {
+                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama))
+                {
+                    context.Hamama = InputHamama;
+
+                }
+                else
+                {
+                    ModalError = $"הערך {InputHamama} לא תקין";
+                    IsVisible = true;
+                    return;
+                }
+            }
+        }
+
         if(context.MagashAmount==0)
         {
             context.IsNeedToBeChecked = true;
@@ -411,11 +443,15 @@
             ToastContent = HebSaved;
             StateHasChanged();
             await ShowToast();
+            await this.SfGrid.CloseEdit();
 
         }
 
 
     }
+
+
+
 
 
     #region MODAL Hamama Gamlon NULL
@@ -444,36 +480,7 @@
     }
     #endregion
 
-    #region DROPDOWN
-    //2 DROPLIST HAMAMA AND GAMLON SETTINGS
-    public bool EnableStateDropDown = true;
-    public bool EnableCitytDropDown = false;
-    public string StateValue { get; set; } = null;
-    public Query StateQuery { get; set; } = null;
-    public string CityValue { get; set; } = null;
-    public Query CityQuery { get; set; } = null;
 
-
-    public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
-    {
-
-        this.EnableStateDropDown = true;
-        this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
-        this.StateValue = null;
-        this.CityValue = null;
-
-
-
-    }
-
-    public void ChangeState(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Gamlons> args)
-    {
-        this.EnableCitytDropDown = true;
-        this.CityQuery = new Query().Where(new WhereFilter() { Field = "GamlonId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
-        this.CityValue = null;
-    }
-    //END DROPDOWN SETTINGS
-    #endregion
 
     #region TOAST
     //TOAST

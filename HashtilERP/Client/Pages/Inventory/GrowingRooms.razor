@@ -28,7 +28,7 @@
 }
 
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@GrowPassports" AllowGrouping="true" AllowSorting="true" AllowResizing="true" AllowFiltering="true">
+<SfGrid DataSource="@GrowPassports" AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowResizing="true" AllowFiltering="true">
     <GridEvents TValue="K_Passport" RowDataBound="RowBound"></GridEvents>
     <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
     <GridTemplates>
