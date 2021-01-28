@@ -58,7 +58,7 @@ namespace HashtilERP.Server
                         break;
 
                     case "3":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse.Trim())
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)
