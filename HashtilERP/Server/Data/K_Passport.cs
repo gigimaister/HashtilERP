@@ -24,6 +24,7 @@ namespace HashtilERP.Data
         public bool? IsNeedToBeChecked { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportAvg { get; set; }
+        public int? PassportStartingAVG { get; set; }
         public int? OriginalMagashAmount { get; set; }
         public string ItemCode { get; set; }
         

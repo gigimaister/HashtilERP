@@ -187,6 +187,7 @@ namespace HashtilERP.Server
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kPassport.UserName = screenName;
+            
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -221,6 +222,17 @@ namespace HashtilERP.Server
         [HttpPut("{id}")]
         public async Task<IActionResult> PutKPassport(int id, K_Passport kPassport)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kPassport.UserName = screenName;
+            if (kPassport.PassportAvg == null)
+            {
+                kPassport.PlantsAmount = (kPassport.MagashAmount * kPassport.PassportStartingAVG);
+            }
+            else
+            {
+                kPassport.PlantsAmount = (kPassport.MagashAmount * kPassport.PassportAvg);
+            }
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -279,6 +291,7 @@ namespace HashtilERP.Server
             kPassport.UserName = screenName;
             kPassport.SowDate = sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
+            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanProd*1000)/(sap.UTraySow));
             kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);

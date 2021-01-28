@@ -27,6 +27,7 @@ namespace HashtilERP.Shared.Models
         public bool? IsNeedToBeChecked { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportAVG { get; set; }
+        public int? PassportStartingAVG { get; set; }
         public string ItemCode { get; set; }
         public string UserName { get; set; }
         public string PassportCondition { get; set; }
