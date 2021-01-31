@@ -42,7 +42,8 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true"  AllowSorting="true" EnableRtl="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
+
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -56,16 +57,17 @@
                 var Passport = (context as K_Passport);
 
                 <div class="form-row" dir="rtl">
-                            <div class="form-group col-md-5">
-                                <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
-                                <label class="e-float-text e-label-top" style="text-align:right">@Passport.Hamama</label>
-                            </div>
-                            <div class="form-group col-md-5">
-                                <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
-                                @*Select a hamama*@
-                                <input type="text" class="form-control"  @bind="InputHamama" placeholder="שינוי חממה" />
-                            </div>
-                        </div>            
+                    <div class="form-group col-md-5">
+                        <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
+                        <label class="e-float-text e-label-top" style="text-align:right">@Passport.Hamama</label>
+                    </div>
+                    <div class="form-group col-md-5">
+                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
+                        @*Select a hamama*@
+                        <input type="text" class="form-control" @bind="InputHamama" placeholder="שינוי חממה" />
+                    </div>
+                </div>
+
                 <div class="form-row" dir="rtl">
                     <div class="form-group col-md-5">
                         <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
@@ -78,7 +80,7 @@
 
                     </div>
                 </div>
-                
+
                 <div class="form-row" dir="rtl">
                     <div class="form-group col-md-6">
                         <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
@@ -97,8 +99,8 @@
     </GridEditSettings>
 
     <GridEvents TValue="K_Passport"></GridEvents>
-    <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin"  RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
-
+    <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
     <GridTemplates>
 
         <DetailTemplate>
@@ -264,7 +266,7 @@
                                             <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
                                         </div>
                                         <div class="col-form-label">
-                                            <label class="form-check-label"  style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
                                         </div>
                                     </div>
                                     <div class="form-row" dir="rtl">
@@ -284,7 +286,38 @@
         </DetailTemplate>
 
     </GridTemplates>
-   
+
+    <GridAggregates>
+        <GridAggregate>
+            <GridAggregateColumns>
+                <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Count">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+                           
+                                <b>ספירה: @aggregate.Count</b>
+                            
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+            </GridAggregateColumns>
+        </GridAggregate>
+        <GridAggregate>
+            <GridAggregateColumns>
+                <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+                            <div>
+                                <b>סכום: @aggregate.Sum</b>
+                            </div>
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+            </GridAggregateColumns>
+        </GridAggregate>
+    </GridAggregates>
+
     <GridColumns>
         <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" AutoFit="true">
             <GridCommandColumns>
@@ -308,10 +341,10 @@
         <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
             <Template>
                 @{

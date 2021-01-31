@@ -42,11 +42,12 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports"  Toolbar=@Tool AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
-   
+<SfGrid DataSource="@K_Passports" Toolbar=@Tool AllowGrouping="true" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
+
 
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
 
     <GridTemplates>
 
@@ -385,17 +386,17 @@
 
     </GridTemplates>
     <GridColumns>
-        
-            <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
-                <GridCommandColumns>
-                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Viewer">
-                        <GridCommandColumn Type=CommandButtonType.None
-                                           ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
-                        </GridCommandColumn>
-                    </AuthorizeView>
-                </GridCommandColumns>
-            </GridColumn>
-        
+
+        <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
+            <GridCommandColumns>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Viewer">
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
+                    </GridCommandColumn>
+                </AuthorizeView>
+            </GridCommandColumns>
+        </GridColumn>
+
         <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>

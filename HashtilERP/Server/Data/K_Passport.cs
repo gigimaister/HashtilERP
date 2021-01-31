@@ -34,7 +34,7 @@ namespace HashtilERP.Data
         public string PassportCondition { get; set; }
 
         [ForeignKey("SapDocEntry")]
-        public virtual Passport  Passport { get; set; }
+        public virtual Passport Passport { get; set; }
 
         [ForeignKey("K_PassportId")]
         public virtual KPassportInsertAudit  KPassportInsertAudit { get; set; }

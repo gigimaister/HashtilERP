@@ -42,7 +42,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowFiltering="true" EnableRtl="true" AllowSorting="true"  AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
         <HeaderTemplate>
             <div style="text-align:right">
@@ -99,6 +99,7 @@
 
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
 
     <GridTemplates>
 
@@ -288,22 +289,27 @@
     </GridTemplates>
     <GridColumns>
 
-        <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Right" AutoFit="true">
-                <GridCommandColumns>
 
+        <GridColumn HeaderText="" TextAlign="TextAlign.Right" AutoFit="true">
+            <GridCommandColumns>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "פריסה מחדש", CssClass = "e-success" })">
                     </GridCommandColumn>
+                </AuthorizeView>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                     <GridCommandColumn Type=CommandButtonType.Edit
                                        ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
                     </GridCommandColumn>
+                </AuthorizeView>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "אישור", CssClass = "e-danger" })">
                     </GridCommandColumn>
-                </GridCommandColumns>
-            </GridColumn>
-        </AuthorizeView>
+                </AuthorizeView>
+            </GridCommandColumns>
+        </GridColumn>
+
 
         <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>

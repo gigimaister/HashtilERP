@@ -40,9 +40,11 @@
     <GridColumns>
         <GridColumn HeaderText="" TextAlign="TextAlign.Left" Width="150">
             <GridCommandColumns>
-                <GridCommandColumn Type=CommandButtonType.None
-                                   ButtonOption="@(new CommandButtonOptions() { Content = "אישור" ,CssClass="e-success"})">
-                </GridCommandColumn>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "אישור" ,CssClass="e-success"})">
+                    </GridCommandColumn>
+                    </AuthorizeView>
             </GridCommandColumns>
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
