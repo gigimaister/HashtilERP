@@ -113,7 +113,15 @@ namespace HashtilERP.Server
         public async Task<ActionResult<K_Passport>> GetThaiKPassport(int id)
         {
 
-            var kPassport = await _context.KPassport.Where(x=>x.PassportNum==id).FirstOrDefaultAsync();
+            var kPassport = await _context.KPassport.Where(x=>x.PassportNum==id).Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .FirstOrDefaultAsync();
 
             if (kPassport == null)
             {

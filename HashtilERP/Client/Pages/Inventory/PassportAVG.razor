@@ -2,12 +2,12 @@
 @inject IJSRuntime jsRuntime
 
 @using System.Security.Claims;
+@using System.Net.Http;
 
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Notifications
 @using Syncfusion.Blazor.Popups
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Spinner
@@ -61,23 +61,155 @@
         שלח
     </button>
 </div>
-@code {
 
-    string passportInput;
+
+@*PassportAVG Modal*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Content>
+            <form style="text-align:right">
+                <div class="form-group" style="text-align:right">
+                    <label for="formGroupExampleInput2">פסספורט: @Passportnumber</label>
+                    <label for="formGroupExampleInput2">@Passportgidul</label>
+                </div>
+                <div class="form-group" style="text-align:right">
+                    <label for="formGroupExampleInput2">ממוצע חדש</label>
+                    <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput2" placeholder="">
+                </div>
+                <div class="form-group">
+                    <label for="formGroupExampleInput">ממוצע נוכחי</label>
+                    @{ if (CurrentAVG == "") { CurrentAVG = "לא הוזן עדיין"; }
+                    }
+                    <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput" placeholder="@CurrentAVG" readonly="readonly">
+                </div>
+                <div class="form-group">
+                    <label for="formGroupExampleInput2">ממוצע זריעה</label>
+                    <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput2" placeholder="@SapAVG" readonly="readonly">
+                </div>
+                <div class="button-container">
+                    <button type="submit" style="margin-right:25px"
+                            class="btn btn-danger">
+                        ביטול
+                    </button>
+                    <button type="submit"
+                            class="btn btn-success">
+                        אישור
+                    </button>
+                </div>
+            </form>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@*Error Modal*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorModalIsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayErrorModalClick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header> שגיאה! </Header>
+        <Content> @ModalErrorContent </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseErrorModal" />
+
+    </DialogButtons>
+</SfDialog>
+
+@code {
+    string passportInput, CurrentAVG, SapAVG, Passportnumber, Passportgidul;
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
+    private HubConnection hubConnection;
     bool ShowScanBarcode { get; set; } = false;
     public int? BarCode { get; set; }
     private string isDevice { get; set; }
     private bool mobile { get; set; }
     string ScanPassportNumber;
-    // Property to control the delete dialog.
-    public bool DeleteRecordConfirmVisibility { get; set; } = false;
+    string ModalText;
 
+
+    //DIALOG SETTINGS FOR AVG
+    private bool IsVisible { get; set; } = false;
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+
+
+
+    //HubCon
+    #region HubCon
+    public bool IsConnected =>
+   hubConnection.State == HubConnectionState.Connected;
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    #endregion
+
+    //ERROR Modal
+    #region Error Modal
+    private bool ErrorModalIsVisible { get; set; } = false;
+    private string ModalErrorContent { get; set; } = "";
+
+    private void OnOverlayErrorModalClick(MouseEventArgs arg)
+    {
+        this.ErrorModalIsVisible = false;
+    }
+    private void CloseErrorModal()
+    {
+        this.ErrorModalIsVisible = false;
+    }
+    #endregion
+
+    //INITIALIZED
+    protected override async Task OnInitializedAsync()
+    {
+
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+
+    }
+
+    //EDIT/SEND NEW AVG
     public async void EditPassportAVG()
     {
-        //GET PASSPORT OBJECT FROM SCAN
-        K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
-        DeleteRecordConfirmVisibility = true;
+        try
+        {
+
+            //GET PASSPORT OBJECT FROM SCAN
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
+            CurrentAVG = K_Passport.PassportAVG.ToString();
+            SapAVG = K_Passport.PassportStartingAVG.ToString();
+            Passportnumber = K_Passport.PassportNum.ToString();
+            Passportgidul = K_Passport.Passport.UItemDesc;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+
+        }
+        catch (Exception)
+        {
+            ModalErrorContent = "לא נמצאו תוצאות";
+            ErrorModalIsVisible = true;
+            if (IsConnected) await SendMessage();
+        }
+
+
+
+
+
     }
 }
