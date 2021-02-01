@@ -10,8 +10,8 @@
     <ul class="nav flex-column">
         <AuthorizeView Roles="Administrator">
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href=""  Match="NavLinkMatch.All">
-                    <span class="oi oi-home"  aria-hidden="true"></span>&nbsp ראשי
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span>&nbsp ראשי
                 </NavLink>
             </li>
         </AuthorizeView>
@@ -77,6 +77,13 @@
                 </NavLink>
             </li>
         </AuthorizeView>
+        <AuthorizeView Roles="Administrator,AuditAvgCounter">
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="inventory/passportavg" Match="NavLinkMatch.All">
+                    <span class="oi oi-timer" aria-hidden="true"></span>&nbsp ממוצעים
+                </NavLink>
+            </li>
+        </AuthorizeView> 
 
     </ul>
 </div>

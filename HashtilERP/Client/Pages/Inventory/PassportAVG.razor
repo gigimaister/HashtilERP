@@ -1,0 +1,83 @@
+﻿@page "/inventory/passportavg"
+@inject IJSRuntime jsRuntime
+
+@using System.Security.Claims;
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Syncfusion.Blazor.Inputs
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Data
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,AuditAvgCounter")]
+
+<h3 style="text-align:center">ממוצעים</h3>
+
+@if (isDevice == "Mobile" || 1 == 1)
+{
+    <div style="text-align:right">
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            סריקה
+        </button>
+    </div>
+}
+<br />
+<br />
+@*//Paasport Input*@
+<div style="text-align:right">
+    <input type="text" class="form-control" style="width:auto;" name="GRWroom"
+           placeholder="פספורט"
+           @bind=@passportInput />
+</div>
+<br />
+
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { ScanPassportNumber = e; ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
+}
+<div style="text-align:right">
+    <button class="btn btn-success"
+            type="button"
+            @onclick="@EditPassportAVG">
+        @*ENTER SCAN*@
+        שלח
+    </button>
+</div>
+@code {
+
+    string passportInput;
+    public K_Passport K_Passport = new K_Passport();
+    public K_Passport[] K_Passports;
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    string ScanPassportNumber;
+    // Property to control the delete dialog.
+    public bool DeleteRecordConfirmVisibility { get; set; } = false;
+
+    public async void EditPassportAVG()
+    {
+        //GET PASSPORT OBJECT FROM SCAN
+        K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
+        DeleteRecordConfirmVisibility = true;
+    }
+}
