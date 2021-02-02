@@ -1,21 +1,16 @@
 ﻿@page "/inventory/passportavg"
 @inject IJSRuntime jsRuntime
 
-@using System.Security.Claims;
-@using System.Net.Http;
 
+@using System.Net.Http;
+@using Syncfusion.Blazor.Popups
 @using Microsoft.AspNetCore.Authorization
 @using ZXingBlazor.Components
-@using Syncfusion.Blazor.Buttons
-@using Syncfusion.Blazor.Grids
-@using Syncfusion.Blazor.Popups
-@using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Spinner
 @using HashtilERP.Shared.Models
-@using Syncfusion.Blazor.Inputs
 @using Microsoft.AspNetCore.SignalR.Client
-@using Syncfusion.Blazor.Navigations
-@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Notifications
+
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -40,7 +35,7 @@
     <div class="spin-row">
         <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
     </div>
-</div>   
+</div>
 
 <br />
 <br />
@@ -81,7 +76,7 @@
                 <label for="formGroupExampleInput2"><b>פספורט: </b>@Passportnumber</label>
                 <div class="alert alert-success" role="alert">
                     <label for="formGroupExampleInput2">@Passportgidul</label>
-                </div>             
+                </div>
             </div>
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput2">ממוצע חדש</label>
@@ -95,11 +90,11 @@
             </div>
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput2">ממוצע זריעה</label>
-                <input type="number" style="text-align:right"  class="form-control" id="formGroupExampleInput2" placeholder="@SapAVG" readonly="readonly">
+                <input type="number" style="text-align:right" class="form-control" id="formGroupExampleInput2" placeholder="@SapAVG" readonly="readonly">
             </div>
             <div class="button-container">
                 <button type="submit" style="margin-right:25px"
-                        class="btn btn-danger"  @onclick="@CancelEditPassportAVG">
+                        class="btn btn-danger" @onclick="@CancelEditPassportAVG">
                     ביטול
                 </button>
                 <button type="submit"
@@ -125,6 +120,11 @@
 
     </DialogButtons>
 </SfDialog>
+
+@*Toast Component*@
+<SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
 
 @code {
     string passportInput, CurrentAVG, SapAVG, Passportnumber, Passportgidul;
@@ -177,6 +177,24 @@
         this.ErrorModalIsVisible = false;
     }
     #endregion
+
+    //Toast
+    #region Toast
+
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+    #endregion
+
 
     //INITIALIZED
     protected override async Task OnInitializedAsync()
@@ -231,14 +249,48 @@
     public async void SendPassportAVG()
     {
         SpinnerBool = true;
-        var r = K_Passport.Passport.Oitm.UCelsTray * 1000;
-        var t = Convert.ToInt32(K_Passport.Passport.Oitm.UCelsTray * 1000);
+        //if AVG > magash type
         if (EditedAVG > Convert.ToInt32(K_Passport.Passport.Oitm.UCelsTray * 1000))
         {
             ModalErrorContent = "ממוצע גבוה מסוג מגש";
             ErrorModalIsVisible = true;
             if (IsConnected) await SendMessage();
             SpinnerBool = false;
+        }
+        else
+        {
+            K_Passport.PassportAVG = EditedAVG;
+            try
+            {
+                var rslt = await Http.PutAsJsonAsync($"api/KPassports/{K_Passport.K_PassportId}", K_Passport);
+                //Http Response Failed On Update
+                if (!rslt.IsSuccessStatusCode)
+                {
+                    SpinnerBool = false;
+                    ModalErrorContent = rslt.ReasonPhrase;
+                    ErrorModalIsVisible = true;
+                    if (IsConnected) await SendMessage();
+                }
+                else
+                {
+                    SpinnerBool = false;
+                    //OK
+                    if (IsConnected) await SendMessage();
+                    this.IsVisible = false;
+                    ToastContent = "נשמר!";
+                    StateHasChanged();
+                    await ShowToast();
+                }
+            }
+            catch (Exception e)
+            {
+                SpinnerBool = false;
+                if (IsConnected) await SendMessage();
+                this.IsVisible = false;
+                ToastContent = e.Message;
+                StateHasChanged();
+                await ShowToast();
+            }
         }
 
     }

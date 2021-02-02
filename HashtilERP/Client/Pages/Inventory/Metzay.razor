@@ -562,7 +562,7 @@
             context.IsNeedToBeChecked = true;
         }
         var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
-        //Http Response Failed On Insert
+        //Http Response Failed On Update
         if (!rslt.IsSuccessStatusCode)
         {
 
