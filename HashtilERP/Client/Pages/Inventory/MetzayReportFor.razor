@@ -1,0 +1,30 @@
+﻿@page "/inventory/metzayreportfor"
+@inject IJSRuntime jsRuntime
+
+@using System.Security.Claims;
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Syncfusion.Blazor.Inputs
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Data
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren")]
+
+<h3 style="text-align:center">דוח מצאי ליום</h3>
+
+
+@code {
+
+}

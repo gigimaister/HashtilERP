@@ -107,6 +107,19 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
+                    case "7":
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.Destroyed || x.PassportStatus.Trim() == Status.Finished && x.IsNeedToBeChecked==false)
+                           .OrderByDescending(x => x.AVGEnteringDate)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                        break;
 
                 }
                 return ChosenList;
