@@ -15,6 +15,9 @@ namespace HashtilERP.Shared.Models
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; } = DateTime.Today;
         public DateTime? DateEnd { get; set; } = DateTime.Today;
+        public DateTime? MetzayEnteringDate { get; set; }
+        public DateTime? MetzayOutGoingDate { get; set; }
+        public DateTime? AVGEnteringDate { get; set; }
         public int? GrowingDays { get; set; }
         public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
         public string Zan { get; set; }

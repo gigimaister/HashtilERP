@@ -580,6 +580,11 @@
             if (K_Passport.MagashAmount == 0)
             {
                 K_Passport.PassportStatus = Status.Finished;
+                K_Passport.MetzayOutGoingDate = DateTime.Now;
+            }
+            if(K_Passport.PassportStatus.Trim() == Status.Destroyed)
+            {
+                K_Passport.MetzayOutGoingDate = DateTime.Now;
             }
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
