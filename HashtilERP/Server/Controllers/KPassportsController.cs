@@ -120,6 +120,7 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
+                   
 
                 }
                 return ChosenList;
@@ -133,6 +134,38 @@ namespace HashtilERP.Server
 
         }
 
+
+        //List Of Passports For Metzay Report
+        [HttpGet("report/{date}")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
+        {
+            var ChosenList = new List<K_Passport>();
+            var user = await _userManager.GetUserAsync(User);
+
+            try
+            {
+                ChosenList = await _context.KPassport.Where(x => x.MetzayEnteringDate < Convert.ToDateTime(date) && Convert.ToDateTime(date) < x.MetzayOutGoingDate)
+               
+                            .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Oitm)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)                          
+                           .ToListAsync();
+
+                return ChosenList;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+
+
+        }
 
         //GET FOR OBJECT RETURN TO RAZOR PAGE
         [HttpGet("Thai/GreenHouse/{id}")]
