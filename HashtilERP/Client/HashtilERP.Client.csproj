@@ -13,10 +13,10 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
     <PackageReference Include="Syncfusion.Blazor" Version="18.4.0.32" />
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
-    <PackageReference Include="ZXingBlazor" Version="0.1.4" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ZXingBlazor\ZXingBlazor.csproj" />
     <ProjectReference Include="..\Shared\HashtilERP.Shared.csproj" />
   </ItemGroup>
 

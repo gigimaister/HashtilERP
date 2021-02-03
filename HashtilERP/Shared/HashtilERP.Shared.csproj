@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <PackageReference Include="Syncfusion.Blazor" Version="18.4.0.32" />
-    <PackageReference Include="ZXingBlazor" Version="0.1.4" />
   </ItemGroup>
 
   <ItemGroup>
