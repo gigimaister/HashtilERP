@@ -386,8 +386,9 @@
     <DialogTemplates>
         <Header>ביקורת חדשה</Header>
         <Content>
-            <EditForm Model="@PassportAuditForm">
+            <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
+                
                 <div style="text-align:right">
                     <SfDropDownList TValue="string" TItem="AuditFormStatus" Placeholder="מצב" Width="auto" DataSource="@AuditFormStatus.Statuses"
                                     PopupHeight="350px" PopupWidth="200px" @bind-Value="@PassportAuditForm.AuditStatus">
@@ -404,12 +405,10 @@
                 </div>
                 <br />
                 <div class="button-container" style="text-align:center">
-                    <button type="submit"
-                            class="btn btn-success"
-                            @onclick="ConfirmDeleteYes">
+                    <button type="submit" class="btn btn-success">
                         אישור
-                    </button>
-                    <button type="submit" style="margin-right:25px"
+                    </button>                   
+                    <button  style="margin-right:25px"
                             class="btn btn-danger"
                             @onclick="ConfirmDeleteNo">
                         ביטול
@@ -467,6 +466,9 @@
     private HubConnection hubConnection;
     string InputHamama, InputGamlon;
     SfGrid<K_Passport> SfGrid;
+
+    private EditContext editContext;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -556,7 +558,21 @@
                 }
             }
         }
+        if(InputHamama == "" && InputGamlon != "")
+        {
+            if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(context.Hamama.Trim(), InputGamlon))
+            {
 
+                InputHamama = context.Hamama.Trim();
+                context.Gamlon = InputGamlon;
+            }
+            else
+            {
+                ModalError = "יש להזין חממה וגמלון מתאימים";
+                IsVisible = true;
+                return;
+            }
+        }
         if(context.MagashAmount==0)
         {
             context.IsNeedToBeChecked = true;
@@ -679,6 +695,8 @@
     //DIALOG Destroy CONFIRMED
     public async void ConfirmDestroyYes()
     {
+        //Validate Audit Form Check
+
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -698,16 +716,12 @@
                 PassportAuditForm = new PassportAuditForm();
             }
 
-
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
         }
-
-
-
 
     }
 
@@ -764,7 +778,7 @@
 
     }
 
-    
+
 
 
     //CELL MAGASH TYPE STYLE
