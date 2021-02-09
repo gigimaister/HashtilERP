@@ -786,21 +786,31 @@
     {
         if (args.Column.Field == "Passport.Oitm.UCelsTray")
         {
-            if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.180)
+            try
             {
-                args.Cell.AddClass(new string[] { "magash-180" });
+
+                if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.180)
+                {
+                    args.Cell.AddClass(new string[] { "magash-180" });
+                }
+                else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.187)
+                {
+                    args.Cell.AddClass(new string[] { "magash-187" });
+                }
+                else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.442)
+                {
+                    args.Cell.AddClass(new string[] { "magash-442" });
+                }
+                else
+                {
+                    args.Cell.AddClass(new string[] { "magash-308" });
+                }
             }
-            else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.187)
+            catch(Exception e)
             {
-                args.Cell.AddClass(new string[] { "magash-187" });
-            }
-            else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.442)
-            {
-                args.Cell.AddClass(new string[] { "magash-442" });
-            }
-            else
-            {
-                args.Cell.AddClass(new string[] { "magash-308" });
+                ModalError = e.Message;
+                IsVisible = true;
+                return;
             }
         }
         ////PASSPORT STYLE

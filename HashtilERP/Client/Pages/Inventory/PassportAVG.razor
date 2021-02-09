@@ -390,7 +390,7 @@
     public int? BarCode { get; set; }
     private string isDevice { get; set; }
     private bool mobile { get; set; }
-    string ScanPassportNumber;    
+    string ScanPassportNumber;
     int EditedAVG;
     bool SpinnerBool = false;
 
@@ -509,6 +509,7 @@
             SpinnerBool = false;
             if (IsConnected) await SendMessage();
 
+
         }
         catch (Exception)
         {
@@ -516,6 +517,7 @@
             ModalErrorContent = "לא נמצאו תוצאות";
             ErrorModalIsVisible = true;
             if (IsConnected) await SendMessage();
+
         }
     }
 
@@ -545,6 +547,7 @@
                     ModalErrorContent = rslt.ReasonPhrase;
                     ErrorModalIsVisible = true;
                     if (IsConnected) await SendMessage();
+                    passportInput = "";
                 }
                 else
                 {
@@ -576,6 +579,7 @@
     {
         this.IsVisible = false;
         EditedAVG = 0;
+        passportInput = "";
     }
 
     //EXPORT TO PDF
