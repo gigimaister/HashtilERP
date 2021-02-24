@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtilERP.Client", "Hashti
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HashtilERP.Shared", "HashtilERP\Shared\HashtilERP.Shared.csproj", "{96F204A9-9996-408B-9201-E934381ECA8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZXingBlazor", "ZXingBlazor\ZXingBlazor.csproj", "{CC08563B-4D4C-4044-9F36-373EBBCE70FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZXingBlazor", "ZXingBlazor\ZXingBlazor.csproj", "{CC08563B-4D4C-4044-9F36-373EBBCE70FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

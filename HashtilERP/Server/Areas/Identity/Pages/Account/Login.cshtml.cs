@@ -90,8 +90,9 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 var user = await _userManager.FindByEmailAsync(Input.Email.ToString());
-               
-                if(await _userManager.IsInRoleAsync(user, "Thai-Guy"))               
+                await _userManager.UpdateSecurityStampAsync(user);
+
+                if (await _userManager.IsInRoleAsync(user, "Thai-Guy"))               
                 {
                     returnUrl = "~/sowing/insertpassport";
                 }
