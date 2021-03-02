@@ -21,7 +21,7 @@
 
 <h3 style="text-align:center">ממוצעים</h3>
 
-@if (isDevice == "Mobile" || 1 == 1)
+@if (isDevice == "Mobile")
 {
     <div style="text-align:right">
         <button class="btn btn-primary"
@@ -33,11 +33,7 @@
     </div>
 }
 
-<div class="col-sm">
-    <div class="spin-row">
-        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
-    </div>
-</div>
+
 
 <br />
 <br />
@@ -52,7 +48,7 @@
 @if (ShowScanBarcode)
 {
 
-    <BarcodeReader ScanResult="((e) => { ScanPassportNumber = e; ShowScanBarcode = !ShowScanBarcode; })"
+    <BarcodeReader ScanResult="((e) => { passportInput = e; ScanDirectToEdit(); ShowScanBarcode = !ShowScanBarcode; })"
                    ShowScanBarcode="ShowScanBarcode"
                    Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
 
@@ -60,7 +56,7 @@
 <div style="text-align:right">
     <button class="btn btn-success"
             type="button"
-            @onclick="@EditPassportAVG">
+            @onclick="@ScanDirectToEdit">
         @*ENTER SCAN*@
         שלח
     </button>
@@ -74,7 +70,12 @@
         </div>
     </div>
 }
-
+@*controlled spinner buttons*@
+<div class="col-sm">
+    <div class="spin-row" style="z-index:0">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+    </div>
+</div>
 @{
     var Tool = (new List<string>() { "Search", "Print" });
 
@@ -327,9 +328,11 @@
         <Content>
 
             <div class="form-group" style="text-align:right">
-                <label for="formGroupExampleInput2"><b>פספורט: </b>@Passportnumber</label>
+                <div class="alert alert-warning" role="alert">
+                    <label for="formGroupExampleInput2"><b>פספורט: </b>@Passportnumber</label>
+                </div>
                 <div class="alert alert-success" role="alert">
-                    <label for="formGroupExampleInput2">@Passportgidul</label>
+                    <label for="formGroupExampleInput2"><b>זן: </b>@Passportgidul</label>
                 </div>
             </div>
             <div class="form-group" style="text-align:right">
@@ -342,6 +345,8 @@
                 }
                 <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput" placeholder="@CurrentAVG" readonly="readonly">
             </div>
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput2">ממוצע זריעה</label>
                 <input type="number" style="text-align:right" class="form-control" id="formGroupExampleInput2" placeholder="@SapAVG" readonly="readonly">
@@ -352,7 +357,7 @@
                     ביטול
                 </button>
                 <button type="submit"
-                        class="btn btn-success" @onclick="@SendPassportAVG">
+                        class="btn btn-success" @onclick="@SubmitAVGEditDialog">
                     אישור
                 </button>
             </div>
@@ -390,10 +395,17 @@
     public int? BarCode { get; set; }
     private string isDevice { get; set; }
     private bool mobile { get; set; }
-    string ScanPassportNumber;
-    int EditedAVG;
-    bool SpinnerBool = false;
 
+    int EditedAVG;
+    bool SpinnerBool { get; set; } = false;
+
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
 
     //DIALOG SETTINGS FOR AVG
     private bool IsVisible { get; set; } = false;
@@ -455,7 +467,7 @@
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
-
+        await FindResponsiveness();
         hubConnection = new HubConnectionBuilder()
     .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
     .Build();
@@ -493,8 +505,21 @@
         _ = hubConnection.DisposeAsync();
     }
 
+    public async void ScanDirectToEdit()
+    {
+        SpinnerBool = true;
+        await EditPassportAVG();
+        SpinnerBool = false;
+    }
+    public async void SubmitAVGEditDialog()
+    {
+        SpinnerBool = true;
+        await SendPassportAVG();
+        SpinnerBool = false;
+    }
+
     //EDIT/SEND NEW AVG
-    public async void EditPassportAVG()
+    public async Task EditPassportAVG()
     {
         try
         {
@@ -504,7 +529,7 @@
             CurrentAVG = K_Passport.PassportAVG.ToString();
             SapAVG = K_Passport.PassportStartingAVG.ToString();
             Passportnumber = K_Passport.PassportNum.ToString();
-            Passportgidul = K_Passport.Passport.UItemDesc;
+            Passportgidul = K_Passport.Zan;
             OpenDialog();
             SpinnerBool = false;
             if (IsConnected) await SendMessage();
@@ -519,10 +544,11 @@
             if (IsConnected) await SendMessage();
 
         }
+
     }
 
     //EDIT PASSPORT AVG MODAL BUTTONS
-    public async void SendPassportAVG()
+    public async Task SendPassportAVG()
     {
         SpinnerBool = true;
         //if AVG > magash type

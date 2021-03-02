@@ -49,7 +49,7 @@
     <div class="card-header" style="text-align:center">
         @*Select Hamama*@
         <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string"  Placeholder="เลือกเรือนกระจก" AllowFiltering="true"
-                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas"
+                        PopupHeight="auto" DataSource="@HamamasList"
                         @bind-Value="@Hamama">
             <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string" ValueChange="ChangeCountry"></DropDownListEvents>
             <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
@@ -59,8 +59,7 @@
         @*Select a number*@
         <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlons"
                         AllowFiltering="true" @bind-Value="@Gamlon"  Placeholder="เลือกหมายเลข" Query="@StateQuery"
-                        PopupHeight="auto" DataSource="@GreenHouseToGamlon.gamlons">
-            <DropDownListEvents TItem="GreenHouseToGamlon.Gamlons" TValue="string" ValueChange="ChangeState"></DropDownListEvents>
+                        PopupHeight="auto" DataSource="@GamlonsList">
             <DropDownListFieldSettings Text="GamlonName" Value="GamlonName"></DropDownListFieldSettings>
         </SfDropDownList>
     </div>
@@ -119,6 +118,9 @@
 @code {
     bool AfterActionSpinner { get; set; } = false;
     public K_Passport K_Passport = new K_Passport();
+    List<GreenHouseToGamlon.Gamlons> GamlonsList = new List<GreenHouseToGamlon.Gamlons>();
+    List<GreenHouseToGamlon.Hamama> HamamasList = new List<GreenHouseToGamlon.Hamama>();
+
 
     private async Task ShowToast()
     {
@@ -179,6 +181,8 @@
     //INIT
     protected override async Task OnInitializedAsync()
     {
+        GamlonsList = GreenHouseToGamlon.gamlons;
+        HamamasList = GreenHouseToGamlon.Hamamas;
 
         hubConnection = new HubConnectionBuilder()
     .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
@@ -217,6 +221,7 @@
             OpenDialog();
             if (IsConnected) await SendMessage();
             passportInput = "";
+            AfterActionSpinner = false;
             return;
         }
         else if (Hamama == null || Gamlon == null)
@@ -225,6 +230,7 @@
             OpenDialog();
             if (IsConnected) await SendMessage();
             passportInput = "";
+            AfterActionSpinner = false;
             return;
         }
         else
@@ -239,6 +245,7 @@
                 OpenDialog();
                 if (IsConnected) await SendMessage();
                 passportInput = "";
+                AfterActionSpinner = false;
                 return;
             }
 
@@ -311,12 +318,7 @@
         this.CityValue = null;
     }
 
-    public void ChangeState(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Gamlons> args)
-    {
-        this.EnableCitytDropDown = true;
-        this.CityQuery = new Query().Where(new WhereFilter() { Field = "GamlonId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
-        this.CityValue = null;
-    }
+
     //END DROPDOWN SETTINGS
 
 }

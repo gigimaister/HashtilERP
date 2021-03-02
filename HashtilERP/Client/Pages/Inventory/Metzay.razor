@@ -49,7 +49,7 @@
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
 
-    <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
+    <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" Dialog="DialogParams" AllowEditOnDblClick="false">
         <HeaderTemplate>
             <div style="text-align:right">
                 פספורט: @((context as K_Passport).PassportNum) <br />
@@ -73,7 +73,7 @@
                     </div>
                 </div>
 
-                <div class="form-row" dir="rtl" style="height:auto">
+                <div class="form-row" dir="rtl">
                     <div class="form-group col-md-5">
                         <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
                         <label class="e-float-text e-label-top" style="text-align:right">@Passport.Gamlon</label>
@@ -473,7 +473,7 @@
     SfGrid<K_Passport> SfGrid;
     bool AfterActionSpinner { get; set; } = false;
 
-    private EditContext editContext;
+    
 
 
     protected override async Task OnInitializedAsync()
@@ -496,7 +496,7 @@
 
     }
 
- 
+
 
     protected async Task LoadData()
     {
@@ -864,6 +864,8 @@
             }
         }
     }
+    //edit dialog settings
+    private DialogSettings DialogParams = new DialogSettings {Height = "400px",MinHeight="420px" };
 
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Passport> args)

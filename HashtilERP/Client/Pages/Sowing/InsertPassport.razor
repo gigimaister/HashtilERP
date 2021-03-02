@@ -27,7 +27,7 @@
     </div>
 }
 
-@if (isDevice == "Mobile" || 1==1)
+@if (isDevice == "Mobile")
 {
 <div style="text-align:left">
     <button class="btn btn-primary" style="width:auto;margin-right:auto"
@@ -210,7 +210,7 @@
         //INITIALIZED
         protected override async Task OnInitializedAsync()
         {
-
+            await FindResponsiveness();
             hubConnection = new HubConnectionBuilder()
         .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
         .Build();
