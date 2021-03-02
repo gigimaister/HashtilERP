@@ -9,14 +9,13 @@
         @if (context.User.IsInRole("Administrator"))
         {
             <a href="">שלום,  @context.User.Identity.Name!</a>
-            <button class="nav-link btn btn-link" @onclick="BeginSignOut">יציאה</button>
-            <button class="nav-link btn btn-link" @onclick="BeginSignOut">הרשמה</button>
+            <a href="#" @onclick="BeginSignOut">יציאה</a>
+
         }
         else
         {
-            <a href="">שלום,  @context.User.Identity.Name!</a>
-
-            <button class="nav-link btn btn-link" @onclick="BeginSignOut">יציאה</button>
+                <a href="">שלום,  @context.User.Identity.Name!</a>
+                <a href="#" @onclick="BeginSignOut">יציאה</a>
         }
 
 

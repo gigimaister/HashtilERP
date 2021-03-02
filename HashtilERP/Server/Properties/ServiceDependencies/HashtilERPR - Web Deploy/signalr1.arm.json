@@ -4,7 +4,7 @@
   "parameters": {
     "resourceGroupName": {
       "type": "string",
-      "defaultValue": "HashtilTempData20210211092954ResourceGroup",
+      "defaultValue": "HashtilERPRSinganR2ResourceGroup",
       "metadata": {
         "_parameterType": "resourceGroup",
         "description": "Name of the resource group for the resource. It is recommended to put resources under same resource group for better tracking."
@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('HashtilERPSignalR', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('HashtilERPRSinganR2', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -50,13 +50,13 @@
           "resources": [
             {
               "sku": {
-                "name": "Free_F1",
-                "tier": "Free",
-                "size": "F1",
+                "name": "Standard_S1",
+                "tier": "Standard",
+                "size": "S1",
                 "capacity": 1
               },
               "location": "[parameters('resourceLocation')]",
-              "name": "HashtilERPSignalR",
+              "name": "HashtilERPRSinganR2",
               "type": "Microsoft.SignalRService/SignalR",
               "apiVersion": "2018-10-01"
             }

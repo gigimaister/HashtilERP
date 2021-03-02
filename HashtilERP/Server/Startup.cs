@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Syncfusion.Blazor;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 
 namespace HashtilERP.Server
@@ -34,9 +35,11 @@ namespace HashtilERP.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+           
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDbContext<HashtilERPContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
@@ -78,7 +81,15 @@ namespace HashtilERP.Server
                     new[] { "application/octet-stream" });
             });
 
-           
+            // Add Role claims to the User object
+            // See: https://github.com/aspnet/Identity/issues/1813#issuecomment-420066501
+            services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, UserClaimsPrincipalFactory<ApplicationUser, IdentityRole>>();
+
+            services.Configure<JwtBearerOptions>(
+                JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.TokenValidationParameters.NameClaimType = "name";
+    });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -104,10 +115,10 @@ namespace HashtilERP.Server
             app.UseRouting();
 
             app.UseIdentityServer();
-            app.UseAuthentication();
+            app.UseAuthentication();                      
             app.UseAuthorization();
 
-           
+            
 
             app.UseEndpoints(endpoints =>
             {

@@ -43,7 +43,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
         <HeaderTemplate>
             <div style="text-align:right">

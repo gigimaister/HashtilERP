@@ -21,27 +21,34 @@
 
 
 
-@if (isDevice == "Mobile")
+@if (isDevice == "Mobile" || 1==1)
 {
+<div style="text-align:left">
     <button class="btn btn-primary"
             type="button"
             @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
         @*ENTER SCAN*@
         แทรกการสแกน
     </button>
-}
+</div>
 
+}
+<br />
 @*//Paasport Input*@
 <input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
        placeholder="หมายเลขหนังสือเดินทาง"
        @bind=@passportInput />
 <br />
-
+<div class="col-sm" style="z-index:0">
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+    </div>
+</div>
 <div class="card mb-3" style="width:15rem;margin-right:auto">
 
-    <div class="card-header" style="text-align:left">
+    <div class="card-header" style="text-align:center">
         @*Select Hamama*@
-        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string" Placeholder="เลือกเรือนกระจก" AllowFiltering="true"
+        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string"  Placeholder="เลือกเรือนกระจก" AllowFiltering="true"
                         PopupHeight="auto" DataSource="@GreenHouseToGamlon.Hamamas"
                         @bind-Value="@Hamama">
             <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string" ValueChange="ChangeCountry"></DropDownListEvents>
@@ -51,7 +58,7 @@
     <div class="card-header">
         @*Select a number*@
         <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlons"
-                        AllowFiltering="true" @bind-Value="@Gamlon" Placeholder="เลือกหมายเลข" Query="@StateQuery"
+                        AllowFiltering="true" @bind-Value="@Gamlon"  Placeholder="เลือกหมายเลข" Query="@StateQuery"
                         PopupHeight="auto" DataSource="@GreenHouseToGamlon.gamlons">
             <DropDownListEvents TItem="GreenHouseToGamlon.Gamlons" TValue="string" ValueChange="ChangeState"></DropDownListEvents>
             <DropDownListFieldSettings Text="GamlonName" Value="GamlonName"></DropDownListFieldSettings>
@@ -63,18 +70,19 @@
 @if (ShowScanBarcode)
 {
 
-    <BarcodeReader ScanResult="((e) => { kobipassportModel.PassportNum=Convert.ToInt32(e); ShowScanBarcode = !ShowScanBarcode; })"
+    <BarcodeReader ScanResult="((e) => { passportInput=e; ShowScanBarcode = !ShowScanBarcode; })"
                    ShowScanBarcode="ShowScanBarcode"
                    Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
 
 }
-
-<button class="btn btn-success"
-        type="button"
-        @onclick="@InsertObject">
-    @*ENTER SCAN*@
-    แทรกการสแกน
-</button>
+<div style="text-align:left">
+    <button class="btn btn-success"
+            type="button"
+            @onclick="@InsertObject">
+        @*ENTER SCAN*@
+        แทรกการสแกน
+    </button>
+</div>
 <br />
 <br />
 
@@ -109,6 +117,7 @@
     }
 </style>
 @code {
+    bool AfterActionSpinner { get; set; } = false;
     public K_Passport K_Passport = new K_Passport();
 
     private async Task ShowToast()
@@ -200,6 +209,7 @@
     //When insertPassport Button clicked!
     public async void InsertObject()
     {
+        AfterActionSpinner = true;
 
         if (passportInput == null)
         {
@@ -240,6 +250,7 @@
             {
                 kobipassportModel.MetzayEnteringDate = DateTime.Now;
                 kobipassportModel.PassportStatus = status;
+                kobipassportModel.PassportStatusCode = (int)PassportStatusCode.WaitingForConfirmation;
             }
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{kobipassportModel.K_PassportId}", kobipassportModel);
@@ -280,6 +291,7 @@
 
 
         }
+        AfterActionSpinner = false;
     }
 
 

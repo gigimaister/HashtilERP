@@ -90,7 +90,6 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 var user = await _userManager.FindByEmailAsync(Input.Email.ToString());
-                await _userManager.UpdateSecurityStampAsync(user);
 
                 if (await _userManager.IsInRoleAsync(user, "Thai-Guy"))               
                 {
@@ -100,6 +99,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                 {
                     returnUrl = "~/Thai-GreenHouse/NewMovingPassports";
                 }
+               
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -117,6 +117,7 @@ namespace HashtilERP.Server.Areas.Identity.Pages.Account
                 }
                 else
                 {
+                   
                     ModelState.AddModelError(string.Empty, "!פרטי התחברות שגויים");
                     return Page();
                 }

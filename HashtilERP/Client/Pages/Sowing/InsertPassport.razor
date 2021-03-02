@@ -29,12 +29,14 @@
 
 @if (isDevice == "Mobile" || 1==1)
 {
-    <button class="btn btn-primary"
+<div style="text-align:left">
+    <button class="btn btn-primary" style="width:auto;margin-right:auto"
             type="button"
             @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
         @*ENTER SCAN*@
         แทรกการสแกน
     </button>
+</div>
 }
 <br />
 <br />
@@ -43,8 +45,12 @@
        placeholder="หมายเลขหนังสือเดินทาง"
        @bind=@passportInput />
 <br />
-
-<div dir="ltr" style="margin-left:auto">
+<div class="col-sm" style="z-index:0">
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+    </div>
+</div>
+<div style="text-align:left">
     <div>
         <label>ห้องปลูก</label>
     </div>
@@ -59,252 +65,254 @@
 @if (ShowScanBarcode)
 {
 
-    <BarcodeReader ScanResult="((e) => { kobipassportModel.PassportNum=Convert.ToInt32(e); ShowScanBarcode = !ShowScanBarcode; })"
+    <BarcodeReader ScanResult="((e) => { passportInput=e; ShowScanBarcode = !ShowScanBarcode; })"
                    ShowScanBarcode="ShowScanBarcode"
                    Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
 
 }
-
-<button class="btn btn-success"
-        type="button"
-        @onclick="@InsertObject">
-    @*ENTER SCAN*@
-    แทรกการสแกน
-</button>
-<br />
-<br />
-@*GRID SECTION START HERE*@
-<SfGrid DataSource="@kobiPassportModels" AllowGrouping="true" AllowSorting="true">
-    <GridColumns>
-        @*GrowingRoom*@
-        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
-        @*PassportNumber*@
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
-    </GridColumns>
-</SfGrid>
-
-
-@*Modal dialog for duplicate or not found passport*@
-<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
-    <DialogEvents OnOverlayClick="@OnOverlayclick">
-    </DialogEvents>
-    <DialogTemplates>
-        <Header> ผิดพลาด! </Header>
-        <Content> @ModalError </Content>
-    </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
-
-    </DialogButtons>
-</SfDialog>
-
-@*Toast Component*@
-<SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
-    <ToastPosition X="Center"></ToastPosition>
-</SfToast>
-<div class="col-lg-12 col-sm-12 col-md-12 center">
-    <div id="toastBtnDefault" style="margin: auto;text-align: center">
-        <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
-        <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
-    </div>
+<div style="text-align:left">
+    <button class="btn btn-success"
+            type="button"
+            @onclick="@InsertObject">
+        @*ENTER SCAN*@
+        แทรกการสแกน
+    </button>
 </div>
-
-<style>
-    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
-        stroke: #48EB43;
-        
-    }
-</style>
-
-@code {
-
-    private async Task ShowToast()
-    {
-        await this.ToastObj.Show();
-    }
-
-    private async Task HideToast()
-    {
-        await this.ToastObj.Hide("All");
-    }
-
-    SfToast ToastObj;
-    private string ToastContent { get; set; } = "";
-
-    string passportInput;
-    K_Passport[] kobiPassportModels;
-    K_Passport kobipassportModel = new K_Passport();
-    private HubConnection hubConnection;
-
-    //Thai-String For NotFound And Duplicate
-    private static string ThaiNotFound = "ไม่พบวัตถุ!";
-    private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
-    private static string ThaiSaved = "บันทึกแล้ว!";
-    private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
-    private static string NotValidValue = "ผิดค่า!";
-    private static string MustEnterGrowingRoomNumber = "คุณต้องเลือกหมายเลขห้องที่กำลังเติบโต!";
-
-    /// <summary>
-    /// Modal Props and actions
-    /// </summary>
-    private bool IsVisible { get; set; } = false;
-    private string ModalError { get; set; } = "";
-
-    private void OpenDialog()
-    {
-        this.IsVisible = true;
-    }
-
-    private void OnOverlayclick(MouseEventArgs arg)
-    {
-        this.IsVisible = false;
-    }
-    private void CloseDialog()
-    {
-        this.IsVisible = false;
-    }
+    <br />
+    <br />
+    @*GRID SECTION START HERE*@
+    <SfGrid DataSource="@kobiPassportModels" AllowGrouping="false" AllowSorting="true">
+        <GridColumns>
+            @*GrowingRoom*@
+            <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
+            @*PassportNumber*@
+            <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
+        </GridColumns>
+    </SfGrid>
 
 
-    bool ShowScanBarcode { get; set; } = false;
-    public int? BarCode { get; set; }
-    private string isDevice { get; set; }
-    private bool mobile { get; set; }
+    @*Modal dialog for duplicate or not found passport*@
+    <SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
+        <DialogEvents OnOverlayClick="@OnOverlayclick">
+        </DialogEvents>
+        <DialogTemplates>
+            <Header> ผิดพลาด! </Header>
+            <Content> @ModalError </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
 
-    //Check if userAgent is Pc Or Mobile
-    public async Task FindResponsiveness()
-    {
-        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
-        isDevice = mobile ? "Mobile" : "Desktop";
+        </DialogButtons>
+    </SfDialog>
 
-    }
+    @*Toast Component*@
+    <SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+        <ToastPosition X="Center"></ToastPosition>
+    </SfToast>
+    <div class="col-lg-12 col-sm-12 col-md-12 center">
+        <div id="toastBtnDefault" style="margin: auto;text-align: center">
+            <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
+            <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
+        </div>
+    </div>
 
-    //When insertPassport Button clicked!
-    public async void InsertObject()
-    {
-        if (kobipassportModel.GrowingRoom == null)
-        {
-            ModalError = MustEnterGrowingRoomNumber;
-            OpenDialog();
-            if (IsConnected) await SendMessage();
-            passportInput = "";
-            return;
+    <style>
+        .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+            stroke: #48EB43;
         }
-        else
+    </style>
+
+    @code {
+        bool AfterActionSpinner { get; set; } = false;
+
+        private async Task ShowToast()
         {
-            await SendNewPassport(kobipassportModel);
+            await this.ToastObj.Show();
         }
 
-    }
-
-
-
-    Task SendMessage() => hubConnection.SendAsync("SendMessage");
-
-    //INITIALIZED
-    protected override async Task OnInitializedAsync()
-    {
-
-        hubConnection = new HubConnectionBuilder()
-    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-    .Build();
-
-        hubConnection.On("ReceiveMessage", () =>
+        private async Task HideToast()
         {
-            CallLoadData();
-            StateHasChanged();
-        });
+            await this.ToastObj.Hide("All");
+        }
 
-        await hubConnection.StartAsync();
+        SfToast ToastObj;
+        private string ToastContent { get; set; } = "";
 
-        await LoadData();
-    }
+        string passportInput;
+        K_Passport[] kobiPassportModels;
+        K_Passport kobipassportModel = new K_Passport();
+        private HubConnection hubConnection;
 
-    private void CallLoadData()
-    {
-        Task.Run(async () =>
+        //Thai-String For NotFound And Duplicate
+        private static string ThaiNotFound = "ไม่พบวัตถุ!";
+        private static string ThaiDuplicate = "หนังสือเดินทางอยู่ในตารางข้อมูลแล้ว!";
+        private static string ThaiSaved = "บันทึกแล้ว!";
+        private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
+        private static string NotValidValue = "ผิดค่า!";
+        private static string MustEnterGrowingRoomNumber = "คุณต้องเลือกหมายเลขห้องที่กำลังเติบโต!";
+
+        /// <summary>
+        /// Modal Props and actions
+        /// </summary>
+        private bool IsVisible { get; set; } = false;
+        private string ModalError { get; set; } = "";
+
+        private void OpenDialog()
         {
+            this.IsVisible = true;
+        }
+
+        private void OnOverlayclick(MouseEventArgs arg)
+        {
+            this.IsVisible = false;
+        }
+        private void CloseDialog()
+        {
+            this.IsVisible = false;
+        }
+
+
+        bool ShowScanBarcode { get; set; } = false;
+        public int? BarCode { get; set; }
+        private string isDevice { get; set; }
+        private bool mobile { get; set; }
+
+        //Check if userAgent is Pc Or Mobile
+        public async Task FindResponsiveness()
+        {
+            mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+            isDevice = mobile ? "Mobile" : "Desktop";
+
+        }
+
+        //When insertPassport Button clicked!
+        public async void InsertObject()
+        {
+            if (kobipassportModel.GrowingRoom == null)
+            {
+                ModalError = MustEnterGrowingRoomNumber;
+                OpenDialog();
+                if (IsConnected) await SendMessage();
+                passportInput = "";
+                return;
+            }
+            else
+            {
+                await SendNewPassport(kobipassportModel);
+            }
+
+        }
+
+
+
+        Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+        //INITIALIZED
+        protected override async Task OnInitializedAsync()
+        {
+
+            hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+        .Build();
+
+            hubConnection.On("ReceiveMessage", () =>
+            {
+                CallLoadData();
+                StateHasChanged();
+            });
+
+            await hubConnection.StartAsync();
+
             await LoadData();
-        });
-    }
-
-    protected async Task LoadData()
-    {
-        kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
-        StateHasChanged();
-    }
-
-    public bool IsConnected =>
-        hubConnection.State == HubConnectionState.Connected;
-
-    public void Dispose()
-    {
-        _ = hubConnection.DisposeAsync();
-    }
-    //POST NEW PASSPORT
-    protected async Task SendNewPassport(K_Passport kobiPassport)
-    {
-        //IF NULL
-        if (passportInput == null)
-        {
-            ModalError = NoEnteredPassport;
-            OpenDialog();
-            if (IsConnected) await SendMessage();
-            passportInput = "";
-            return;
-        }
-        try
-        {
-            kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
-        }
-        //IF LONG OR WRONG FORMAT
-        catch (Exception)
-        {
-            ModalError = NotValidValue;
-            OpenDialog();
-            passportInput = "";
-            if (IsConnected) await SendMessage();
         }
 
-
-
-
-        var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
-        var content = await rslt.Content.ReadAsStringAsync();
-
-        //Http Response Failed On Insert
-        if (!rslt.IsSuccessStatusCode)
+        private void CallLoadData()
         {
-            if (content == "NOTFOUND")
+            Task.Run(async () =>
             {
-                ModalError = ThaiNotFound;
-                OpenDialog();
-                passportInput = "";
-                if (IsConnected) await SendMessage();
-
-            }
-            else if (content == "DUPLICATE")
-            {
-                ModalError = ThaiDuplicate;
-                OpenDialog();
-                passportInput = "";
-                if (IsConnected) await SendMessage();
-            }
-
+                await LoadData();
+            });
         }
-        else
-        {
 
-            if (IsConnected) await SendMessage();
-            ToastContent = ThaiSaved;
-            passportInput = "";
+        protected async Task LoadData()
+        {
+            kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
             StateHasChanged();
-            await ShowToast();
+        }
+
+        public bool IsConnected =>
+            hubConnection.State == HubConnectionState.Connected;
+
+        public void Dispose()
+        {
+            _ = hubConnection.DisposeAsync();
+        }
+        //POST NEW PASSPORT
+        protected async Task SendNewPassport(K_Passport kobiPassport)
+        {
+            AfterActionSpinner = true;
+            //IF NULL
+            if (passportInput == null)
+            {
+                ModalError = NoEnteredPassport;
+                OpenDialog();
+                if (IsConnected) await SendMessage();
+                passportInput = "";
+                return;
+            }
+            try
+            {
+                kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
+            }
+            //IF LONG OR WRONG FORMAT
+            catch (Exception)
+            {
+                ModalError = NotValidValue;
+                OpenDialog();
+                passportInput = "";
+                if (IsConnected) await SendMessage();
+            }
+
+
+
+
+            var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
+            var content = await rslt.Content.ReadAsStringAsync();
+
+            //Http Response Failed On Insert
+            if (!rslt.IsSuccessStatusCode)
+            {
+                if (content == "NOTFOUND")
+                {
+                    ModalError = ThaiNotFound;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+
+                }
+                else if (content == "DUPLICATE")
+                {
+                    ModalError = ThaiDuplicate;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+                }
+
+            }
+            else
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = ThaiSaved;
+                passportInput = "";
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            AfterActionSpinner = false;
 
         }
 
 
+
     }
-
-
-
-}

@@ -41,15 +41,20 @@
 @{
     var Tool = (new List<string>() { "Search" });
 }
+<div class="col-sm" style="z-index:0">
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+    </div>
+</div>
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="true" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
 
     <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
         <HeaderTemplate>
             <div style="text-align:right">
                 פספורט: @((context as K_Passport).PassportNum) <br />
-                @((context as K_Passport).Passport.Oitm.UHebGidul)
-                @((context as K_Passport).Passport.Oitm.UHebZan)
+                @((context as K_Passport).Gidul)
+                @((context as K_Passport).Zan)
             </div>
         </HeaderTemplate>
         <Template>
@@ -68,7 +73,7 @@
                     </div>
                 </div>
 
-                <div class="form-row" dir="rtl">
+                <div class="form-row" dir="rtl" style="height:auto">
                     <div class="form-group col-md-5">
                         <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
                         <label class="e-float-text e-label-top" style="text-align:right">@Passport.Gamlon</label>
@@ -129,7 +134,7 @@
                                         </thead>
                                         <tbody>
 
-                                            @foreach (var cx in passport.Passport.Passprods)
+                                            @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
                                             {
                                                 var temp = (cx.UQuantity * 1000);
                                                 var display = string.Format("{0:#,0}", temp);
@@ -271,10 +276,10 @@
                                     </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
-                                            <label class="form-control" style="text-align: right; font-weight:500">ממוצע SAP התחלתי:</label>
+                                            <label class="form-check-label" style="text-align: right; font-weight:500">מקדם זריעה SAP:</label>
                                         </div>
                                         <div class="col-form-label">
-                                            <label class="form-control" style="text-align:right">@passport2.PassportStartingAVG</label>
+                                            <label class="form-check-label" style="text-align:right">@passport2.PassportStartingAVG</label>
                                         </div>
                                     </div>
                                 }
@@ -294,9 +299,9 @@
                     <FooterTemplate>
                         @{
                             var aggregate = (context as AggregateTemplateContext);
-                           
-                                <b>ספירה: @aggregate.Count</b>
-                            
+
+                            <b>ספירה: @aggregate.Count</b>
+
                         }
                     </FooterTemplate>
                 </GridAggregateColumn>
@@ -319,7 +324,7 @@
     </GridAggregates>
 
     <GridColumns>
-        <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" AutoFit="true">
+        <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" Width="290px">
             <GridCommandColumns>
                 <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                     <GridCommandColumn Type=CommandButtonType.None
@@ -342,18 +347,18 @@
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UHebGidul" HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
-            <Template>
+            @*<Template>
                 @{
                     var value = (context as K_Passport);
                     var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
                     <b>@Zan</b>
                 }
-            </Template>
+            </Template>*@
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>      
+        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="@nameof(K_Passport.PassportStartingAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
@@ -368,7 +373,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
 
 
     </GridColumns>
@@ -388,7 +393,7 @@
         <Content>
             <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
-                
+
                 <div style="text-align:right">
                     <SfDropDownList TValue="string" TItem="AuditFormStatus" Placeholder="מצב" Width="auto" DataSource="@AuditFormStatus.Statuses"
                                     PopupHeight="350px" PopupWidth="200px" @bind-Value="@PassportAuditForm.AuditStatus">
@@ -407,8 +412,8 @@
                 <div class="button-container" style="text-align:center">
                     <button type="submit" class="btn btn-success">
                         אישור
-                    </button>                   
-                    <button  style="margin-right:25px"
+                    </button>
+                    <button style="margin-right:25px"
                             class="btn btn-danger"
                             @onclick="ConfirmDeleteNo">
                         ביטול
@@ -466,6 +471,7 @@
     private HubConnection hubConnection;
     string InputHamama, InputGamlon;
     SfGrid<K_Passport> SfGrid;
+    bool AfterActionSpinner { get; set; } = false;
 
     private EditContext editContext;
 
@@ -474,33 +480,28 @@
     {
         InputHamama = "";
         InputGamlon = "";
+        await LoadData();
         hubConnection = new HubConnectionBuilder()
 .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
 .Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {
-            CallLoadData();
+            Task.Run(async () => { await LoadData(); });
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
 
-        await LoadData();
+
     }
 
-    private void CallLoadData()
-    {
-        Task.Run(async () =>
-        {
-            await LoadData();
-        });
-    }
+ 
 
     protected async Task LoadData()
     {
 
-        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "3");
+        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/metzay");
         StateHasChanged();
     }
 
@@ -525,12 +526,12 @@
     }
     public async void UpdatePassport(K_Passport context)
     {
-
-        if(InputHamama != "")
+        AfterActionSpinner = true;
+        if (InputHamama != "")
         {
-            if(InputGamlon != "")
+            if (InputGamlon != "")
             {
-                if(GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama,InputGamlon))
+                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama, InputGamlon))
                 {
 
                     context.Hamama = InputHamama;
@@ -558,7 +559,7 @@
                 }
             }
         }
-        if(InputHamama == "" && InputGamlon != "")
+        if (InputHamama == "" && InputGamlon != "")
         {
             if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(context.Hamama.Trim(), InputGamlon))
             {
@@ -573,7 +574,7 @@
                 return;
             }
         }
-        if(context.MagashAmount==0)
+        if (context.MagashAmount == 0)
         {
             context.IsNeedToBeChecked = true;
         }
@@ -599,8 +600,9 @@
             InputHamama = "";
             InputGamlon = "";
 
-        }
 
+        }
+        AfterActionSpinner = false;
 
     }
 
@@ -666,6 +668,14 @@
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
 
+    public void AauditPassport(CommandClickEventArgs<K_Passport> args)
+    {
+        this.DeleteRecordConfirmVisibility = true;
+        passporrtId = args.RowData.K_PassportId;
+        PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+        PassportAuditForm.CreateDate = DateTime.Now;
+    }
+
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
@@ -696,7 +706,7 @@
     public async void ConfirmDestroyYes()
     {
         //Validate Audit Form Check
-
+        AfterActionSpinner = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -715,12 +725,13 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
+            AfterActionSpinner = false;
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
+            AfterActionSpinner = false;
         }
 
     }
@@ -738,6 +749,7 @@
     //DIALOG AuditForm CONFIRMED
     public async void ConfirmDeleteYes()
     {
+        AfterActionSpinner = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -764,13 +776,14 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
+            AfterActionSpinner = false;
 
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
+            AfterActionSpinner = false;
         }
 
 
@@ -784,20 +797,20 @@
     //CELL MAGASH TYPE STYLE
     public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
     {
-        if (args.Column.Field == "Passport.Oitm.UCelsTray")
+        if (args.Column.Field == "CelsTray")
         {
             try
             {
 
-                if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.180)
+                if (Convert.ToDouble(args.Data.CelsTray) == 180)
                 {
                     args.Cell.AddClass(new string[] { "magash-180" });
                 }
-                else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.187)
+                else if (Convert.ToDouble(args.Data.CelsTray) == 187)
                 {
                     args.Cell.AddClass(new string[] { "magash-187" });
                 }
-                else if (Convert.ToDouble(args.Data.Passport.Oitm.UCelsTray) == 0.442)
+                else if (Convert.ToDouble(args.Data.CelsTray) == 442)
                 {
                     args.Cell.AddClass(new string[] { "magash-442" });
                 }
@@ -806,7 +819,7 @@
                     args.Cell.AddClass(new string[] { "magash-308" });
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 ModalError = e.Message;
                 IsVisible = true;
@@ -899,13 +912,14 @@
     .passport {
         background-color: powderblue;
         font-weight: bold;
-        color:red;
-        
+        color: red;
     }
+
     .null {
         background-color: antiquewhite;
         font-weight: bold;
     }
+
     .hamama1 {
         background-color: cornflowerblue;
         font-weight: bold;

@@ -20,6 +20,7 @@ namespace HashtilERP.Shared.Models
         public DateTime? AVGEnteringDate { get; set; }
         public int? GrowingDays { get; set; }
         public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
+        public string Gidul { get; set; }
         public string Zan { get; set; }
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
@@ -29,11 +30,14 @@ namespace HashtilERP.Shared.Models
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
         public string PassportStatus { get; set; }
+        public int? PassportStatusCode { get; set; }
         public int? PassportAVG { get; set; }
         public int? PassportStartingAVG { get; set; }
         public string ItemCode { get; set; }
         public string UserName { get; set; }
         public string PassportCondition { get; set; }
+        public DateTime? GrowingRoomExitDay { get; set; }
+        public int CelsTray { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
@@ -76,4 +80,14 @@ public static class Status
     public const string Destroyed = "הושמד";
     public const string NotChecked = "לא נבדק";
 
+}
+
+public enum PassportStatusCode
+{
+  Growingroom,
+  WaitingForConfirmation,
+  InsideGreenHouse,
+  Finish,
+  Destroyed,
+  StillNotChecked
 }

@@ -37,6 +37,7 @@ namespace HashtilERP.Server
             {
                 switch (status)
                 {
+                    //growing room
                     case "1":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom)
                             .Include(e=>e.KPassportInsertAudit)
@@ -44,9 +45,12 @@ namespace HashtilERP.Server
                            .ThenInclude(e=>e.Passprods)
                            .Include(e=>e.Passport)
                            .ThenInclude(e=>e.Oitm)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
                             .ToListAsync();
                         break;
-
+                    //waiting for confirmation
                     case "2":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)
                            .Include(e => e.KPassportInsertAudit)
@@ -56,10 +60,10 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Oitm)
                            .ToListAsync();
                         break;
-
+                    //inside green house
                     case "3":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse.Trim())
-                            .Include(e => e.KPassportInsertAudit)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatusCode==(int)PassportStatusCode.InsideGreenHouse)
+                           .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)
                            .Include(e => e.Passport)
@@ -69,7 +73,7 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
-
+                    //need to be audit
                     case "4":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsNeedToBeAudit == true)
                             .Include(e => e.KPassportInsertAudit)
@@ -82,6 +86,7 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
+                    //need to be checked
                     case "5":
                         ChosenList = await _context.KPassport.Where(x => x.IsNeedToBeChecked == true)
                             .Include(e => e.KPassportInsertAudit)
@@ -94,6 +99,7 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
+                    //for AVG Counter
                     case "6":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse && x.PassportAvg != null)
                            .OrderByDescending(x =>x.AVGEnteringDate)
@@ -107,6 +113,7 @@ namespace HashtilERP.Server
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
+                    //archive
                     case "7":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.Destroyed || x.PassportStatus.Trim() == Status.Finished && x.IsNeedToBeChecked==false)
                            .OrderByDescending(x => x.AVGEnteringDate)
@@ -134,7 +141,34 @@ namespace HashtilERP.Server
 
         }
 
+        [HttpGet("metzay")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetCurrentMetzay()
+        {
+            var metzay = new List<K_Passport>();
+            
 
+            try
+            {
+                metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+                           
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                return metzay;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+
+
+        }
         //List Of Passports For Metzay Report
         [HttpGet("report/{date}")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
@@ -335,9 +369,13 @@ namespace HashtilERP.Server
         public async Task<ActionResult<K_Passport>> PostKPassport(K_Passport kPassport)
         {
             Passport sap;
+            Oitm sapOitm;
             try
             {
                  sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
+                 sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
+
+
             }
             //if no passport in SAP
             catch (Exception)
@@ -355,18 +393,25 @@ namespace HashtilERP.Server
             {
                 return StatusCode(500, "DUPLICATE");
             }
+            DateTime passingDate;
             kPassport.UserName = screenName;
             kPassport.SowDate = sap.UDateSow;
+            passingDate = (DateTime)sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
-            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanProd*1000)/(sap.UTraySow));
-            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
+            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanOrdP*1000) / sap.UTraySow);  
+            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days) ;
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = sap.UQuanProd*1000;
             kPassport.PassportStatus = Status.GrowingRoom;
+            kPassport.PassportStatusCode = (int)PassportStatusCode.Growingroom;
             kPassport.ItemCode = sap.UItemCode;
             kPassport.SapDocEntry = sap.DocEntry;
             kPassport.PassportCondition = Status.NotChecked;
+            kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
+            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
+            kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
+            kPassport.Gidul = sapOitm.UHebGidul;
             _context.KPassport.Add(kPassport);
             try
             {
