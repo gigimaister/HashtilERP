@@ -350,12 +350,12 @@
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
             @*<Template>
-                @{
-                    var value = (context as K_Passport);
-                    var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
-                    <b>@Zan</b>
-                }
-            </Template>*@
+                    @{
+                        var value = (context as K_Passport);
+                        var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
+                        <b>@Zan</b>
+                    }
+                </Template>*@
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -374,7 +374,15 @@
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-
+        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="140px">
+            <GridCommandColumns>
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "שמירה", CssClass = "e-warning" })">
+                    </GridCommandColumn>
+                </AuthorizeView>
+            </GridCommandColumns>
+        </GridColumn>
 
     </GridColumns>
 
@@ -404,6 +412,8 @@
                     <ValidationMessage For="@(() => PassportAuditForm.AuditStatus)"></ValidationMessage>
                 </div>
                 <br />
+                <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
                 <div style="text-align:right">
                     <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark" Width="194px"></SfTextBox>
                     <ValidationMessage For="@(() => PassportAuditForm.Remark)"></ValidationMessage>
@@ -464,6 +474,50 @@
     </DialogTemplates>
 </SfDialog>
 
+@*Saving Passport For CX Dialog*@
+@*Audit Passport form*@
+<SfDialog Target="#target"
+          Width="350px"
+          Height="400px"
+          IsModal="true"
+          EnableRtl="true"
+          ShowCloseIcon="true"
+          @bind-Visible="SavePassForCxModal">
+    <DialogTemplates>
+        <Header>שמירת פספורט</Header>
+        <Content>
+            
+           
+            <br />
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SavePassForCxSpinner"></SfSpinner>
+
+            <div style="text-align:right">
+                <SfTextBox Placeholder='הערה' Multiline=true  @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
+
+            </div>
+            <br />
+            <div class="button-container" style="text-align:center">
+                <button style="margin-right:25px"
+                        class="btn btn-success"
+                        @onclick="SaveForCx">
+                    אישור
+                </button>
+                <button style="margin-right:25px"
+                        class="btn btn-warning"
+                        @onclick="DeleteSavedPassForCxRemark">
+                    מחיקה
+                </button>
+                <button style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="CancelSavedRemarkForCx">
+                    ביטול
+                </button>
+            </div>
+
+        </Content>     
+    </DialogTemplates>
+</SfDialog>
+
 @code {
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
@@ -472,8 +526,12 @@
     string InputHamama, InputGamlon;
     SfGrid<K_Passport> SfGrid;
     bool AfterActionSpinner { get; set; } = false;
+    bool SpinnerBool { get; set; } = false;
+    bool SavePassForCxSpinner { get; set; } = false;
+    // Property to control the save pass for cx dialog.
+    public bool SavePassForCxModal { get; set; } = false;
+    public string SavedPassportForCxRemerk { get; set; }
 
-    
 
 
     protected override async Task OnInitializedAsync()
@@ -693,6 +751,12 @@
             passporrtId = args.RowData.K_PassportId;
 
         }
+        if (args.CommandColumn.ButtonOption.Content == "שמירה")
+        {
+            SavePassForCxModal = true;
+            passporrtId = args.RowData.K_PassportId;
+
+        }
 
     }
 
@@ -726,6 +790,7 @@
                 PassportAuditForm = new PassportAuditForm();
             }
             AfterActionSpinner = false;
+            SavePassForCxModal = false;
         }
         catch (Exception e)
         {
@@ -735,6 +800,97 @@
         }
 
     }
+
+    #region SavePassFor Cx modal methods
+    //Save pass for cx Save
+    public async Task<int> SaveForCx()
+    {
+        SavePassForCxSpinner = true;
+        if (SavedPassportForCxRemerk=="")
+        {
+            ModalError = "לא נרשמה הערת שמירה!";
+            IsVisible = true;
+            return 1;
+
+        }
+
+
+        try
+        {
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+            K_Passport.IsSavedForCx = true;
+            K_Passport.SaveForCxRemarks = SavedPassportForCxRemerk;
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            SavePassForCxSpinner = false;
+            SavePassForCxModal = false;
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+            SavePassForCxSpinner = false;
+        }
+        return 0;
+    }
+    //Delete Saved remark for Cx
+    public async Task<int> DeleteSavedPassForCxRemark()
+    {
+        SavePassForCxSpinner = true;
+        try
+        {
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+            if (K_Passport.IsSavedForCx == false)
+            {
+                ModalError = "לא משויכת הערה-אין מה למחוק!";
+                IsVisible = true;
+                SavePassForCxSpinner = false;
+                return 1;
+            }
+
+            K_Passport.IsSavedForCx = false;
+            K_Passport.SaveForCxRemarks = "";
+            SavedPassportForCxRemerk = "";
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            SavePassForCxSpinner = false;
+            SavePassForCxModal = false;
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+            SavePassForCxSpinner = false;
+        }
+
+        return 0;
+    }
+    //cancel saving or delete
+    public void CancelSavedRemarkForCx()
+    {
+        SavePassForCxModal = false;
+    }
+    #endregion
 
     //DIALOG AuditForm CANCEL
     public void ConfirmDeleteNo()
@@ -750,6 +906,7 @@
     public async void ConfirmDeleteYes()
     {
         AfterActionSpinner = true;
+        SpinnerBool = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -777,13 +934,14 @@
                 PassportAuditForm = new PassportAuditForm();
             }
             AfterActionSpinner = false;
-
+            SpinnerBool = false;
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
             AfterActionSpinner = false;
+            SpinnerBool = false;
         }
 
 
@@ -865,7 +1023,7 @@
         }
     }
     //edit dialog settings
-    private DialogSettings DialogParams = new DialogSettings {Height = "400px",MinHeight="420px" };
+    private DialogSettings DialogParams = new DialogSettings { Height = "400px", MinHeight = "420px" };
 
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Passport> args)
@@ -873,6 +1031,14 @@
         if (args.Data.IsNeedToBeAudit == true)
         {
             args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        }
+        if (args.Data.IsNeedToBeAudit == true && args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved-audit" });
+        }
+        if (args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved" });
         }
 
 
@@ -962,6 +1128,12 @@
     /*   GRID ROW STYLE*/
     .is-need-to-be-audit {
         background-color: orange;
+    }
+    .is-need-to-be-saved {
+        background-color: cornflowerblue;
+    }
+    .is-need-to-be-saved-audit {
+        background-color: mediumpurple;
     }
 
     .clean {

@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HashtilERP.Shared;
+using Blazored.LocalStorage;
 
 namespace HashtilERP.Client
 {
@@ -28,7 +29,8 @@ namespace HashtilERP.Client
             builder.Services.AddApiAuthorization();
             builder.Services.AddSyncfusionBlazor();
 
-           
+            builder.Services.AddBlazoredLocalStorage(config =>
+      config.JsonSerializerOptions.WriteIndented = true);
             await builder.Build().RunAsync();
         }
     }

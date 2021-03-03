@@ -11,6 +11,7 @@
 @using Syncfusion.Blazor.Spinner
 @using HashtilERP.Shared.Models
 @using Microsoft.AspNetCore.SignalR.Client
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -21,21 +22,21 @@
 
 
 
-@if (isDevice == "Mobile" || 1==1)
+@if (isDevice == "Mobile" || 1 == 1)
 {
-<div style="text-align:left">
-    <button class="btn btn-primary"
-            type="button"
-            @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
-        @*ENTER SCAN*@
-        แทรกการสแกน
-    </button>
-</div>
+    <div style="text-align:right">
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            แทรกการสแกน
+        </button>
+    </div>
 
 }
 <br />
 @*//Paasport Input*@
-<input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
+<input type="text" class="form-control" style="width:auto;text-align:center" name="GRWroom"
        placeholder="หมายเลขหนังสือเดินทาง"
        @bind=@passportInput />
 <br />
@@ -44,26 +45,47 @@
         <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
     </div>
 </div>
-<div class="card mb-3" style="width:15rem;margin-right:auto">
-
-    <div class="card-header" style="text-align:center">
-        @*Select Hamama*@
-        <SfDropDownList TItem="GreenHouseToGamlon.Hamama" TValue="string"  Placeholder="เลือกเรือนกระจก" AllowFiltering="true"
-                        PopupHeight="auto" DataSource="@HamamasList"
-                        @bind-Value="@Hamama">
-            <DropDownListEvents TItem="GreenHouseToGamlon.Hamama" TValue="string" ValueChange="ChangeCountry"></DropDownListEvents>
-            <DropDownListFieldSettings Text="HamamaName" Value="HamamaId"></DropDownListFieldSettings>
-        </SfDropDownList>
+<div>
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="PlusOneGreenBtn"><b style="font-size:20px">+</b></button>
+            </div>
+            <div class="col-md-auto">
+                <label class="alert alert-warning" role="alert" style="text-align:center;font-size:30px">@Hamama</label>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="MinusOneGreenBtn"><b style="font-size:20px">-</b></button>
+            </div>
+        </div>
     </div>
-    <div class="card-header">
-        @*Select a number*@
-        <SfDropDownList Enabled="@EnableStateDropDown" TValue="string" TItem="GreenHouseToGamlon.Gamlons"
-                        AllowFiltering="true" @bind-Value="@Gamlon"  Placeholder="เลือกหมายเลข" Query="@StateQuery"
-                        PopupHeight="auto" DataSource="@GamlonsList">
-            <DropDownListFieldSettings Text="GamlonName" Value="GamlonName"></DropDownListFieldSettings>
-        </SfDropDownList>
+    <br />
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="PlusOneGamlonBtn"><b style="font-size:20px">+</b></button>
+            </div>
+            <div class="col-md-auto">
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="MinusOneGamlonBtn"><b style="font-size:20px">-</b></button>
+            </div>
+        </div>
     </div>
-
+    <hr style="height:1px; visibility:hidden;" />
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="Plus5GamlonBtn"><b style="font-size:20px">5+</b></button>
+            </div>
+            <div class="col-md-auto">
+                <label class="alert alert-primary" role="alert" style="text-align:center">@Gamlon</label>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="Minus5GamlonBtn"><b style="font-size:20px">5-</b></button>
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 @if (ShowScanBarcode)
@@ -74,7 +96,7 @@
                    Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
 
 }
-<div style="text-align:left">
+<div style="text-align:right">
     <button class="btn btn-success"
             type="button"
             @onclick="@InsertObject">
@@ -120,6 +142,7 @@
     public K_Passport K_Passport = new K_Passport();
     List<GreenHouseToGamlon.Gamlons> GamlonsList = new List<GreenHouseToGamlon.Gamlons>();
     List<GreenHouseToGamlon.Hamama> HamamasList = new List<GreenHouseToGamlon.Hamama>();
+    HamamaGamlonStorage HamamaGamlonStorage { get; set; } = new HamamaGamlonStorage();
 
 
     private async Task ShowToast()
@@ -135,10 +158,16 @@
     SfToast ToastObj;
     private string ToastContent { get; set; } = "";
 
-    string passportInput,Hamama,Gamlon;
+    string passportInput;
+    string Hamama { get; set; }
+    string Gamlon { get; set; }
     string status = Status.WaitingForOK;
     K_Passport kobipassportModel = new K_Passport();
     private HubConnection hubConnection;
+    Dictionary<int, List<int>> GreenGamList { get; set; }
+    IEnumerable<List<int>> GamlonListForButton { get; set; }
+
+    string localsrorage = "HamamaGamlon";
 
     private static string WrongGreenHouseValue = "ค่าเรือนกระจกผิด!";
     private static string ThaiNotFound = "ไม่พบวัตถุ!";
@@ -181,12 +210,26 @@
     //INIT
     protected override async Task OnInitializedAsync()
     {
-        GamlonsList = GreenHouseToGamlon.gamlons;
-        HamamasList = GreenHouseToGamlon.Hamamas;
+        HamamaGamlonStorage = await localStorage.GetItemAsync<HamamaGamlonStorage>(localsrorage);
+        GreenGamList = HamamotGamlonDict.HamamaGamlonDictInit();
+
+        if (HamamaGamlonStorage != null)
+        {
+            Hamama = HamamaGamlonStorage.Hamama;
+            Gamlon = HamamaGamlonStorage.Gamlon;
+            GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
+        }
+        else
+        {            
+            Hamama = "1";
+            GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+
 
         hubConnection = new HubConnectionBuilder()
-    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-    .Build();
+            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {
@@ -199,8 +242,90 @@
 
     }
 
+    #region Green/Gamlon Buttons
 
+    //plus 1 button for green house
+    private void PlusOneGreenBtn()
+    {
+        var intHamama = Convert.ToInt32(Hamama);
+        intHamama++;
 
+        if (intHamama > 7)
+        {
+            intHamama = 1;
+        }
+        Hamama = intHamama.ToString();
+        var currentGamlon = Convert.ToInt32(Gamlon);
+        GamlonListForButton = GreenGamList.Where(x => x.Key == intHamama).Select(x => x.Value).ToList();
+        if (!GamlonListForButton.Any(x => x.Contains(currentGamlon)))
+        {
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+
+    }
+    //minus 1 button green house
+    private void MinusOneGreenBtn()
+    {
+        var intHamama = Convert.ToInt32(Hamama);
+        intHamama--;
+
+        if (intHamama < 1)
+        {
+            intHamama = 7;
+        }
+        Hamama = intHamama.ToString();
+        var currentGamlon = Convert.ToInt32(Gamlon);
+        GamlonListForButton = GreenGamList.Where(x => x.Key == intHamama).Select(x => x.Value).ToList();
+        if (!GamlonListForButton.Any(x => x.Contains(currentGamlon)))
+        {
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+    }
+    //plus 1 button gamlons
+    private void PlusOneGamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon++;
+        if (intGamlon > GamlonListForButton.FirstOrDefault().Max())
+        {
+            intGamlon = GamlonListForButton.Min().FirstOrDefault();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //minus 1 button gamlon
+    private void MinusOneGamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon--;
+        if (intGamlon < GamlonListForButton.FirstOrDefault().Min())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Max();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //plus 5 buttun gamlond
+    private void Plus5GamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon = intGamlon + 5;
+        if (intGamlon > GamlonListForButton.FirstOrDefault().Max())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Min();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //minus 5 button gamlons
+    private void Minus5GamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon = intGamlon - 5;
+        if (intGamlon < GamlonListForButton.FirstOrDefault().Min())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Max();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    #endregion
 
     //Check if userAgent is Pc Or Mobile
     public async Task FindResponsiveness()
@@ -286,7 +411,11 @@
             }
             else
             {
+                HamamaGamlonStorage = new HamamaGamlonStorage();
+                HamamaGamlonStorage.Hamama = Hamama;
+                HamamaGamlonStorage.Gamlon = Gamlon;
 
+                await localStorage.SetItemAsync(localsrorage, HamamaGamlonStorage);
 
                 if (IsConnected) await SendMessage();
                 ToastContent = ThaiSaved;

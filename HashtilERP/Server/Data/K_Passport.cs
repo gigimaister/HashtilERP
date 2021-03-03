@@ -25,6 +25,7 @@ namespace HashtilERP.Data
         public decimal? PlantsAmount { get; set; }
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
+        public bool? IsSavedForCx { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; }
@@ -40,6 +41,7 @@ namespace HashtilERP.Data
         public string PassportCondition { get; set; }
         public DateTime? GrowingRoomExitDay { get; set; }
         public int CelsTray { get; set; }
+        public string SaveForCxRemarks { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }

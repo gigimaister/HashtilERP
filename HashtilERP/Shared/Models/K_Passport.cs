@@ -29,6 +29,7 @@ namespace HashtilERP.Shared.Models
         public int? PlantsAmount { get; set; }
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
+        public bool? IsSavedForCx { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAVG { get; set; }
@@ -38,6 +39,7 @@ namespace HashtilERP.Shared.Models
         public string PassportCondition { get; set; }
         public DateTime? GrowingRoomExitDay { get; set; }
         public int CelsTray { get; set; }
+        public string SaveForCxRemarks { get; set; }
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
