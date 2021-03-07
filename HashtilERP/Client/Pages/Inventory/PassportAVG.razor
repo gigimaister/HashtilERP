@@ -307,14 +307,14 @@
         <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.AVGEnteringDate) HeaderText="תאריך" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"> </GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportAVG) HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"> </GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.UItemDesc" HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגש" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.Oitm.UCelsTray" HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N3" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PlantsAmount) HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 
 </SfGrid>
@@ -526,14 +526,25 @@
             SpinnerBool = true;
             //GET PASSPORT OBJECT FROM SCAN
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
-            CurrentAVG = K_Passport.PassportAVG.ToString();
-            SapAVG = K_Passport.PassportStartingAVG.ToString();
-            Passportnumber = K_Passport.PassportNum.ToString();
-            Passportgidul = K_Passport.Zan;
-            OpenDialog();
-            SpinnerBool = false;
-            if (IsConnected) await SendMessage();
+            if(K_Passport.PassportStatus == Status.InGreenHouse)
+            {
 
+
+                CurrentAVG = K_Passport.PassportAVG.ToString();
+                SapAVG = K_Passport.PassportStartingAVG.ToString();
+                Passportnumber = K_Passport.PassportNum.ToString();
+                Passportgidul = K_Passport.Zan;
+                OpenDialog();
+                SpinnerBool = false;
+                if (IsConnected) await SendMessage();
+            }
+            else
+            {
+                SpinnerBool = false;
+                ModalErrorContent = "פספורט חייב להיות פרוס בחממות!";
+                ErrorModalIsVisible = true;
+                if (IsConnected) await SendMessage();
+            }
 
         }
         catch (Exception)
@@ -552,7 +563,7 @@
     {
         SpinnerBool = true;
         //if AVG > magash type
-        if (EditedAVG > Convert.ToInt32(K_Passport.Passport.Oitm.UCelsTray * 1000))
+        if (EditedAVG > K_Passport.CelsTray)
         {
             ModalErrorContent = "ממוצע גבוה מסוג מגש";
             ErrorModalIsVisible = true;
@@ -563,6 +574,11 @@
         {
             K_Passport.PassportAVG = EditedAVG;
             K_Passport.AVGEnteringDate = DateTime.Now;
+            if (PassportAlgorithm.IsAVGLow(K_Passport))
+            {
+                K_Passport.IsLowAVG = true;
+            }
+
             try
             {
                 var rslt = await Http.PutAsJsonAsync($"api/KPassports/{K_Passport.K_PassportId}", K_Passport);

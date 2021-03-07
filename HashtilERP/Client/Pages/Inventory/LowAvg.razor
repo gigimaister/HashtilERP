@@ -1,4 +1,4 @@
-﻿@page "/inventory/metzayarchive"
+﻿@page "/inventory/lowavg"
 @inject IJSRuntime jsRuntime
 
 @using System.Security.Claims;
@@ -22,8 +22,7 @@
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren")]
 
-<h3 style="text-align:center">מצאי - ארכיון</h3>
-
+<h3 style="text-align:center">ממוצעים נמוכים למעקב</h3>
 
 @if (K_Passports == null)
 {
@@ -43,63 +42,11 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
-    <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
-        <HeaderTemplate>
-            <div style="text-align:right">
-                פספורט: @((context as K_Passport).PassportNum) <br />
-                @((context as K_Passport).Passport.Oitm.UHebGidul)
-                @((context as K_Passport).Passport.Oitm.UHebZan)
-            </div>
-        </HeaderTemplate>
-        <Template>
-            @{
-                var Passport = (context as K_Passport);
+<SfGrid DataSource="@K_Passports" Toolbar=@Tool AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
 
-                <div class="form-row" dir="rtl">
-                    <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
-                        <label class="e-float-text e-label-top" style="text-align:right">@Passport.Hamama</label>
-                    </div>
-                    <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
-                        @*Select a hamama*@
-                        <input type="text" class="form-control" @bind="InputHamama" placeholder="שינוי חממה" />
-                    </div>
-                </div>
-
-                <div class="form-row" dir="rtl">
-                    <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
-                        <label class="e-float-text e-label-top" style="text-align:right">@Passport.Gamlon</label>
-                    </div>
-                    <div class="form-group col-md-5">
-                        <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
-                        @*Select a gamlon*@
-                        <input type="text" class="form-control" @bind="InputGamlon" placeholder="שינוי גמלון" />
-
-                    </div>
-                </div>
-
-                <div class="form-row" dir="rtl">
-                    <div class="form-group col-md-6">
-                        <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
-                        <SfNumericTextBox ID="Freight" @bind-Value="@(Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
-
-                    </div>
-                </div>
-
-            }
-
-        </Template>
-        <FooterTemplate>
-            <button class="btn btn-danger" @onclick="@(_ => {CloseUpdateDialog();})" style="margin-left:10px">ביטול</button>
-            <button class="btn btn-success" @onclick="@(_ => { if (context != null) UpdatePassport((context as K_Passport));})">שמירה</button>
-        </FooterTemplate>
-    </GridEditSettings>
 
     <GridEvents TValue="K_Passport"></GridEvents>
-    <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+    <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
 
     <GridTemplates>
@@ -130,7 +77,7 @@
                                         </thead>
                                         <tbody>
 
-                                            @foreach (var cx in passport.Passport.Passprods)
+                                            @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
                                             {
                                                 var temp = (cx.UQuantity * 1000);
                                                 var display = string.Format("{0:#,0}", temp);
@@ -272,7 +219,7 @@
                                     </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
-                                            <label class="form-check-label" style="text-align: right; font-weight:500">ממוצע SAP התחלתי:</label>
+                                            <label class="form-check-label" style="text-align: right; font-weight:500">מקדם זריעה SAP:</label>
                                         </div>
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align:right">@passport2.PassportStartingAVG</label>
@@ -283,122 +230,90 @@
                         </TabItem>
                     </TabItems>
                 </SfTab>
-
             </div>
         </DetailTemplate>
 
     </GridTemplates>
     <GridColumns>
 
-
-        <GridColumn HeaderText="" TextAlign="TextAlign.Right" AutoFit="true">
+        <GridColumn HeaderText="" TextAlign="TextAlign.Left" AutoFit="true">
             <GridCommandColumns>
-                <AuthorizeView Roles="Administrator">
+                <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Viewer">
                     <GridCommandColumn Type=CommandButtonType.None
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "פריסה מחדש", CssClass = "e-success" })">
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
                     </GridCommandColumn>
                 </AuthorizeView>
-                <AuthorizeView Roles="Administrator">
-                    <GridCommandColumn Type=CommandButtonType.Edit
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
-                    </GridCommandColumn>
-                </AuthorizeView>                
             </GridCommandColumns>
         </GridColumn>
 
-
-        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
-            
-        </GridColumn>
-        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="@nameof(K_Passport.PassportStartingAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Right" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 
 </SfGrid>
 
-@*Update Passport Hamama And Or Gamlon NULL Dialog Setting*@
-<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible" EnableRtl="true">
-    <DialogEvents OnOverlayClick="@OnOverlayclick">
-    </DialogEvents>
-    <DialogTemplates>
-        <Header>שגיאה!</Header>
-        <Content> @ModalError </Content>
-    </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
-
-    </DialogButtons>
-</SfDialog>
-
-@*Back On Active Passport Dialog Setting*@
-<SfDialog Target="#target" EnableRtl="true"
+@*Audit Passport form*@
+<SfDialog Target="#target"
           Width="250px"
-          Height="175px"
+          Height="350px"
           IsModal="true"
+          EnableRtl="true"
           ShowCloseIcon="false"
-          @bind-Visible="@ActivVisability">
+          @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>לפרוס פספורט?</Header>
+        <Header>ביקורת חדשה</Header>
         <Content>
-            <div class="button-container">
-                <button type="submit"
-                        class="btn btn-success"
-                        @onclick="ConfirmDestroyYes">
-                    אישור
-                </button>
-                <button type="submit" style="margin-right:25px"
-                        class="btn btn-danger"
-                        @onclick="ConfirmDestroyNo">
-                    ביטול
-                </button>
-            </div>
+            <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
+                <DataAnnotationsValidator />
+
+                <div style="text-align:right">
+                    <SfDropDownList TValue="string" TItem="AuditFormStatus" Placeholder="מצב" Width="auto" DataSource="@AuditFormStatus.Statuses"
+                                    PopupHeight="350px" PopupWidth="200px" @bind-Value="@PassportAuditForm.AuditStatus">
+                        <DropDownListFieldSettings Value="Text" Text="Text">
+
+                        </DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <ValidationMessage For="@(() => PassportAuditForm.AuditStatus)"></ValidationMessage>
+                </div>
+                <br />
+                <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
+                <div style="text-align:right">
+                    <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark" Width="194px"></SfTextBox>
+                    <ValidationMessage For="@(() => PassportAuditForm.Remark)"></ValidationMessage>
+                </div>
+                <br />
+                <div class="button-container" style="text-align:center">
+                    <button type="submit" class="btn btn-success">
+                        אישור
+                    </button>
+                    <button style="margin-right:25px"
+                            class="btn btn-danger"
+                            @onclick="ConfirmDeleteNo">
+                        ביטול
+                    </button>
+                </div>
+            </EditForm>
         </Content>
     </DialogTemplates>
 </SfDialog>
 
-@*Confirm Passport Condition Passport Dialog Setting*@
-<SfDialog Target="#target" EnableRtl="true"
-          Width="250px"
-          Height="175px"
-          IsModal="true"
-          ShowCloseIcon="false"
-          @bind-Visible="@ConfirmPassportVisability">
-    <DialogTemplates>
-        <Header>לאשר מצב?</Header>
-        <Content>
-            <div class="button-container">
-                <button type="submit"
-                        class="btn btn-success"
-                        @onclick="ConfirmStatusYes">
-                    אישור
-                </button>
-                <button type="submit" style="margin-right:25px"
-                        class="btn btn-danger"
-                        @onclick="ConfirmStatusNo">
-                    ביטול
-                </button>
-            </div>
-        </Content>
-    </DialogTemplates>
-</SfDialog>
 
 
 
 @code {
-    string InputHamama, InputGamlon;
-    SfGrid<K_Passport> SfGrid;
-    public void CloseUpdateDialog()
-    {
-        this.SfGrid.CloseEdit();
-    }
+
+
 
 
     #region MODAL Hamama Gamlon NULL
@@ -407,11 +322,10 @@
     /// </summary>
     private bool IsVisible { get; set; } = false;
 
-    //BackTo Avtive Passport MODAL VISABILITY
-    private bool ActivVisability { get; set; } = false;
+    bool SpinnerBool { get; set; } = false;
 
-    //Confirm Passport MODAL VISABILITY
-    private bool ConfirmPassportVisability { get; set; } = false;
+    //DESTROY MODAL VISABILITY
+    private bool DestroyVisability { get; set; } = false;
 
     private string ModalError { get; set; } = "";
 
@@ -460,167 +374,53 @@
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
-    //WHEN UPDATE PASSPORT
-    public async void UpdatePassport(K_Passport context)
-    {
-
-        if (InputHamama != null)
-        {
-            if (InputGamlon != null)
-            {
-                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama, InputGamlon))
-                {
-                    context.Hamama = InputHamama;
-                    context.Gamlon = InputGamlon;
-                }
-                else
-                {
-                    ModalError = "יש להזין חממה וגמלון מתאימים";
-                    IsVisible = true;
-                    return;
-                }
-            }
-            else
-            {
-                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama))
-                {
-                    context.Hamama = InputHamama;
-
-                }
-                else
-                {
-                    ModalError = $"הערך {InputHamama} לא תקין";
-                    IsVisible = true;
-                    return;
-                }
-            }
-        }
-
-        if (context.MagashAmount == 0)
-        {
-            context.IsNeedToBeChecked = true;
-        }
-        var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
-        //Http Response Failed On Insert
-        if (!rslt.IsSuccessStatusCode)
-        {
-
-            ToastContent = rslt.StatusCode.ToString();
-            StateHasChanged();
-            await ShowToast();
-
-        }
-        else
-        {
-
-
-            if (IsConnected) await SendMessage();
-            ToastContent = HebSaved;
-            StateHasChanged();
-            await ShowToast();
-            await this.SfGrid.CloseEdit();
-
-        }
-
-
-    }
 
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
-        ModalError = "";
-
-        if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
+        if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
-            if (args.RowData.PassportStatus != Status.Destroyed)
+            this.DeleteRecordConfirmVisibility = true;
+            passporrtId = args.RowData.K_PassportId;
+            PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+            PassportAuditForm.CreateDate = DateTime.Now;
+
+        }
+
+
+    }
+
+
+    //DIALOG AuditForm CANCEL
+    public void ConfirmDeleteNo()
+    {
+        // Open the dialog
+        // to give the user a chance
+        // to confirm they want to delete the record.
+        PassportAuditForm = new PassportAuditForm();
+        this.DeleteRecordConfirmVisibility = false;
+    }
+
+    //DIALOG AuditForm CONFIRMED
+    public async void ConfirmDeleteYes()
+    {
+        try
+        {
+            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+            if (PassportAuditForm.AuditStatus != "תקין")
             {
-                ModalError = "פספורט כבר פרוס";
-                IsVisible = true;
+                K_Passport.IsNeedToBeAudit = true;
+
             }
             else
             {
-                this.ActivVisability = true;
-                passporrtId = args.RowData.K_PassportId;
-
+                K_Passport.IsNeedToBeAudit = false;
             }
-
-        }
-        if (args.CommandColumn.ButtonOption.Content == "אישור")
-        {
-            this.ConfirmPassportVisability = true;
-            passporrtId = args.RowData.K_PassportId;
-
-        }
-    }
-
-    //DIALOG Confirm Status CANCEL
-    public void ConfirmStatusNo()
-    {
-        this.ConfirmPassportVisability = false;
-    }
-
-    //DIALOG Confirm Status CONFIRMED
-    public async void ConfirmStatusYes()
-    {
-        try
-        {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
-
-            K_Passport.IsNeedToBeChecked = false;
-            if (K_Passport.MagashAmount == 0)
-            {
-                K_Passport.PassportStatus = Status.Finished;
-                K_Passport.MetzayOutGoingDate = DateTime.Now;
-            }
-            if (K_Passport.PassportStatus.Trim() == Status.Destroyed)
-            {
-                K_Passport.MetzayOutGoingDate = DateTime.Now;
-            }
-
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
-            this.ConfirmPassportVisability = false;
-
-            if (rslt.IsSuccessStatusCode)
-            {
-
-                if (IsConnected) await SendMessage();
-                ToastContent = HebSaved;
-                StateHasChanged();
-                await ShowToast();
-                PassportAuditForm = new PassportAuditForm();
-            }
-
-
-        }
-        catch (Exception e)
-        {
-            ToastContent = e.Message;
-            await ShowToast();
-        }
-
-
-
-
-    }
-
-    //DIALOG Activ CANCEL
-    public void ConfirmDestroyNo()
-    {
-        this.ActivVisability = false;
-    }
-
-    //DIALOG Active CONFIRMED
-    public async void ConfirmDestroyYes()
-    {
-        try
-        {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
-            K_Passport.PassportStatus = Status.InGreenHouse;
-            K_Passport.IsNeedToBeChecked = false;
-
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
-            this.ActivVisability = false;
-
+            K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            this.DeleteRecordConfirmVisibility = false;
+            var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
+            var content = await rslt.Content.ReadAsStringAsync();
             if (rslt.IsSuccessStatusCode)
             {
 
@@ -676,7 +476,7 @@
     {
         try
         {
-            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "7");
+            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/lowavg");
             StateHasChanged();
         }
 
@@ -757,10 +557,26 @@
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Passport> args)
     {
-        args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        if (args.Data.IsNeedToBeAudit == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        }
+
+
+
     }
 
+    public void ActionBegin(ActionEventArgs<K_Passport> arg)
+    {
+        //Handles add operation
 
+
+        //Handles edit operation. During edit operation, original object will be cloned.
+        if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+
+        }
+    }
 }
 
 <style>
@@ -827,7 +643,7 @@
 
     /*   GRID ROW STYLE*/
     .is-need-to-be-audit {
-        background-color:wheat;
+        background-color: floralwhite;
     }
 
     .clean {

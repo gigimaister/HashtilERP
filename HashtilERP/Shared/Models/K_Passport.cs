@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HashtilERP.Shared.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -30,6 +31,7 @@ namespace HashtilERP.Shared.Models
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
         public bool? IsSavedForCx { get; set; }
+        public bool? IsLowAVG { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAVG { get; set; }
@@ -92,4 +94,54 @@ public enum PassportStatusCode
   Finish,
   Destroyed,
   StillNotChecked
+}
+
+public static class PassportAlgorithm
+{
+    public static bool IsAVGLow(K_Passport k_Passport)
+    {
+        var magashType = k_Passport.CelsTray;
+        var passportAVG = k_Passport.PassportAVG;
+        switch (magashType)
+        {
+            case 442:
+                if (passportAVG < 400)
+                {
+                    return true;
+                }
+                break;
+            case 180:
+                if (passportAVG < 160)
+                {
+                    return true;
+                }
+                break;
+            case 187:
+                if (passportAVG < 160)
+                {
+                    return true;
+                }
+                break;
+            case 308:
+                if (passportAVG < 277)
+                {
+                    return true;
+                }
+                break;
+            case 260:
+                if (passportAVG < 232)
+                {
+                    return true;
+                }
+                break;
+            case 250:
+                if (passportAVG < 222)
+                {
+                    return true;
+                }
+                break;
+
+        }
+        return false;
+    }
 }

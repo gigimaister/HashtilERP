@@ -26,6 +26,7 @@ namespace HashtilERP.Data
         public bool? IsNeedToBeAudit { get; set; }
         public bool? IsNeedToBeChecked { get; set; }
         public bool? IsSavedForCx { get; set; }
+        public bool? IsLowAVG { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; }

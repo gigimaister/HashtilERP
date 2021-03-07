@@ -97,6 +97,13 @@
                     </AuthorizeView>
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
                         <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="inventory/lowavg" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-lightbulb" aria-hidden="true"></span>&nbsp ממוצ' נמוכים
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
+                        <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/metzayarchive" Match="NavLinkMatch.All" @onclick="Close">
                                 <span class="oi oi-book" aria-hidden="true"></span>&nbsp מצאי-ארכיון
                             </NavLink>

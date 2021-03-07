@@ -169,6 +169,38 @@ namespace HashtilERP.Server
 
 
         }
+
+        //GET for LowAVG 
+        [HttpGet("lowavg")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetLoeAVGMetzay()
+        {
+            var metzay = new List<K_Passport>();
+
+
+            try
+            {
+                metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsLowAVG == true)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.Passport)
+
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.UpdateK_PassportAudit)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                return metzay;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+
+
+        }
+
+
         //List Of Passports For Metzay Report
         [HttpGet("report/{date}")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
@@ -412,6 +444,7 @@ namespace HashtilERP.Server
             kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
             kPassport.Gidul = sapOitm.UHebGidul;
+            kPassport.IsSavedForCx = false;
             _context.KPassport.Add(kPassport);
             try
             {
