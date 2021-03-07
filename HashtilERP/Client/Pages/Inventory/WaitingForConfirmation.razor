@@ -177,9 +177,10 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
+            this.DeleteRecordConfirmVisibility = true;
 
             var PassportNumber = args.RowData.PassportNum.ToString();
-            this.DeleteRecordConfirmVisibility = true;
+
             try
             {
                 K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + PassportNumber);
@@ -208,6 +209,7 @@
     {
         this.DeleteRecordConfirmVisibility = false;
         K_Passport.PassportStatus = Status.InGreenHouse;
+        K_Passport.IsLowAVG = false;
         var rslt = await Http.PutAsJsonAsync("api/KPassports/GreenManager/Passport/UpdateStatus/" + K_Passport.K_PassportId, K_Passport);
         var content = await rslt.Content.ReadAsStringAsync();
         if (rslt.IsSuccessStatusCode)
