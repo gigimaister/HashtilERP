@@ -46,6 +46,25 @@
         <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
     </div>
 </div>
+@if (isDevice == "Mobile")
+{
+    <div style="text-align:right">
+        <button class="btn btn-success"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            סריקה
+        </button>
+    </div>
+}
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput = e; SearchBtnHandler(passportInput); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
+}
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
 
@@ -489,13 +508,13 @@
     <DialogTemplates>
         <Header>שמירת פספורט</Header>
         <Content>
-            
-           
+
+
             <br />
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SavePassForCxSpinner"></SfSpinner>
 
             <div style="text-align:right">
-                <SfTextBox Placeholder='הערה' Multiline=true  @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
+                <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
 
             </div>
             <br />
@@ -517,7 +536,7 @@
                 </button>
             </div>
 
-        </Content>     
+        </Content>
     </DialogTemplates>
 </SfDialog>
 
@@ -537,8 +556,29 @@
     public bool EditPassBool { get; set; } = false;
 
 
+    //CAMERA SCANNER for search in datagrid
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    string passportInput;
+
+    public void SearchBtnHandler(string searchKey)
+    {
+        this.SfGrid.Search(searchKey);
+    }
+
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+
     protected override async Task OnInitializedAsync()
     {
+        await FindResponsiveness();
         InputHamama = "";
         InputGamlon = "";
         await LoadData();
@@ -753,6 +793,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
+           
             this.DeleteRecordConfirmVisibility = true;
             passporrtId = args.RowData.K_PassportId;
             PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
@@ -783,6 +824,7 @@
     //DIALOG Destroy CONFIRMED
     public async void ConfirmDestroyYes()
     {
+        
         //Validate Audit Form Check
         AfterActionSpinner = true;
         try
@@ -820,7 +862,7 @@
     public async Task<int> SaveForCx()
     {
         SavePassForCxSpinner = true;
-        if (SavedPassportForCxRemerk=="" || SavedPassportForCxRemerk == null )
+        if (SavedPassportForCxRemerk == "" || SavedPassportForCxRemerk == null)
         {
             SavePassForCxSpinner = false;
             ModalError = "לא נרשמה הערת שמירה!";
@@ -1004,7 +1046,7 @@
         {
             args.Cell.AddClass(new string[] { "passport" });
         }
-        //LOW AVG 
+        //LOW AVG
         if (args.Column.Field == "PassportAVG")
         {
             if (args.Data.IsLowAVG == true)
@@ -1104,18 +1146,22 @@
         background-color: darkseagreen;
         font-weight: bold;
     }
+
     .magash-250 {
         background-color: green;
         font-weight: bold;
     }
+
     .magash-210 {
         background-color: hotpink;
         font-weight: bold;
     }
+
     .magash-260 {
         background-color: rosybrown;
         font-weight: bold;
     }
+
     .passport {
         background-color: powderblue;
         font-weight: bold;
@@ -1136,6 +1182,7 @@
         background-color: yellow;
         font-weight: bold;
     }
+
     .hamama3 {
         background-color: lightpink;
         font-weight: bold;
@@ -1172,12 +1219,15 @@
     .is-need-to-be-audit {
         background-color: orange;
     }
+
     .is-need-to-be-saved {
         background-color: cornflowerblue;
     }
+
     .is-need-to-be-saved-audit {
         background-color: mediumpurple;
     }
+
     .is-low-avg {
         background-color: orange;
     }

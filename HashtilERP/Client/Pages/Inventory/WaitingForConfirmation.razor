@@ -27,11 +27,30 @@
         </div>
     </div>
 }
+@if (isDevice == "Mobile")
+{
+    <div style="text-align:right">
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            סריקה
+        </button>
+    </div>
+}
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput = e; SearchBtnHandler(passportInput); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
+}
 @{
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
+<SfGrid DataSource="@K_Passports"  @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents CommandClicked="OnCommandClicked"
                 TValue="K_Passport">
@@ -99,7 +118,7 @@
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
     private HubConnection hubConnection;
-
+    SfGrid<K_Passport> SfGrid;
     private static string HebSaved = "נשמר!";
 
     //TOAST
@@ -115,7 +134,25 @@
         await this.ToastObj.Hide("All");
     }
 
+    //CAMERA SCANNER for search in datagrid
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    string passportInput;
 
+    public void SearchBtnHandler(string searchKey)
+    {
+        this.SfGrid.Search(searchKey);
+    }
+
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -123,10 +160,10 @@
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
-
+        await FindResponsiveness();
         hubConnection = new HubConnectionBuilder()
-    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-    .Build();
+.WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+.Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {

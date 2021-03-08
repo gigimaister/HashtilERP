@@ -411,6 +411,8 @@
     //DIALOG AuditForm CONFIRMED
     public async void ConfirmDeleteYes()
     {
+       
+        SpinnerBool = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -437,13 +439,16 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
+           
+            SpinnerBool = false;
 
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
+           
+            SpinnerBool = false;
         }
 
 
