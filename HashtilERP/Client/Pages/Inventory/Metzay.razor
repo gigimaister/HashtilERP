@@ -49,7 +49,7 @@
 @if (isDevice == "Mobile")
 {
     <div style="text-align:right">
-        <button class="btn btn-success"
+        <button class="btn btn-primary"
                 type="button"
                 @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
             @*ENTER SCAN*@
@@ -1244,5 +1244,14 @@
         position: relative;
         padding-left: 0;
         top: 10%;
+    }
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
     }
 </style>

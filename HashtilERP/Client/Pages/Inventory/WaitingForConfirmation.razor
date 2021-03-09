@@ -46,6 +46,7 @@
                    Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
 
 }
+
 @{
     var Tool = (new List<string>() { "Search" });
 }
@@ -81,7 +82,7 @@
 </SfGrid>
 @*Confirm Dialog Setting*@
 <SfDialog Target="#target"
-          Width="100px"
+          Width="150px"
           Height="130px"
           IsModal="true"
           EnableRtl="true"
@@ -90,6 +91,8 @@
     <DialogTemplates>
         <Header>לאשר פספורט?</Header>
         <Content>
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
             <div class="button-container">
                 <button type="submit"
                         class="btn btn-success"
@@ -120,6 +123,7 @@
     private HubConnection hubConnection;
     SfGrid<K_Passport> SfGrid;
     private static string HebSaved = "נשמר!";
+    bool SpinnerBool { get; set; } = false;
 
     //TOAST
     SfToast ToastObj;
@@ -212,6 +216,7 @@
     //Command Button Clicked In grid
     public async void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
+
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
             this.DeleteRecordConfirmVisibility = true;
@@ -226,6 +231,7 @@
             {
                 ToastContent = e.Message;
                 await ShowToast();
+
             }
 
             StateHasChanged();
@@ -244,21 +250,33 @@
     //DIALOG CONFIRMED
     public async void ConfirmDeleteYes()
     {
-        this.DeleteRecordConfirmVisibility = false;
+        SpinnerBool = true;
+
         K_Passport.PassportStatus = Status.InGreenHouse;
         K_Passport.IsLowAVG = false;
         var rslt = await Http.PutAsJsonAsync("api/KPassports/GreenManager/Passport/UpdateStatus/" + K_Passport.K_PassportId, K_Passport);
         var content = await rslt.Content.ReadAsStringAsync();
         if (rslt.IsSuccessStatusCode)
         {
-
+            
             if (IsConnected) await SendMessage();
             ToastContent = HebSaved;
             StateHasChanged();
             await ShowToast();
         }
         this.DeleteRecordConfirmVisibility = false;
-
+        SpinnerBool = false;
     }
 
 }
+<style>
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
+    }
+</style>

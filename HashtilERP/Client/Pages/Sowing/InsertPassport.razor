@@ -30,7 +30,7 @@
 @if (isDevice == "Mobile")
 {
 <div style="text-align:left">
-    <button class="btn btn-success" style="width:auto;margin-right:auto"
+    <button class="btn btn-primary" style="width:auto;margin-right:auto"
             type="button"
             @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
         @*ENTER SCAN*@
@@ -106,19 +106,22 @@
     </SfDialog>
 
     @*Toast Component*@
-    <SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+    <SfToast ID="toast_default" @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
         <ToastPosition X="Center"></ToastPosition>
     </SfToast>
-    <div class="col-lg-12 col-sm-12 col-md-12 center">
-        <div id="toastBtnDefault" style="margin: auto;text-align: center">
-            <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
-            <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
-        </div>
-    </div>
-
+   
     <style>
         .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
             stroke: #48EB43;
+        }
+        .e-toast-container .e-toast .e-toast-message .e-toast-content {
+            color: white;
+            font-size: 18px;
+            font-weight: normal;
+        }
+       
+        .e-toast-container .e-toast {
+            background-color: black;
         }
     </style>
 
