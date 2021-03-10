@@ -17,7 +17,7 @@ namespace HashtilERP.Data
         public string AuditStatus { get; set; }
 
         [Required]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "חייב להזין תיאור")]
+        [StringLength(1000, MinimumLength = 2, ErrorMessage = "חייב להזין תיאור")]
         public string Remark { get; set; }
     }
 }

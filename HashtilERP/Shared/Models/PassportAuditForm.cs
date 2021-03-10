@@ -19,7 +19,7 @@ namespace HashtilERP.Shared.Models
         public string AuditStatus { get; set; }
 
         [Required(ErrorMessage ="חייב לרשום הערה")]
-        [StringLength(50, MinimumLength = 2, ErrorMessage = "מינ הזנה-2 תווים")]
+        [StringLength(1000, MinimumLength = 2, ErrorMessage = "מינ הזנה-2 תווים")]
         public string Remark { get; set; }
     }
 

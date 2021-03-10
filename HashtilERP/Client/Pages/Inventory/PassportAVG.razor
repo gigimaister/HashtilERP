@@ -341,9 +341,9 @@
             </div>
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput">ממוצע נוכחי</label>
-                @{ if (CurrentAVG == "") { CurrentAVG = "לא הוזן עדיין"; }
+                @{ if (CurrentAVG == -1) { ScreenAVG = "לא הוזן עדיין"; } else { ScreenAVG = CurrentAVG.ToString(); }
                 }
-                <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput" placeholder="@CurrentAVG" readonly="readonly">
+                <input type="text" style="text-align:right" class="form-control" id="formGroupExampleInput" placeholder="@ScreenAVG" readonly="readonly">
             </div>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -386,7 +386,8 @@
 </SfToast>
 
 @code {
-    string passportInput, CurrentAVG, SapAVG, Passportnumber, Passportgidul;
+    string passportInput,  SapAVG, Passportnumber, Passportgidul,ScreenAVG;
+    int? CurrentAVG;
     public K_Passport K_Passport = new K_Passport();
     public K_Passport[] K_Passports;
     private HubConnection hubConnection;
@@ -526,11 +527,12 @@
             SpinnerBool = true;
             //GET PASSPORT OBJECT FROM SCAN
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
+
             if(K_Passport.PassportStatus == Status.InGreenHouse)
             {
 
 
-                CurrentAVG = K_Passport.PassportAVG.ToString();
+                CurrentAVG = K_Passport.PassportAVG;
                 SapAVG = K_Passport.PassportStartingAVG.ToString();
                 Passportnumber = K_Passport.PassportNum.ToString();
                 Passportgidul = K_Passport.Zan;

@@ -406,6 +406,7 @@
     {
         try
         {
+            SpinnerBool = true;
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             if (PassportAuditForm.AuditStatus != "תקין")
             {
@@ -418,7 +419,7 @@
             }
             K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
             await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
-            this.DeleteRecordConfirmVisibility = false;
+
             var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
             var content = await rslt.Content.ReadAsStringAsync();
             if (rslt.IsSuccessStatusCode)
@@ -430,13 +431,14 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
-
+            this.DeleteRecordConfirmVisibility = false;
+            SpinnerBool = false;
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
+            SpinnerBool = false;
         }
 
 

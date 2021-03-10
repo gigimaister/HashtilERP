@@ -101,7 +101,7 @@ namespace HashtilERP.Server
                         break;
                     //for AVG Counter
                     case "6":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse && x.PassportAvg != null)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse && x.PassportAvg != -1)
                            .OrderByDescending(x =>x.AVGEnteringDate)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)

@@ -16,6 +16,7 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Data
+@using System.ComponentModel.DataAnnotations;
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -345,7 +346,7 @@
         </GridAggregate>
     </GridAggregates>
 
-    <GridColumns>
+    <GridColumns>     
         <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" Width="290px">
             <GridCommandColumns>
                 <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
@@ -365,19 +366,18 @@
                 </AuthorizeView>
             </GridCommandColumns>
         </GridColumn>
-        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
             @*<Template>
-                    @{
-                        var value = (context as K_Passport);
-                        var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
-                        <b>@Zan</b>
-                    }
-                </Template>*@
+                @{
+                    var value = (context as K_Passport);
+                    var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
+                    <b>@Zan</b>
+                }
+            </Template>*@
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -387,7 +387,7 @@
             <Template>
                 @{
                     var value = (context as K_Passport);
-                    var AVG = value.PassportAVG == null ? "ללא" : Convert.ToString(value.PassportAVG);
+                    var AVG = value.PassportAVG == -1 ? "ללא" : Convert.ToString(value.PassportAVG);
                     <b>@AVG</b>
                 }
             </Template>
@@ -396,7 +396,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="140px">
+        <GridColumn HeaderText="" TextAlign="TextAlign.Center" AutoFit="true">
             <GridCommandColumns>
                 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
                     <GridCommandColumn Type=CommandButtonType.None
@@ -497,7 +497,6 @@
 </SfDialog>
 
 @*Saving Passport For CX Dialog*@
-@*Audit Passport form*@
 <SfDialog Target="#target"
           Width="350px"
           Height="400px"
@@ -515,7 +514,6 @@
 
             <div style="text-align:right">
                 <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
-
             </div>
             <br />
             <div class="button-container" style="text-align:center">
@@ -541,20 +539,54 @@
 </SfDialog>
 
 @code {
+    //the Object type fot type grid and PUT calls
     public K_Passport K_Passport = new K_Passport();
+
+    //Objects list populate grid
     public K_Passport[] K_Passports;
+
+    //for AuditForm
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
+
+    //SPA Hub
     private HubConnection hubConnection;
+
+    //For PUT passport Green & Gamlon
     string InputHamama, InputGamlon;
+
+    //Grid Object for costum actions
     SfGrid<K_Passport> SfGrid;
+
+    //Spinners
     bool AfterActionSpinner { get; set; } = false;
     bool SpinnerBool { get; set; } = false;
     bool SavePassForCxSpinner { get; set; } = false;
-    // Property to control the save pass for cx dialog.
+
+    // Save for Cx Spinner.
     public bool SavePassForCxModal { get; set; } = false;
+
+    //Save for Cx Remark
+    [StringLength(1000, MinimumLength = 2, ErrorMessage = "חייב להזין תיאור")]
     public string SavedPassportForCxRemerk { get; set; }
+
     public bool EditPassBool { get; set; } = false;
 
+    //Toast Screen Show After Succesfull PUT
+    private static string HebSaved = "נשמר!";
+
+    //For GET K_Passport object ID
+    long passporrtId;
+
+    //Still experiment for this one(tryi'n to set 'log in as:' claim name)
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+
+
+
+    // Property to control the delete dialog.
+    public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
     //CAMERA SCANNER for search in datagrid
     private string isDevice { get; set; }
@@ -598,7 +630,7 @@
     }
 
 
-
+    //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
 
@@ -633,6 +665,7 @@
 
     }
 
+    //PUT K_Passport Green/Gamlon/Magash Amount
     public async Task<int> UpdatePassport(K_Passport context)
     {
         AfterActionSpinner = true;
@@ -718,10 +751,6 @@
         return 0;
     }
 
-
-
-
-
     #region MODAL Hamama Gamlon NULL
     /// <summary>
     /// Modal Props and actions
@@ -748,8 +777,6 @@
     }
     #endregion
 
-
-
     #region TOAST
     //TOAST
     public SfToast ToastObj;
@@ -765,21 +792,6 @@
     }
     #endregion
 
-
-    private static string HebSaved = "נשמר!";
-    long passporrtId;
-
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
-    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
-
-
-
-
-    // Property to control the delete dialog.
-    public bool DeleteRecordConfirmVisibility { get; set; } = false;
-
-
     public void AauditPassport(CommandClickEventArgs<K_Passport> args)
     {
         this.DeleteRecordConfirmVisibility = true;
@@ -793,7 +805,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
-           
+
             this.DeleteRecordConfirmVisibility = true;
             passporrtId = args.RowData.K_PassportId;
             PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
@@ -824,7 +836,7 @@
     //DIALOG Destroy CONFIRMED
     public async void ConfirmDestroyYes()
     {
-        
+
         //Validate Audit Form Check
         AfterActionSpinner = true;
         try
@@ -862,18 +874,18 @@
     public async Task<int> SaveForCx()
     {
         SavePassForCxSpinner = true;
-        if (SavedPassportForCxRemerk == "" || SavedPassportForCxRemerk == null)
-        {
-            SavePassForCxSpinner = false;
-            ModalError = "לא נרשמה הערת שמירה!";
-            IsVisible = true;
-            return 1;
-
-        }
-
 
         try
         {
+            if (SavedPassportForCxRemerk == "" || SavedPassportForCxRemerk == null)
+            {
+                SavePassForCxSpinner = false;
+                ModalError = "לא נרשמה הערת שמירה!";
+                IsVisible = true;
+                return 1;
+
+            }
+
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             K_Passport.IsSavedForCx = true;
             K_Passport.SaveForCxRemarks = SavedPassportForCxRemerk;
@@ -891,6 +903,7 @@
             }
             SavePassForCxSpinner = false;
             SavePassForCxModal = false;
+            SavedPassportForCxRemerk = "";
         }
         catch (Exception e)
         {
@@ -962,7 +975,7 @@
     //DIALOG AuditForm CONFIRMED
     public async void ConfirmDeleteYes()
     {
-        AfterActionSpinner = true;
+
         SpinnerBool = true;
         try
         {
@@ -990,14 +1003,14 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-            AfterActionSpinner = false;
+
             SpinnerBool = false;
         }
         catch (Exception e)
         {
             ToastContent = e.Message;
             await ShowToast();
-            AfterActionSpinner = false;
+
             SpinnerBool = false;
         }
 

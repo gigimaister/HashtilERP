@@ -29,7 +29,7 @@ namespace HashtilERP.Data
         public bool? IsLowAVG { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
-        public int? PassportAvg { get; set; }
+        public int? PassportAvg { get; set; } = -1;
         public int? PassportStartingAVG { get; set; }
         public int? OriginalMagashAmount { get; set; }
         public string ItemCode { get; set; }
