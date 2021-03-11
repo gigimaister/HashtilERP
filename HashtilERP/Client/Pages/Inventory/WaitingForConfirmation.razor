@@ -30,7 +30,7 @@
 @if (isDevice == "Mobile")
 {
     <div style="text-align:right">
-        <button class="btn btn-primary"
+        <button class="btn btn-danger"
                 type="button"
                 @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
             @*ENTER SCAN*@
@@ -250,22 +250,35 @@
     //DIALOG CONFIRMED
     public async void ConfirmDeleteYes()
     {
-        SpinnerBool = true;
-
-        K_Passport.PassportStatus = Status.InGreenHouse;
-        K_Passport.IsLowAVG = false;
-        var rslt = await Http.PutAsJsonAsync("api/KPassports/GreenManager/Passport/UpdateStatus/" + K_Passport.K_PassportId, K_Passport);
-        var content = await rslt.Content.ReadAsStringAsync();
-        if (rslt.IsSuccessStatusCode)
+        try
         {
-            
+            SpinnerBool = true;
+
+            K_Passport.PassportStatus = Status.InGreenHouse.Trim();
+            K_Passport.IsLowAVG = false;
+            var rslt = await Http.PutAsJsonAsync("api/KPassports/GreenManager/Passport/UpdateStatus/" + K_Passport.K_PassportId, K_Passport);
+            var content = await rslt.Content.ReadAsStringAsync();
+            if (rslt.IsSuccessStatusCode)
+            {
+                SpinnerBool = false;
+                this.DeleteRecordConfirmVisibility = false;
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+            }
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+            SpinnerBool = false;
+            this.DeleteRecordConfirmVisibility = false;
             if (IsConnected) await SendMessage();
-            ToastContent = HebSaved;
+            ToastContent = e.Message;
             StateHasChanged();
             await ShowToast();
         }
-        this.DeleteRecordConfirmVisibility = false;
-        SpinnerBool = false;
+
     }
 
 }
