@@ -3,7 +3,7 @@
 // be reflected on the first load after each change).
 //self.addEventListener('fetch', () => { });
 
-const CACHE_VERSION = 6;
+const CACHE_VERSION = 1;
 
 const BASE_CACHE_FILES = [
     '/style.css',

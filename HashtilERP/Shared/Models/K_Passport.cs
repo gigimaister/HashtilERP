@@ -23,6 +23,7 @@ namespace HashtilERP.Shared.Models
         public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
         public string Gidul { get; set; }
         public string Zan { get; set; }
+        public string GidulZan => Gidul + " " + Zan;
         public string Hamama { get; set; }
         public string Gamlon { get; set; }
         public int? MagashAmount { get; set; }
