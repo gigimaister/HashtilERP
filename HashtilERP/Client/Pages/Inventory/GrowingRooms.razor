@@ -138,7 +138,7 @@
 @*//GRID ROW COND FORMAT COLOR STYLE*@
 <style>
     .date-pass {
-        background-color: orangered;
+        background-color: lightcoral;
     }
 
     .below-35 {
@@ -146,7 +146,7 @@
     }
 
     .date-out {
-        background-color: greenyellow
+        background-color: darkseagreen
     }
 </style>
 
@@ -211,11 +211,11 @@
     //ROW COLOR FORMAT
     public void RowBound(RowDataBoundEventArgs<K_Passport> args)
     {
-        if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days) > Convert.ToInt32(args.Data.Passport.UNights))
+        if (args.Data.GrowingRoomExitDay < DateTime.Today)
         {
             args.Row.AddClass(new string[] { "date-pass" });
         }
-        else if (Convert.ToInt32(((TimeSpan)(DateTime.Now - args.Data.SowDate)).Days) == Convert.ToInt32(args.Data.Passport.UNights))
+        else if (args.Data.GrowingRoomExitDay == DateTime.Today)
         {
             args.Row.AddClass(new string[] { "date-out" });
         }

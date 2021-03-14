@@ -260,7 +260,7 @@
             <Template>
                 @{
                     var value = (context as K_Passport);
-                    var AVG = value.PassportAVG == null ? "ללא" : Convert.ToString(value.PassportAVG);
+                    var AVG = value.PassportAVG == -1 ? "ללא" : Convert.ToString(value.PassportAVG);
                     <b>@AVG</b>
                 }
             </Template>
@@ -278,7 +278,7 @@
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>ביקורת חדשה</Header>
+        <Header>ביקורת עבור <b>@DestroyPassNumber</b></Header>
         <Content>
             <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
@@ -330,6 +330,8 @@
     /// </summary>
     private bool IsVisible { get; set; } = false;
 
+    //string for audit pass to show what you are want to audit
+    string DestroyPassNumber;
     //DESTROY MODAL VISABILITY
     private bool DestroyVisability { get; set; } = false;
 
@@ -387,6 +389,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
+            DestroyPassNumber = args.RowData.PassportNum.ToString();
             this.DeleteRecordConfirmVisibility = true;
             passporrtId = args.RowData.K_PassportId;
             PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);

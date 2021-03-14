@@ -43,18 +43,23 @@
 }
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
-    <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" AllowEditOnDblClick="false">
+    <GridEditSettings AllowEditing="true" Mode="EditMode.Dialog" Dialog="DialogParams" AllowEditOnDblClick="false">
         <HeaderTemplate>
-            <div style="text-align:right">
-                פספורט: @((context as K_Passport).PassportNum) <br />
-                @((context as K_Passport).Passport.Oitm.UHebGidul)
-                @((context as K_Passport).Passport.Oitm.UHebZan)
+            <div style="text-align:right" class="alert alert-success" role="alert">
+                פספורט:<b> @((context as K_Passport).PassportNum)</b> <br />
+            </div>
+            <div class="alert alert-primary" style="font-weight:bold" role="alert">
+                @((context as K_Passport).Gidul)
+                @((context as K_Passport).Zan)
             </div>
         </HeaderTemplate>
         <Template>
             @{
                 var Passport = (context as K_Passport);
 
+                <div class="spin-row">
+                    <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@EditPassBool"></SfSpinner>
+                </div>
                 <div class="form-row" dir="rtl">
                     <div class="form-group col-md-5">
                         <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
@@ -92,10 +97,11 @@
 
         </Template>
         <FooterTemplate>
+            <button class="btn btn-success" @onclick="@(_ => { if (context != null)  SendMetzayEdit((context as K_Passport));})">שמירה</button>
             <button class="btn btn-danger" @onclick="@(_ => {CloseUpdateDialog();})" style="margin-left:10px">ביטול</button>
-            <button class="btn btn-success" @onclick="@(_ => { if (context != null) UpdatePassport((context as K_Passport));})">שמירה</button>
         </FooterTemplate>
     </GridEditSettings>
+
 
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
@@ -318,7 +324,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
-            
+
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -326,7 +332,7 @@
             <Template>
                 @{
                     var value = (context as K_Passport);
-                    var AVG = value.PassportAVG == null ? "ללא" : Convert.ToString(value.PassportAVG);
+                    var AVG = value.PassportAVG == -1 ? "ללא" : Convert.ToString(value.PassportAVG);
                     <b>@AVG</b>
                 }
             </Template>
@@ -358,8 +364,10 @@
           ShowCloseIcon="false"
           @bind-Visible="@ActivVisability">
     <DialogTemplates>
-        <Header>לפרוס פספורט?</Header>
+        <Header>לפרוס את פספורט<br> @DestroyPassNumber ?</Header>
         <Content>
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
             <div class="button-container">
                 <button type="submit"
                         class="btn btn-success"
@@ -384,8 +392,10 @@
           ShowCloseIcon="false"
           @bind-Visible="@ConfirmPassportVisability">
     <DialogTemplates>
-        <Header>לאשר מצב?</Header>
+        <Header>לאשר מצב ל @DestroyPassNumber?</Header>
         <Content>
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
             <div class="button-container">
                 <button type="submit"
                         class="btn btn-success"
@@ -407,11 +417,14 @@
 @code {
     string InputHamama, InputGamlon;
     SfGrid<K_Passport> SfGrid;
+    //string for destroy pass to show what you are want to destroy
+    string DestroyPassNumber;
     public void CloseUpdateDialog()
     {
         this.SfGrid.CloseEdit();
     }
-
+    //spinner for all dialog when send PUT
+    bool SpinnerBool { get; set; } = false;
 
     #region MODAL Hamama Gamlon NULL
     /// <summary>
@@ -465,6 +478,7 @@
     private HubConnection hubConnection;
     private static string HebSaved = "נשמר!";
     long passporrtId;
+    public bool EditPassBool { get; set; } = false;
 
 
 
@@ -473,7 +487,7 @@
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
     //WHEN UPDATE PASSPORT
-    public async void UpdatePassport(K_Passport context)
+    public async Task<int> UpdatePassport(K_Passport context)
     {
 
         if (InputHamama != null)
@@ -489,7 +503,7 @@
                 {
                     ModalError = "יש להזין חממה וגמלון מתאימים";
                     IsVisible = true;
-                    return;
+                    return 1;
                 }
             }
             else
@@ -503,7 +517,7 @@
                 {
                     ModalError = $"הערך {InputHamama} לא תקין";
                     IsVisible = true;
-                    return;
+                    return 1;
                 }
             }
         }
@@ -533,7 +547,7 @@
             await this.SfGrid.CloseEdit();
 
         }
-
+        return 0;
 
     }
 
@@ -544,6 +558,7 @@
 
         if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
         {
+
             if(args.RowData.PassportStatus != Status.Destroyed)
             {
                 ModalError = "פספורט כבר פרוס";
@@ -551,6 +566,7 @@
             }
             else
             {
+                DestroyPassNumber = args.RowData.PassportNum.ToString();
                 this.ActivVisability = true;
                 passporrtId = args.RowData.K_PassportId;
 
@@ -559,6 +575,7 @@
         }
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
+            DestroyPassNumber = args.RowData.PassportNum.ToString();
             this.ConfirmPassportVisability = true;
             passporrtId = args.RowData.K_PassportId;
 
@@ -574,6 +591,7 @@
     //DIALOG Confirm Status CONFIRMED
     public async void ConfirmStatusYes()
     {
+        SpinnerBool = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -601,11 +619,12 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
+            SpinnerBool = false;
 
         }
         catch (Exception e)
         {
+            SpinnerBool = false;
             ToastContent = e.Message;
             await ShowToast();
         }
@@ -614,7 +633,12 @@
 
 
     }
+    public async void SendMetzayEdit(K_Passport context)
+    {
 
+        await UpdatePassport(context);
+
+    }
     //DIALOG Activ CANCEL
     public void ConfirmDestroyNo()
     {
@@ -624,6 +648,7 @@
     //DIALOG Active CONFIRMED
     public async void ConfirmDestroyYes()
     {
+        SpinnerBool = true;
         try
         {
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
@@ -642,11 +667,12 @@
                 await ShowToast();
                 PassportAuditForm = new PassportAuditForm();
             }
-
+            SpinnerBool = false;
 
         }
         catch (Exception e)
         {
+            SpinnerBool = false;
             ToastContent = e.Message;
             await ShowToast();
         }
@@ -778,7 +804,8 @@
 
     }
 
-
+    //edit dialog settings
+    private DialogSettings DialogParams = new DialogSettings { MinHeight = "430px", CloseOnEscape = true, ShowCloseIcon = true, Width = "325px" };
 }
 
 <style>

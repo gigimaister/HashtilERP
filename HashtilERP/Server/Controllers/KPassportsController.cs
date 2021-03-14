@@ -43,21 +43,11 @@ namespace HashtilERP.Server
                             .Include(e=>e.KPassportInsertAudit)
                            .Include(e=>e.Passport)
                            .ThenInclude(e=>e.Passprods)
-                           .Include(e=>e.Passport)
-                           .ThenInclude(e=>e.Oitm)
-                           .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
-                           .Include(e => e.k_PassportAuditTblVer2s)
                             .ToListAsync();
                         break;
                     //waiting for confirmation
                     case "2":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)
-                           .Include(e => e.KPassportInsertAudit)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)                          
                            .ToListAsync();
                         break;
                     //inside green house
@@ -65,11 +55,8 @@ namespace HashtilERP.Server
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatusCode==(int)PassportStatusCode.InsideGreenHouse)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
-                           .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
+                           .ThenInclude(e => e.Passprods)                          
+                           .Include(e => e.PassportAuditForms)                          
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -78,11 +65,8 @@ namespace HashtilERP.Server
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsNeedToBeAudit == true)
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
+                           .ThenInclude(e => e.Passprods)                         
                            .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -91,11 +75,8 @@ namespace HashtilERP.Server
                         ChosenList = await _context.KPassport.Where(x => x.IsNeedToBeChecked == true)
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
-                           .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
+                           .ThenInclude(e => e.Passprods)                          
+                           .Include(e => e.PassportAuditForms)                          
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -105,11 +86,8 @@ namespace HashtilERP.Server
                            .OrderByDescending(x =>x.AVGEnteringDate)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
+                           .ThenInclude(e => e.Passprods)                          
                            .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -119,11 +97,8 @@ namespace HashtilERP.Server
                            .OrderByDescending(x => x.AVGEnteringDate)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
+                           .ThenInclude(e => e.Passprods)                        
                            .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -152,11 +127,8 @@ namespace HashtilERP.Server
                 metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           
+                           .ThenInclude(e => e.Passprods)                                                  
                            .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                 return metzay;
@@ -183,10 +155,7 @@ namespace HashtilERP.Server
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-
                            .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                 return metzay;
@@ -201,7 +170,7 @@ namespace HashtilERP.Server
         }
 
 
-        //List Of Passports For Metzay Report
+        //List Of Passports For Metzay Report for day...
         [HttpGet("report/{date}")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
         {
@@ -273,7 +242,6 @@ namespace HashtilERP.Server
         }
 
         #endregion
-
 
         #region PUT
         // PUT: GREENHOUSE THAI HAMAMA AND GAMLON UPDATE       
@@ -426,7 +394,7 @@ namespace HashtilERP.Server
                 return StatusCode(500, "DUPLICATE");
             }
             DateTime passingDate;
-            kPassport.UserName = screenName;
+            kPassport.UserName = screenName.Trim();
             kPassport.SowDate = sap.UDateSow;
             passingDate = (DateTime)sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
@@ -435,15 +403,15 @@ namespace HashtilERP.Server
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = sap.UQuanProd*1000;
-            kPassport.PassportStatus = Status.GrowingRoom;
+            kPassport.PassportStatus = Status.GrowingRoom.Trim();
             kPassport.PassportStatusCode = (int)PassportStatusCode.Growingroom;
-            kPassport.ItemCode = sap.UItemCode;
+            kPassport.ItemCode = sap.UItemCode.Trim();
             kPassport.SapDocEntry = sap.DocEntry;
-            kPassport.PassportCondition = Status.NotChecked;
+            kPassport.PassportCondition = Status.NotChecked.Trim();
             kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
             kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
-            kPassport.Gidul = sapOitm.UHebGidul;
+            kPassport.Gidul = sapOitm.UHebGidul.Trim();
             kPassport.IsSavedForCx = false;
             _context.KPassport.Add(kPassport);
             try
@@ -466,9 +434,7 @@ namespace HashtilERP.Server
         }
         #endregion
 
-
-
-
+        #region DELETE
         // DELETE: api/KPassports/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKPassport(int id)
@@ -491,7 +457,7 @@ namespace HashtilERP.Server
         }
 
 
-        
+        #endregion
     }
 
 

@@ -30,7 +30,7 @@
 @if (isDevice == "Mobile")
 {
     <div style="text-align:right">
-        <button class="btn btn-danger"
+        <button class="btn btn-primary"
                 type="button"
                 @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
             @*ENTER SCAN*@
@@ -83,13 +83,13 @@
 @*Confirm Dialog Setting*@
 <SfDialog Target="#target"
           Width="150px"
-          Height="130px"
+          Height="160px"
           IsModal="true"
           EnableRtl="true"
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>לאשר פספורט?</Header>
+        <Header>לאשר את<br> @DestroyPassNumber?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -124,6 +124,8 @@
     SfGrid<K_Passport> SfGrid;
     private static string HebSaved = "נשמר!";
     bool SpinnerBool { get; set; } = false;
+    //string for destroy pass to show what you are want to destroy
+    string DestroyPassNumber;
 
     //TOAST
     SfToast ToastObj;
@@ -219,9 +221,11 @@
 
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
+            var PassportNumber = args.RowData.PassportNum.ToString();
+            DestroyPassNumber = PassportNumber;
             this.DeleteRecordConfirmVisibility = true;
 
-            var PassportNumber = args.RowData.PassportNum.ToString();
+
 
             try
             {
