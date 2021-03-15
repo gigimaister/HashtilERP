@@ -358,7 +358,7 @@
 
 @*Back On Active Passport Dialog Setting*@
 <SfDialog Target="#target" EnableRtl="true"
-          Width="250px"
+          Width="280px"
           Height="175px"
           IsModal="true"
           ShowCloseIcon="false"
@@ -392,7 +392,7 @@
           ShowCloseIcon="false"
           @bind-Visible="@ConfirmPassportVisability">
     <DialogTemplates>
-        <Header>לאשר מצב ל @DestroyPassNumber?</Header>
+        <Header>לאשר מצב ל<br> @DestroyPassNumber?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
