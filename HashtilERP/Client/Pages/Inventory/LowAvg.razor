@@ -21,8 +21,9 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren")]
-
-<h3 style="text-align:center">ממוצעים נמוכים למעקב</h3>
+<div style="text-align:right" class="alert alert-info" role="alert">
+    <h3 style="text-align:center">ממוצעים נמוכים למעקב</h3>
+</div>
 
 @if (K_Passports == null)
 {
@@ -264,14 +265,14 @@
 
 @*Audit Passport form*@
 <SfDialog Target="#target"
-          Width="250px"
+         Width="300px"
           Height="350px"
           IsModal="true"
           EnableRtl="true"
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>ביקורת חדשה</Header>
+        <Header>ביקורת עבור <b>@K_Passport.PassportNum</b></Header>
         <Content>
             <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
@@ -366,7 +367,7 @@
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
     private HubConnection hubConnection;
     private static string HebSaved = "נשמר!";
-    long passporrtId;
+
 
 
 
@@ -380,10 +381,11 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
-            this.DeleteRecordConfirmVisibility = true;
-            passporrtId = args.RowData.K_PassportId;
-            PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
             PassportAuditForm.CreateDate = DateTime.Now;
+            this.DeleteRecordConfirmVisibility = true;
+
 
         }
 
@@ -407,7 +409,6 @@
         try
         {
             SpinnerBool = true;
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             if (PassportAuditForm.AuditStatus != "תקין")
             {
                 K_Passport.IsNeedToBeAudit = true;
@@ -417,8 +418,9 @@
             {
                 K_Passport.IsNeedToBeAudit = false;
             }
+
             K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
-            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
 
             var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
             var content = await rslt.Content.ReadAsStringAsync();

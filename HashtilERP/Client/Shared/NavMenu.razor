@@ -102,7 +102,21 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                   
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="inventory/needtocut" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-target" aria-hidden="true"></span>&nbsp לפיצול!
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="inventory/savedforcx" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-shield" aria-hidden="true"></span>&nbsp שמורים!
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/metzayarchive" Match="NavLinkMatch.All" @onclick="Close">

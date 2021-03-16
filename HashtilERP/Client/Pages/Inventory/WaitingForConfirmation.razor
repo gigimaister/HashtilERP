@@ -15,8 +15,10 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Manager-GreenHouse,AuditAvgCounter,Viewer")]
+<div style="text-align:right" class="alert alert-info " role="alert">
+    <h3 style="text-align:center">ממתינים לאישור</h3>
+</div>
 
-<h3 style="text-align:center">ממתינים לאישור</h3>
 
 @if (K_Passports == null)
 {
@@ -27,17 +29,27 @@
         </div>
     </div>
 }
-@if (isDevice == "Mobile")
-{
-    <div style="text-align:right">
-        <button class="btn btn-primary"
+@*Scan Button for search  & clear search from grid*@
+<div class="row">
+    @if (isDevice == "Mobile")
+    {
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                @*ENTER SCAN*@
+                סריקה
+            </button>
+        </div>
+    }
+    <div class="col" style="text-align:left">
+        <button class="btn btn-warning"
                 type="button"
-                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
-            @*ENTER SCAN*@
-            סריקה
+                @onclick="ClearGridSearch">
+            ניקוי חיפוש
         </button>
     </div>
-}
+</div>
 @if (ShowScanBarcode)
 {
 
@@ -51,9 +63,9 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports"  @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
     <GridEvents TValue="K_Passport"></GridEvents>
-    <GridEvents CommandClicked="OnCommandClicked"
+    <GridEvents QueryCellInfo="CustomizeCell" CommandClicked="OnCommandClicked"
                 TValue="K_Passport">
     </GridEvents>
     <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
@@ -89,7 +101,7 @@
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>לאשר את<br> @DestroyPassNumber?</Header>
+        <Header>לאשר את<br> @K_Passport.PassportNum?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -147,9 +159,16 @@
     public int? BarCode { get; set; }
     string passportInput;
 
+    //Search after Passport Scan
     public void SearchBtnHandler(string searchKey)
     {
         this.SfGrid.Search(searchKey);
+    }
+
+    //Clear Grid "Search" Box
+    public void ClearGridSearch()
+    {
+        this.SfGrid.Search("");
     }
 
     //Check if userAgent is Pc Or Mobile
@@ -216,31 +235,15 @@
 
 
     //Command Button Clicked In grid
-    public async void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
+    public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
-
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
-            var PassportNumber = args.RowData.PassportNum.ToString();
-            DestroyPassNumber = PassportNumber;
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             this.DeleteRecordConfirmVisibility = true;
-
-
-
-            try
-            {
-                K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + PassportNumber);
-            }
-            catch (Exception e)
-            {
-                ToastContent = e.Message;
-                await ShowToast();
-
-            }
 
             StateHasChanged();
         }
-
     }
     //DIALOG CANCEL
     public void ConfirmDeleteNo()
@@ -259,6 +262,7 @@
             SpinnerBool = true;
 
             K_Passport.PassportStatus = Status.InGreenHouse.Trim();
+            K_Passport.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
             K_Passport.IsLowAVG = false;
             var rslt = await Http.PutAsJsonAsync("api/KPassports/GreenManager/Passport/UpdateStatus/" + K_Passport.K_PassportId, K_Passport);
             var content = await rslt.Content.ReadAsStringAsync();
@@ -272,7 +276,7 @@
                 await ShowToast();
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Console.WriteLine(e.Message);
             SpinnerBool = false;
@@ -284,9 +288,170 @@
         }
 
     }
+    //CELL MAGASH TYPE STYLE
+    public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
+    {
+        if (args.Column.Field == "CelsTray")
+        {
+            try
+            {
 
+                if (Convert.ToDouble(args.Data.CelsTray) == 180)
+                {
+                    args.Cell.AddClass(new string[] { "magash-180" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 187)
+                {
+                    args.Cell.AddClass(new string[] { "magash-187" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 442)
+                {
+                    args.Cell.AddClass(new string[] { "magash-442" });
+                }
+                else
+                {
+                    args.Cell.AddClass(new string[] { "magash-308" });
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+        }
+        ////PASSPORT STYLE
+        if (args.Column.Field == "PassportNum")
+        {
+            args.Cell.AddClass(new string[] { "passport" });
+        }
+        //LOW AVG
+        if (args.Column.Field == "PassportAVG")
+        {
+            if (args.Data.IsLowAVG == true)
+            {
+                args.Cell.AddClass(new string[] { "is-low-avg" });
+            }
+        }
+
+        //HAMAMA STYLE
+        if (args.Column.Field == "Hamama")
+        {
+            if (args.Data.Hamama.Trim() == "1")
+            {
+                args.Cell.AddClass(new string[] { "hamama1" });
+            }
+            else if (args.Data.Hamama.Trim() == "2")
+            {
+                args.Cell.AddClass(new string[] { "hamama2" });
+            }
+            else if (args.Data.Hamama.Trim() == "3")
+            {
+                args.Cell.AddClass(new string[] { "hamama3" });
+            }
+            else if (args.Data.Hamama.Trim() == "4")
+            {
+                args.Cell.AddClass(new string[] { "hamama4" });
+            }
+            else if (args.Data.Hamama.Trim() == "5")
+            {
+                args.Cell.AddClass(new string[] { "hamama5" });
+            }
+            else if (args.Data.Hamama.Trim() == "6")
+            {
+                args.Cell.AddClass(new string[] { "hamama6" });
+            }
+            else if (args.Data.Hamama.Trim() == "7")
+            {
+                args.Cell.AddClass(new string[] { "hamama7" });
+            }
+            else if (args.Data.Hamama.Trim() == null)
+            {
+                args.Cell.AddClass(new string[] { "null" });
+            }
+        }
+    }
 }
 <style>
+    .magash-180 {
+        background-color: plum;
+    }
+
+    .magash-187 {
+        background-color: lightyellow;
+    }
+
+    .magash-442 {
+        background-color: grey;
+        font-weight: bold;
+    }
+
+    .magash-308 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .passport {
+        background-color: powderblue;
+        font-weight: bold;
+        color: red;
+    }
+
+    .hamama1 {
+        background-color: cornflowerblue;
+        font-weight: bold;
+    }
+
+    .hamama2 {
+        background-color: yellow;
+        font-weight: bold;
+    }
+
+    .hamama4 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .hamama5 {
+        background-color: gray;
+        font-weight: bold;
+    }
+
+    .hamama6 {
+        background-color: cadetblue;
+        font-weight: bold;
+    }
+
+    .hamama7 {
+        background-color: palevioletred;
+        font-weight: bold;
+    }
+
+
+    #toast_default .e-toast-container {
+        color: black;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+    /*   GRID ROW STYLE*/
+    .is-need-to-be-audit {
+        background-color: floralwhite;
+    }
+
+    .clean {
+        background-color: white;
+    }
+
+    .form-group.col-md-6 {
+        width: 200px;
+    }
+
+    label.e-float-text {
+        position: relative;
+        padding-left: 0;
+        top: 10%;
+    }
+
     .e-toast-container .e-toast .e-toast-message .e-toast-content {
         color: white;
         font-size: 18px;

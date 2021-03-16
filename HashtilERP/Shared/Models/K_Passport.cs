@@ -33,6 +33,7 @@ namespace HashtilERP.Shared.Models
         public bool? IsNeedToBeChecked { get; set; }
         public bool? IsSavedForCx { get; set; }
         public bool? IsLowAVG { get; set; }
+        public bool? IsNeedToCut { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAVG { get; set; } = -1;
@@ -99,6 +100,13 @@ public enum PassportStatusCode
 
 public static class PassportAlgorithm
 {
+    public static K_Passport ArgsToObject(K_Passport k_Passport)
+    {
+        var kPassport = new K_Passport();
+        kPassport = k_Passport;
+        return kPassport;
+    }
+
     public static bool IsAVGLow(K_Passport k_Passport)
     {
         var magashType = k_Passport.CelsTray;

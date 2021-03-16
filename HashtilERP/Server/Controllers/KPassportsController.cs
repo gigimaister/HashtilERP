@@ -115,7 +115,7 @@ namespace HashtilERP.Server
            
 
         }
-
+        //Metzay
         [HttpGet("metzay")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetCurrentMetzay()
         {
@@ -128,6 +128,56 @@ namespace HashtilERP.Server
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)                                                  
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                return metzay;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+
+
+        }
+
+        //Tomatos For cut
+        [HttpGet("NeedToBeCut")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetNeedToBeCut()
+        {
+            var metzay = new List<K_Passport>();
+            try
+            {
+                metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsNeedToCut == true)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+                return metzay;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+
+
+        }
+
+        //Saved For cx
+        [HttpGet("savedforcx")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetSavedForCx()
+        {
+            var metzay = new List<K_Passport>();
+            try
+            {
+                metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsSavedForCx == true)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
@@ -168,7 +218,6 @@ namespace HashtilERP.Server
 
 
         }
-
 
         //List Of Passports For Metzay Report for day...
         [HttpGet("report/{date}")]
@@ -413,6 +462,7 @@ namespace HashtilERP.Server
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
             kPassport.Gidul = sapOitm.UHebGidul.Trim();
             kPassport.IsSavedForCx = false;
+            kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
             _context.KPassport.Add(kPassport);
             try
             {

@@ -21,8 +21,10 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren")]
+    <div style="text-align:right" class="alert alert-dark" role="alert">
+        <h3 style="text-align:center">מצאי - ארכיון</h3>
+    </div>
 
-<h3 style="text-align:center">מצאי - ארכיון</h3>
 
 
 @if (K_Passports == null)

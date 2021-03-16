@@ -20,9 +20,31 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers")]
+<div style="text-align:right" class="alert alert-info " role="alert">
+    <h3 style="text-align:center">פספורטים תקולים למעקב</h3>
+</div>
 
-<h3 style="text-align:center">פספורטים תקולים למעקב</h3>
-
+@*Scan Button for search  & clear search from grid*@
+<div class="row">
+    @if (isDevice == "Mobile")
+    {
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                @*ENTER SCAN*@
+                סריקה
+            </button>
+        </div>
+    }
+    <div class="col" style="text-align:left">
+        <button class="btn btn-warning"
+                type="button"
+                @onclick="ClearGridSearch">
+            ניקוי חיפוש
+        </button>
+    </div>
+</div>
 
 @if (K_Passports == null)
 {
@@ -31,6 +53,14 @@
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="true"></SfSpinner>
         </div>
     </div>
+}
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput = e; SearchBtnHandler(passportInput); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
 }
 @*Toast Component*@
 <SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
@@ -278,7 +308,7 @@
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>ביקורת עבור <b>@DestroyPassNumber</b></Header>
+        <Header>ביקורת עבור <b>@K_Passport.PassportNum</b></Header>
         <Content>
             <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
@@ -321,8 +351,13 @@
 
 @code {
 
-
-
+    SfGrid<K_Passport> SfGrid;
+    //CAMERA SCANNER for search in datagrid
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    string passportInput;
 
     #region MODAL Hamama Gamlon NULL
     /// <summary>
@@ -389,15 +424,11 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
-            DestroyPassNumber = args.RowData.PassportNum.ToString();
-            this.DeleteRecordConfirmVisibility = true;
-            passporrtId = args.RowData.K_PassportId;
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
             PassportAuditForm.CreateDate = DateTime.Now;
-
+            this.DeleteRecordConfirmVisibility = true;
         }
-
-
     }
 
 
@@ -418,7 +449,6 @@
         SpinnerBool = true;
         try
         {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             if (PassportAuditForm.AuditStatus != "תקין")
             {
                 K_Passport.IsNeedToBeAudit = true;
@@ -453,12 +483,17 @@
 
             SpinnerBool = false;
         }
-
-
-
-
     }
-
+    //Search after Passport Scan
+    public void SearchBtnHandler(string searchKey)
+    {
+        this.SfGrid.Search(searchKey);
+    }
+    //Clear Grid "Search" Box
+    public void ClearGridSearch()
+    {
+        this.SfGrid.Search("");
+    }
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
@@ -576,9 +611,6 @@
         {
             args.Row.AddClass(new string[] { "is-need-to-be-audit" });
         }
-
-
-
     }
 
     public void ActionBegin(ActionEventArgs<K_Passport> arg)
@@ -674,6 +706,7 @@
         padding-left: 0;
         top: 10%;
     }
+
     .e-toast-container .e-toast .e-toast-message .e-toast-content {
         color: white;
         font-size: 18px;

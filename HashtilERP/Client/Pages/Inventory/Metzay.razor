@@ -23,8 +23,9 @@
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers")]
 
-<h3 style="text-align:center">מצאי</h3>
-
+<div style="text-align:right" class="alert alert-success" role="alert">
+    <h3 style="text-align:center">מצאי</h3>
+</div>
 @if (K_Passports == null)
 {
     <div class="col-sm">
@@ -433,7 +434,7 @@
           ShowCloseIcon="false"
           @bind-Visible="DeleteRecordConfirmVisibility">
     <DialogTemplates>
-        <Header>ביקורת עבור <b>@DestroyPassNumber</b></Header>
+        <Header>ביקורת עבור <b>@K_Passport.PassportNum</b></Header>
         <Content>
             <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
                 <DataAnnotationsValidator />
@@ -492,7 +493,7 @@
           ShowCloseIcon="false"
           @bind-Visible="@DestroyVisability">
     <DialogTemplates>
-        <Header>להשמיד את פספורט:<br>@DestroyPassNumber ?</Header>
+        <Header>להשמיד את פספורט:<br>@K_Passport.PassportNum ?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -521,7 +522,7 @@
           ShowCloseIcon="true"
           @bind-Visible="SavePassForCxModal">
     <DialogTemplates>
-        <Header>שמירת @DestroyPassNumber ללקוח</Header>
+        <Header>שמירת @K_Passport.PassportNum ללקוח</Header>
         <Content>
 
 
@@ -596,8 +597,7 @@
     //Toast Screen Show After Succesfull PUT
     private static string HebSaved = "נשמר!";
 
-    //For GET K_Passport object ID
-    long passporrtId;
+
 
     //Still experiment for this one(tryi'n to set 'log in as:' claim name)
     [CascadingParameter]
@@ -636,6 +636,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         await FindResponsiveness();
         InputHamama = "";
         InputGamlon = "";
@@ -821,8 +822,8 @@
     public void AauditPassport(CommandClickEventArgs<K_Passport> args)
     {
         this.DeleteRecordConfirmVisibility = true;
-        passporrtId = args.RowData.K_PassportId;
-        PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+        K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+        PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
         PassportAuditForm.CreateDate = DateTime.Now;
     }
 
@@ -832,27 +833,25 @@
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
             DestroyPassNumber = args.RowData.PassportNum.ToString();
-            this.DeleteRecordConfirmVisibility = true;
-            passporrtId = args.RowData.K_PassportId;
-            PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
             PassportAuditForm.CreateDate = DateTime.Now;
-
-
+            this.DeleteRecordConfirmVisibility = true;
         }
         if (args.CommandColumn.ButtonOption.Content == "השמדה")
         {
             DestroyPassNumber = args.RowData.PassportNum.ToString();
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            K_Passport.PassportStatus = Status.Destroyed;
+            K_Passport.PassportStatusCode = (int)PassportStatusCode.Destroyed;
             this.DestroyVisability = true;
-            passporrtId = args.RowData.K_PassportId;
-
-
 
         }
         if (args.CommandColumn.ButtonOption.Content == "שמירה")
         {
             DestroyPassNumber = args.RowData.PassportNum.ToString();
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             SavePassForCxModal = true;
-            passporrtId = args.RowData.K_PassportId;
 
 
         }
@@ -871,11 +870,10 @@
         SpinnerBool = true;
         try
         {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             K_Passport.PassportStatus = Status.Destroyed;
             K_Passport.IsNeedToBeChecked = true;
 
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
             this.DestroyVisability = false;
 
             if (rslt.IsSuccessStatusCode)
@@ -915,11 +913,9 @@
                 return 1;
 
             }
-
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
-            K_Passport.IsSavedForCx = true;
             K_Passport.SaveForCxRemarks = SavedPassportForCxRemerk;
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            K_Passport.IsSavedForCx = true;
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
 
 
             if (rslt.IsSuccessStatusCode)
@@ -948,8 +944,7 @@
     {
         SavePassForCxSpinner = true;
         try
-        {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
+        {           
             if (K_Passport.IsSavedForCx == false || K_Passport.IsSavedForCx == null)
             {
                 ModalError = "לא משויכת הערה-אין מה למחוק!";
@@ -961,8 +956,7 @@
             K_Passport.IsSavedForCx = false;
             K_Passport.SaveForCxRemarks = "";
             SavedPassportForCxRemerk = "";
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
-
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
 
             if (rslt.IsSuccessStatusCode)
             {
@@ -1009,7 +1003,6 @@
         SpinnerBool = true;
         try
         {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             if (PassportAuditForm.AuditStatus != "תקין")
             {
                 K_Passport.IsNeedToBeAudit = true;
@@ -1020,7 +1013,7 @@
                 K_Passport.IsNeedToBeAudit = false;
             }
             K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
-            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
             this.DeleteRecordConfirmVisibility = false;
             var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
             var content = await rslt.Content.ReadAsStringAsync();

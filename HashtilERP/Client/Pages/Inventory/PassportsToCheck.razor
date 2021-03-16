@@ -21,9 +21,31 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers")]
+<div style="text-align:right" class="alert alert-warning " role="alert">
+    <h3 style="text-align:center">פספורטים לבדיקה ואישור</h3>
+</div>
 
-<h3 style="text-align:center">פספורטים לבדיקה ואישור</h3>
-
+@*Scan Button for search  & clear search from grid*@
+<div class="row">
+    @if (isDevice == "Mobile")
+    {
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                @*ENTER SCAN*@
+                סריקה
+            </button>
+        </div>
+    }
+    <div class="col" style="text-align:left">
+        <button class="btn btn-warning"
+                type="button"
+                @onclick="ClearGridSearch">
+            ניקוי חיפוש
+        </button>
+    </div>
+</div>
 @if (K_Passports == null)
 {
     <div class="col-sm">
@@ -31,6 +53,14 @@
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="true"></SfSpinner>
         </div>
     </div>
+}
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput = e; SearchBtnHandler(passportInput); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
 }
 @*Toast Component*@
 <SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
@@ -364,7 +394,7 @@
           ShowCloseIcon="false"
           @bind-Visible="@ActivVisability">
     <DialogTemplates>
-        <Header>לפרוס את פספורט<br> @DestroyPassNumber ?</Header>
+        <Header>לפרוס את פספורט<br> @K_Passport.PassportNum ?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -392,7 +422,7 @@
           ShowCloseIcon="false"
           @bind-Visible="@ConfirmPassportVisability">
     <DialogTemplates>
-        <Header>לאשר מצב ל<br> @DestroyPassNumber?</Header>
+        <Header>לאשר מצב ל<br> @K_Passport.PassportNum?</Header>
         <Content>
             <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
 
@@ -425,6 +455,13 @@
     }
     //spinner for all dialog when send PUT
     bool SpinnerBool { get; set; } = false;
+
+    //CAMERA SCANNER for search in datagrid
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    string passportInput;
 
     #region MODAL Hamama Gamlon NULL
     /// <summary>
@@ -559,25 +596,24 @@
         if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
         {
 
-            if(args.RowData.PassportStatus != Status.Destroyed)
+            if (args.RowData.PassportStatus != Status.Destroyed)
             {
                 ModalError = "פספורט כבר פרוס";
                 IsVisible = true;
             }
             else
             {
-                DestroyPassNumber = args.RowData.PassportNum.ToString();
+                K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
                 this.ActivVisability = true;
-                passporrtId = args.RowData.K_PassportId;
 
             }
 
         }
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
-            DestroyPassNumber = args.RowData.PassportNum.ToString();
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             this.ConfirmPassportVisability = true;
-            passporrtId = args.RowData.K_PassportId;
+
 
         }
     }
@@ -594,15 +630,15 @@
         SpinnerBool = true;
         try
         {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
 
             K_Passport.IsNeedToBeChecked = false;
             if (K_Passport.MagashAmount == 0)
             {
                 K_Passport.PassportStatus = Status.Finished;
+                K_Passport.PassportStatusCode = (int)PassportStatusCode.Finish;
                 K_Passport.MetzayOutGoingDate = DateTime.Now;
             }
-            if(K_Passport.PassportStatus.Trim() == Status.Destroyed)
+            if (K_Passport.PassportStatus.Trim() == Status.Destroyed)
             {
                 K_Passport.MetzayOutGoingDate = DateTime.Now;
             }
@@ -651,11 +687,10 @@
         SpinnerBool = true;
         try
         {
-            K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/" + passporrtId);
             K_Passport.PassportStatus = Status.InGreenHouse;
             K_Passport.IsNeedToBeChecked = false;
 
-            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
             this.ActivVisability = false;
 
             if (rslt.IsSuccessStatusCode)
@@ -676,16 +711,19 @@
             ToastContent = e.Message;
             await ShowToast();
         }
-
-
-
+    }
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
 
     }
-
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
         PassportAuditForm = new PassportAuditForm();
+        await FindResponsiveness();
         await LoadData();
         hubConnection = new HubConnectionBuilder()
 .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
@@ -799,9 +837,16 @@
         {
             args.Row.AddClass(new string[] { "is-need-to-be-audit" });
         }
-
-
-
+    }
+    //Search after Passport Scan
+    public void SearchBtnHandler(string searchKey)
+    {
+        this.SfGrid.Search(searchKey);
+    }
+    //Clear Grid "Search" Box
+    public void ClearGridSearch()
+    {
+        this.SfGrid.Search("");
     }
 
     //edit dialog settings
@@ -888,6 +933,7 @@
         padding-left: 0;
         top: 10%;
     }
+
     .e-toast-container .e-toast .e-toast-message .e-toast-content {
         color: white;
         font-size: 18px;

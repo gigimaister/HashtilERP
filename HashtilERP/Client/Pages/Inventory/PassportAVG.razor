@@ -18,8 +18,10 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,AuditAvgCounter")]
+    <div style="text-align:right" class="alert alert-success" role="alert">
+        <h3 style="text-align:center">ממוצעים</h3>
+    </div>
 
-<h3 style="text-align:center">ממוצעים</h3>
 
 @if (isDevice == "Mobile")
 {
@@ -337,7 +339,7 @@
             </div>
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput2">ממוצע חדש</label>
-                <input type="text" style="text-align:right" @bind-value="@EditedAVG" class="form-control" id="formGroupExampleInput2" placeholder="">
+                <input type="text" style="text-align:right" @bind-value="@ediTedAVG" class="form-control" id="formGroupExampleInput2" placeholder="">
             </div>
             <div class="form-group" style="text-align:right">
                 <label for="formGroupExampleInput">ממוצע נוכחי</label>
@@ -396,7 +398,7 @@
     public int? BarCode { get; set; }
     private string isDevice { get; set; }
     private bool mobile { get; set; }
-
+    string ediTedAVG;
     int EditedAVG;
     bool SpinnerBool { get; set; } = false;
 
@@ -565,12 +567,23 @@
     public async Task SendPassportAVG()
     {
         SpinnerBool = true;
+        try
+        {
+            EditedAVG = Convert.ToInt32(ediTedAVG);
+        }
+        catch(Exception e)
+        {
+            ModalErrorContent = "יש להזין ספרות בלבד!";
+            ErrorModalIsVisible = true;
+            ediTedAVG = "";
+            Console.WriteLine(e.Message);
+            return;
+        }
         if (CurrentAVG == EditedAVG)
         {
             ModalErrorContent = "ממוצע חדש שווה לממוצע נוכחי...אין מה לעדכן";
             ErrorModalIsVisible = true;
             return;
-
         }
         //if AVG > magash type
         if (EditedAVG > K_Passport.CelsTray)
@@ -608,6 +621,7 @@
                     //OK
                     this.IsVisible = false;
                     ToastContent = "נשמר!";
+                    ediTedAVG = "";
                     StateHasChanged();
                     await ShowToast();
                     passportInput = "";

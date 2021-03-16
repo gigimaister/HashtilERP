@@ -1,4 +1,4 @@
-﻿@page "/inventory/needtocut"
+﻿@page "/inventory/savedforcx"
 @inject IJSRuntime jsRuntime
 
 @using System.Security.Claims;
@@ -20,9 +20,9 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Manager-Drivers")]
-<div style="text-align:right" class="alert alert-danger" role="alert">
-    <h3 style="text-align:center">עגבניות לפיצול!!</h3>
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren")]
+<div style="text-align:right" class="alert alert-primary" role="alert">
+    <h3 style="text-align:center">פספורטים שמורים ללקוחות</h3>
 </div>
 @*When Page Init, show spinner until grid has Data*@
 @if (K_Passports == null)
@@ -299,6 +299,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.SaveForCxRemarks) HeaderText="הערת שמירה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -320,7 +321,7 @@
             <GridCommandColumns>
                 <AuthorizeView Roles="Administrator,Manager-GreenHouse">
                     <GridCommandColumn Type=CommandButtonType.None
-                                       ButtonOption="@(new CommandButtonOptions() { Content = "פוצל", CssClass = "e-warning" })">
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-warning" })">
                     </GridCommandColumn>
                 </AuthorizeView>
             </GridCommandColumns>
@@ -329,31 +330,60 @@
 
 </SfGrid>
 
-@*Confirm Passport Split*@
-<SfDialog Target="#target" EnableRtl="true"
-          Width="280px"
-          Height="175px"
+@*Saving Passport For CX Dialog*@
+<SfDialog Target="#target"
+          Width="350px"
+          Height="400px"
           IsModal="true"
-          ShowCloseIcon="false"
-          @bind-Visible="@DialogVisability">
+          EnableRtl="true"
+          ShowCloseIcon="true"
+          @bind-Visible="SavePassForCxModal">
     <DialogTemplates>
-        <Header>לאשר פיצול ל:<br>@ConfirmPassNumber ?</Header>
+        <Header>שמירת @K_Passport.PassportNum ללקוח</Header>
         <Content>
-            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
-            <div class="button-container">
-                <button type="submit"
+
+
+            <br />
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SavePassForCxSpinner"></SfSpinner>
+
+            <div style="text-align:right">
+                <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
+            </div>
+            <br />
+            <div class="button-container" style="text-align:center">
+                <button style="margin-right:25px"
                         class="btn btn-success"
-                        @onclick="ConfirmCutYes">
+                        @onclick="SaveForCx">
                     אישור
                 </button>
-                <button type="submit" style="margin-right:25px"
+                <button style="margin-right:25px"
+                        class="btn btn-warning"
+                        @onclick="DeleteSavedPassForCxRemark">
+                    מחיקה
+                </button>
+                <button style="margin-right:25px"
                         class="btn btn-danger"
-                        @onclick="ConfirmDestroyNo">
+                        @onclick="CancelSavedRemarkForCx">
                     ביטול
                 </button>
             </div>
+
         </Content>
     </DialogTemplates>
+</SfDialog>
+
+@*Error Modal*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header>שגיאה!</Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
 </SfDialog>
 
 @code {
@@ -409,7 +439,7 @@
     //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
-        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/NeedToBeCut");
+        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/savedforcx");
         StateHasChanged();
     }
 
@@ -426,12 +456,12 @@
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
-        if (args.CommandColumn.ButtonOption.Content == "פוצל")
+        if (args.CommandColumn.ButtonOption.Content == "עריכה")
         {
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             ConfirmPassNumber = K_Passport.PassportNum.ToString();
             K_Passport.IsNeedToCut = false;
-            DialogVisability = true;
+            SavePassForCxModal = true;
         }
     }
 
@@ -613,6 +643,94 @@
     public void ConfirmDestroyNo()
     {
         this.DialogVisability = false;
+    }
+    #endregion
+    #region SavePassFor Cx modal methods
+    // Save for Cx Spinner.
+    bool SavePassForCxSpinner { get; set; } = false;
+
+    //Save for Cx Remark
+    public string SavedPassportForCxRemerk { get; set; }
+
+    //Save cx Modal show
+    public bool SavePassForCxModal { get; set; } = false;
+    //Save pass for cx Save
+    public async Task<int> SaveForCx()
+    {
+        SavePassForCxSpinner = true;
+
+        try
+        {
+            if (SavedPassportForCxRemerk == "" || SavedPassportForCxRemerk == null)
+            {
+                SavePassForCxSpinner = false;
+                ModalError = "לא נרשמה הערת שמירה!";
+                IsVisible = true;
+                return 1;
+
+            }
+            K_Passport.SaveForCxRemarks = SavedPassportForCxRemerk;
+            K_Passport.IsSavedForCx = true;
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            SavePassForCxSpinner = false;
+            SavePassForCxModal = false;
+            SavedPassportForCxRemerk = "";
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+            SavePassForCxSpinner = false;
+        }
+        return 0;
+    }
+    //Delete Saved remark for Cx
+    public async Task<int> DeleteSavedPassForCxRemark()
+    {
+        SavePassForCxSpinner = true;
+        try
+        {
+            K_Passport.IsSavedForCx = false;
+            K_Passport.SaveForCxRemarks = "";
+            SavedPassportForCxRemerk = "";
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                StateHasChanged();
+                await ShowToast();
+
+            }
+            SavePassForCxSpinner = false;
+            SavePassForCxModal = false;
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+            SavePassForCxSpinner = false;
+        }
+
+        return 0;
+    }
+    //cancel saving or delete
+    public void CancelSavedRemarkForCx()
+    {
+        SavePassForCxModal = false;
     }
     #endregion
 
