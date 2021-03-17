@@ -375,7 +375,7 @@ namespace HashtilERP.Server
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kPassport.UserName = screenName;
-            if (kPassport.PassportAvg == null)
+            if (kPassport.PassportAvg == -1)
             {
                 kPassport.PlantsAmount = (kPassport.MagashAmount * kPassport.PassportStartingAVG);
             }

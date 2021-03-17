@@ -111,21 +111,30 @@
                                                 <th>
                                                     הזמנה
                                                 </th>
+                                                <th>
+                                                    מגשים
+                                                </th>
 
                                             </tr>
                                         </thead>
                                         <tbody>
 
-                                            @foreach (var cx in passport.Passport.Passprods)
+                                            @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
                                             {
                                                 var temp = (cx.UQuantity * 1000);
                                                 var display = string.Format("{0:#,0}", temp);
+                                                var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
+                                                var magashPercx = (cx.UQuantity * 1000) / startAvg;
+                                                var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
                                                 <tr>
                                                     <td>
                                                         @cx.UCustName
                                                     </td>
                                                     <td>
                                                         @display
+                                                    </td>
+                                                    <td>
+                                                        @magashPercxScreen
                                                     </td>
                                                 </tr>
                                             }
@@ -248,14 +257,17 @@
                             </ChildContent>
                             <ContentTemplate>
                                 @{ var passport2 = (context as K_Passport);
-                                    <div class="form-row" dir="rtl">
-                                        <div class="col-form-label">
-                                            <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
-                                        </div>
-                                        <div class="col-form-label">
-                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
-                                        </div>
-                                    </div>
+                                                                <div class="form-row" dir="rtl">
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
+                                                                    </div>
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                                                    </div>
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
+                                                                    </div>
+                                                                </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align: right; font-weight:500">ממוצע SAP התחלתי:</label>
