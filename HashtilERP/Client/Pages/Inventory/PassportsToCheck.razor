@@ -451,8 +451,6 @@
     </DialogTemplates>
 </SfDialog>
 
-
-
 @code {
     //REGION EDIT DIALOG
     #region Custom Edit Dialog
@@ -519,8 +517,6 @@
     }
     #endregion
 
-
-
     #region TOAST
     //TOAST
     public SfToast ToastObj;
@@ -542,10 +538,6 @@
     private HubConnection hubConnection;
     private static string HebSaved = "נשמר!";
     long passporrtId;
-   
-
-
-
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
@@ -553,7 +545,6 @@
     //WHEN UPDATE PASSPORT
     public async Task<int> UpdatePassport(K_Passport context)
     {
-
         if (InputHamama != null)
         {
             if (InputGamlon != null)
@@ -585,7 +576,6 @@
                 }
             }
         }
-
         if (context.MagashAmount == 0)
         {
             context.IsNeedToBeChecked = true;
@@ -594,16 +584,12 @@
         //Http Response Failed On Insert
         if (!rslt.IsSuccessStatusCode)
         {
-
             ToastContent = rslt.StatusCode.ToString();
             StateHasChanged();
             await ShowToast();
-
         }
         else
         {
-
-
             if (IsConnected) await SendMessage();
             ToastContent = HebSaved;
             StateHasChanged();
@@ -612,17 +598,13 @@
 
         }
         return 0;
-
     }
-
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
         ModalError = "";
-
         if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
         {
-
             if (args.RowData.PassportStatus != Status.Destroyed)
             {
                 ModalError = "פספורט כבר פרוס";
@@ -632,16 +614,18 @@
             {
                 K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
                 this.ActivVisability = true;
-
             }
-
         }
         if (args.CommandColumn.ButtonOption.Content == "אישור")
         {
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             this.ConfirmPassportVisability = true;
+        }
+        if (args.CommandColumn.ButtonOption.Content == "עריכה")
+        {
 
-
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            OpenCustomEditDialog();
         }
     }
 

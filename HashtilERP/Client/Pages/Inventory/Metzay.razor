@@ -652,7 +652,7 @@
     {
         this.SfGrid.Search("");
     }
-
+   
     //Check if userAgent is Pc Or Mobile
     public async Task FindResponsiveness()
     {
@@ -662,15 +662,14 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {
-
+    {       
         await FindResponsiveness();
         InputHamama = "";
         InputGamlon = "";
         await LoadData();
         hubConnection = new HubConnectionBuilder()
-.WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-.Build();
+            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
 
         hubConnection.On("ReceiveMessage", () =>
         {
@@ -682,7 +681,6 @@
         await hubConnection.StartAsync();
     }
 
-
     //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
@@ -690,9 +688,6 @@
         K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/metzay");
         StateHasChanged();
     }
-
-
-
 
     public bool IsConnected =>
         hubConnection.State == HubConnectionState.Connected;
@@ -723,7 +718,7 @@
     public async Task<int> UpdatePassport(K_Passport context)
     {
 
-        
+
         if (InputHamama != "")
         {
             if (InputGamlon != "")
@@ -736,7 +731,7 @@
                 }
                 else
                 {
-                    
+
                     ModalError = "יש להזין חממה וגמלון מתאימים";
                     IsVisible = true;
                     return 1;
@@ -751,7 +746,7 @@
                 }
                 else
                 {
-                    
+
                     ModalError = $"הערך {InputHamama} לא תקין";
                     IsVisible = true;
                     return 1;
@@ -768,7 +763,7 @@
             }
             else
             {
-               
+
                 ModalError = "יש להזין חממה וגמלון מתאימים";
                 IsVisible = true;
                 return 1;
@@ -799,7 +794,7 @@
             CloseCustomEditDialog();
             InputHamama = "";
             InputGamlon = "";
-           
+
 
         }
 
@@ -860,7 +855,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
-            
+
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
             PassportAuditForm.CreateDate = DateTime.Now;
@@ -868,7 +863,7 @@
         }
         if (args.CommandColumn.ButtonOption.Content == "השמדה")
         {
-            
+
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             K_Passport.PassportStatus = Status.Destroyed;
             K_Passport.PassportStatusCode = (int)PassportStatusCode.Destroyed;
@@ -877,13 +872,13 @@
         }
         if (args.CommandColumn.ButtonOption.Content == "שמירה")
         {
-           
+
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             SavePassForCxModal = true;
         }
         if (args.CommandColumn.ButtonOption.Content == "עריכה")
         {
-           
+
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             OpenCustomEditDialog();
         }
@@ -1074,9 +1069,6 @@
 
     }
 
-
-
-
     //CELL MAGASH TYPE STYLE
     public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
     {
@@ -1178,8 +1170,6 @@
         {
             args.Row.AddClass(new string[] { "is-need-to-be-saved" });
         }
-
-
 
     }
 

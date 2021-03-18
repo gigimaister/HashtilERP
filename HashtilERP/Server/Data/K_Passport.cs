@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HashtilERP.Data
 {
+    
     public partial class K_Passport
     {
         [Key]
