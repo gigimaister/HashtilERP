@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,13 @@ namespace HashtilERP.Shared.Models
         //props for coordination Report(Miri)
         public string FixedCoordinationRemark { get; set; }
         public string OpenCoordinationRemark { get; set; }
+        public string UserName { get; set; }
+
+        [ForeignKey("JobId")]
+        public virtual List<K_OrderPassports> K_OrderPassports { get; set; }
+
+        [ForeignKey("ItemCode")]
+        public virtual Oitm Oitm { get; set; }
 
     }
 }

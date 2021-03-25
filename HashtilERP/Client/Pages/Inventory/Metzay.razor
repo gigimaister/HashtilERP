@@ -135,9 +135,14 @@
     </DialogTemplates>
 </SfDialog>
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
-    <GridEvents QueryCellInfo="CustomizeCell"  OnActionBegin="ActionBegin" RowDataBound="RowBound"  CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+<SfGrid DataSource="@K_Passports" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
+        
+        AllowSorting="true" EnableRtl="true" AllowResizing="true">
+    <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
+                DetailDataBound="DetailDataBound" DataBound="DataBound"
+                CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
+    <GridPageSettings PageSize="40"></GridPageSettings>
     <GridTemplates>
 
         <DetailTemplate>
@@ -151,44 +156,44 @@
                             </ChildContent>
                             <ContentTemplate>
                                 @{ var passport = (context as K_Passport);
-                                  <table class="table table-striped table-hover" style="text-align:right;width:auto">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>
-                                                                                לקוח
-                                                                            </th>
-                                                                            <th>
-                                                                                הזמנה
-                                                                            </th>
-                                                                            <th>
-                                                                                מגשים
-                                                                            </th>
+                                    <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    לקוח
+                                                </th>
+                                                <th>
+                                                    הזמנה
+                                                </th>
+                                                <th>
+                                                    מגשים
+                                                </th>
 
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
 
-                                                                        @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
-                                                                        {
-                                                                            var temp = (cx.UQuantity * 1000);
-                                                                            var display = string.Format("{0:#,0}", temp);
-                                                                            var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
-                                                                            var magashPercx = (cx.UQuantity * 1000) / startAvg;
-                                                                            var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                                                        <tr>
-                                                                            <td>
-                                                                                @cx.UCustName
-                                                                            </td>
-                                                                            <td>
-                                                                                @display
-                                                                            </td>
-                                                                            <td>
-                                                                                @magashPercxScreen
-                                                                            </td>
-                                                                        </tr>
-                                                                        }
-                                                                    </tbody>
-                                                                </table>
+                                            @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
+                                            {
+                                                var temp = (cx.UQuantity * 1000);
+                                                var display = string.Format("{0:#,0}", temp);
+                                                var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
+                                                var magashPercx = (cx.UQuantity * 1000) / startAvg;
+                                                var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
+                                                <tr>
+                                                    <td>
+                                                        @cx.UCustName
+                                                    </td>
+                                                    <td>
+                                                        @display
+                                                    </td>
+                                                    <td>
+                                                        @magashPercxScreen
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
                                 }
                             </ContentTemplate>
                         </TabItem>
@@ -306,17 +311,17 @@
                             </ChildContent>
                             <ContentTemplate>
                                 @{ var passport2 = (context as K_Passport);
-                                                                <div class="form-row" dir="rtl">
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
-                                                                    </div>
-                                                                </div>
+                                    <div class="form-row" dir="rtl">
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
+                                        </div>
+                                    </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align: right; font-weight:500">מקדם זריעה SAP:</label>
@@ -644,6 +649,47 @@
     public int? BarCode { get; set; }
     string passportInput;
 
+
+    public bool firstrender { get; set; } = true;
+
+    [JSInvokable("DetailCollapse")]                            // method called from JS when collapse is done
+    public void DetailRowCollapse(string CollapseIndex)
+    {
+        K_Passport CollapseRow = (K_Passport)SfGrid.CurrentViewData.ElementAt(Convert.ToInt32(CollapseIndex));
+        ExpandedRows.Remove(CollapseRow.K_PassportId);              //Remove the collapsed row from expanded dictionary
+    }
+
+    public async Task DataBound()
+    {
+        if (firstrender)
+        {
+            try
+            {
+                var dotNetReference = DotNetObjectReference.Create(this);          // create dotnet ref
+                await jsRuntime.InvokeAsync<string>("detail", dotNetReference);     // send the dotnet ref to JS side
+                firstrender = false;
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        foreach (var a in ExpandedRows)
+        {
+            var PKIndex = await SfGrid.GetRowIndexByPrimaryKey(a.Key);
+            await SfGrid.DetailExpandCollapseRow((K_Passport)SfGrid.CurrentViewData.ElementAt(Convert.ToInt32(PKIndex)));     //Expand the already expnaded detailrows
+        }
+    }
+    IDictionary<int, K_Passport> ExpandedRows = new Dictionary<int, K_Passport>();
+    public void DetailDataBound(DetailDataBoundEventArgs<K_Passport> args)
+    {
+        if (!ExpandedRows.ContainsKey(args.Data.K_PassportId))
+        {
+            ExpandedRows.Add(args.Data.K_PassportId, args.Data);  //add the expanded rows to dictionary
+        }
+    }
+
     public void SearchBtnHandler(string searchKey)
     {
         this.SfGrid.Search(searchKey);
@@ -652,7 +698,7 @@
     {
         this.SfGrid.Search("");
     }
-   
+
     //Check if userAgent is Pc Or Mobile
     public async Task FindResponsiveness()
     {
@@ -662,7 +708,7 @@
     }
 
     protected override async Task OnInitializedAsync()
-    {       
+    {
         await FindResponsiveness();
         InputHamama = "";
         InputGamlon = "";
@@ -846,7 +892,7 @@
     {
         this.DeleteRecordConfirmVisibility = true;
         K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
-        PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
+        PassportAuditForm.K_PassportId = K_Passport.K_PassportId;
         PassportAuditForm.CreateDate = DateTime.Now;
     }
 
@@ -857,7 +903,7 @@
         {
 
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
-            PassportAuditForm.K_PassportId = Convert.ToInt32(K_Passport.K_PassportId);
+            PassportAuditForm.K_PassportId = K_Passport.K_PassportId;
             PassportAuditForm.CreateDate = DateTime.Now;
             this.DeleteRecordConfirmVisibility = true;
         }
@@ -1177,15 +1223,14 @@
     {
         //Handles add operation
 
-
         //Handles edit operation. During edit operation, original object will be cloned.
         if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
         {
 
         }
     }
-
 }
+
 
 <style>
     .magash-180 {

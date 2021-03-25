@@ -9,7 +9,7 @@ namespace HashtilERP.Shared.Models
     public class K_Passport
     {
         [Key]
-        public long K_PassportId { get; set; }
+        public int K_PassportId { get; set; }
 
         public int? SapDocEntry { get; set; }
         public int? PassportNum { get; set; }

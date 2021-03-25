@@ -87,5 +87,9 @@ namespace HashtilERP.Data
 
         [ForeignKey("UItemCode")]
         public virtual  Oitm  Oitm { get; set; }
+
+       
+
+
     }
 }

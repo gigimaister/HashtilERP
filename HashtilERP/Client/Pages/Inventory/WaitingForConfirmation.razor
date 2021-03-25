@@ -63,12 +63,15 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true" AllowFiltering="true" EnableRtl="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true"
+        AllowFiltering="true" EnableRtl="true">
     <GridEvents TValue="K_Passport"></GridEvents>
+
     <GridEvents QueryCellInfo="CustomizeCell" CommandClicked="OnCommandClicked"
                 TValue="K_Passport">
     </GridEvents>
     <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+    <GridPageSettings PageSize="20"></GridPageSettings>
     <GridColumns>
         <GridColumn HeaderText="" TextAlign="TextAlign.Left" Width="150">
             <GridCommandColumns>

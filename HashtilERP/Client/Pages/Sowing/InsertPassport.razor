@@ -250,6 +250,7 @@
         {
             _ = hubConnection.DisposeAsync();
         }
+
         //POST NEW PASSPORT
         protected async Task SendNewPassport(K_Passport kobiPassport)
         {
@@ -259,8 +260,7 @@
             {
                 ModalError = NoEnteredPassport;
                 OpenDialog();
-                if (IsConnected) await SendMessage();
-                passportInput = "";
+                if (IsConnected) await SendMessage();               
                 return;
             }
             try

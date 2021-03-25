@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using HashtilERP.Data;
 using Microsoft.AspNetCore.Identity;
 using HashtilERP.Server.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HashtilERP.Server
 {
@@ -24,7 +23,6 @@ namespace HashtilERP.Server
             _userManager = userManager;
         }
 
-        
         #region GET
         //GET WITH PASSPORT STATUS CONDITION
         [HttpGet("multi/{status}")]
@@ -43,6 +41,7 @@ namespace HashtilERP.Server
                             .Include(e=>e.KPassportInsertAudit)
                            .Include(e=>e.Passport)
                            .ThenInclude(e=>e.Passprods)
+                           .OrderByDescending(x=>x.KPassportInsertAudit.Date)
                             .ToListAsync();
                         break;
                     //waiting for confirmation
@@ -509,8 +508,5 @@ namespace HashtilERP.Server
 
         #endregion
     }
-
-
-
 
 }
