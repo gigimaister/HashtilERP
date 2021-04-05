@@ -20,32 +20,39 @@ namespace HashtilERP.Server.Controllers
             _context = context;
             _userManager = userManager;
         }
+
         //Preperetion Report(MIRI)
         [HttpGet("PrepReport")]
         public async Task<ActionResult<IEnumerable<K_Order>>> GetCurrentMetzay()
         {
             var prepReport = new List<K_Order>();
             List<Passprod> listPassprod;
-            List<Passport> listPassport;
+            List<Passport> listPassport = new List<Passport>();
+
             var beginEnddate = new List<DateTime>();
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             var beginDate = beginEnddate[0];
             var endDate = beginEnddate[1];
             try
             {
-                var t = await _context.Passport.Where(x => x.UDateEnd >= beginDate && x.UDateEnd <= endDate).OrderBy(x=>x.UDateEnd)
-                    .Include(x=>x.Oitm)
+                var a = await _context.Passprod.Where(x=>x.UDateSupp >= beginDate && x.UDateSupp <= endDate).OrderBy(x => x.UDateSupp)                   
                     .ToListAsync();
+
+               foreach(var b in a)
+                {
+                    var t = await _context.Passport.Where(x => x.DocEntry == b.DocEntry).Include(x=>x.Oitm).FirstOrDefaultAsync();
+                    listPassport.Add((Passport)t);
+                }
+
                 listPassport = await _context.Passport.Where(x => x.UDateEnd >= beginDate && x.UDateEnd <= endDate).Include(x => x.Passprods)
                     .Include(x=>x.Oitm)                  
                     .ToListAsync();
+
                 listPassprod = null;
                 foreach (var order in listPassprod)
                 {
                     try
                     {
-
-
                         var passPort = listPassport.Where(x => x.DocEntry == order.DocEntry).Single();
                         var newOrder = new K_Order();
                         newOrder.MarketingDate = (DateTime)order.UDateSupp;

@@ -139,7 +139,9 @@
     SfGrid<K_Passport> SfGrid;
     private static string HebSaved = "נשמר!";
     bool SpinnerBool { get; set; } = false;
-   
+
+
+
 
     //TOAST
     SfToast ToastObj;
@@ -162,15 +164,15 @@
     string passportInput;
 
     //Search after Passport Scan
-    public void SearchBtnHandler(string searchKey)
+    public async void SearchBtnHandler(string searchKey)
     {
-        this.SfGrid.Search(searchKey);
+        await this.SfGrid.Search(searchKey);      
     }
 
     //Clear Grid "Search" Box
-    public void ClearGridSearch()
+    public async void ClearGridSearch()
     {
-        this.SfGrid.Search("");
+        await this.SfGrid.Search("");      
     }
 
     //Check if userAgent is Pc Or Mobile
@@ -234,7 +236,6 @@
     {
         _ = hubConnection.DisposeAsync();
     }
-
 
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)

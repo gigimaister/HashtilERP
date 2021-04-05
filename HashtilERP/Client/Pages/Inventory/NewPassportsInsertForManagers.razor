@@ -1,0 +1,499 @@
+﻿@page "/inventory/newpassportsinsertformanagers"
+@inject IJSRuntime jsRuntime
+
+@using Syncfusion.Blazor.Data
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-GreenHouse")]
+
+<div style="text-align:right" class="alert alert-info " role="alert">
+    <h3 style="text-align:center">חדשים שלא הוכנסו!</h3>
+</div>
+
+
+
+@if (isDevice == "Mobile" || 1 == 1)
+{
+    <div style="text-align:right">
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            סריקה!
+        </button>
+    </div>
+
+}
+<br />
+@*//Paasport Input*@
+<input type="text" class="form-control" style="width:auto;text-align:center" name="GRWroom"
+       placeholder="פספורט"
+       @bind=@passportInput />
+<br />
+<div class="col-sm" style="z-index:0">
+
+</div>
+<div>
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="PlusOneGreenBtn"><b style="font-size:20px">+</b></button>
+            </div>
+            <div class="col-md-auto">
+                <label class="alert alert-warning" role="alert" style="text-align:center;font-size:30px">@Hamama</label>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="MinusOneGreenBtn"><b style="font-size:20px">-</b></button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="PlusOneGamlonBtn"><b style="font-size:20px">+</b></button>
+            </div>
+            <div class="col-md-auto">
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="MinusOneGamlonBtn"><b style="font-size:20px">-</b></button>
+            </div>
+        </div>
+    </div>
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+    </div>
+    <hr style="height:1px; visibility:hidden;" />
+    <div class="container" style="text-align:center">
+        <div class="row justify-content-md-center" style="flex-wrap:inherit">
+            <div class="col-md-auto">
+                <button class="btn btn-info btn-lg" style="width:60px" @onclick="Plus5GamlonBtn"><b style="font-size:20px">5+</b></button>
+            </div>
+            <div class="col-md-auto">
+                <label class="alert alert-primary" role="alert" style="text-align:center">@Gamlon</label>
+            </div>
+            <div class="col-md-auto">
+                <button class="btn btn-danger btn-lg" style="width:60px" @onclick="Minus5GamlonBtn"><b style="font-size:20px">5-</b></button>
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput=e; ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
+
+}
+<div style="text-align:right">
+    <button class="btn btn-success"
+            type="button"
+            @onclick="@InsertObject">
+        @*ENTER SCAN*@
+        שליחה
+    </button>
+</div>
+<br />
+<br />
+
+@*Modal dialog for duplicate or not found passport*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header> שגיאה! </Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+
+@*Toast Component*@
+<SfToast @ref="ToastObj" EnableRtl="true" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+<div class="col-lg-12 col-sm-12 col-md-12 center">
+    <div id="toastBtnDefault" style="margin: auto;text-align: center">
+        <SfButton Content="Show Toasts" @onclick="@ShowToast"></SfButton>
+        <SfButton Content="Hide All" @onclick="@HideToast"></SfButton>
+    </div>
+</div>
+
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+    }
+
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
+    }
+</style>
+@code {
+    bool AfterActionSpinner { get; set; } = false;
+    public K_Passport K_Passport = new K_Passport();
+    List<GreenHouseToGamlon.Gamlons> GamlonsList = new List<GreenHouseToGamlon.Gamlons>();
+    List<GreenHouseToGamlon.Hamama> HamamasList = new List<GreenHouseToGamlon.Hamama>();
+    HamamaGamlonStorage HamamaGamlonStorage { get; set; } = new HamamaGamlonStorage();
+
+
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+
+    string passportInput;
+    string Hamama { get; set; }
+    string Gamlon { get; set; }
+    string status = Status.WaitingForOK;
+    K_Passport kobipassportModel = new K_Passport();
+    private HubConnection hubConnection;
+    Dictionary<int, List<int>> GreenGamList { get; set; }
+    IEnumerable<List<int>> GamlonListForButton { get; set; }
+
+    string localsrorage = "HamamaGamlon";
+
+    private static string WrongGreenHouseValue = "חממה לא קיימת!";
+    private static string ThaiNotFound = "פספורט לא נמצא!";
+    private static string ThaiSaved = "נשמר!";
+    private static string ThaiDuplicate = "אזהרת כפילות!";
+    private static string NoEnteredPassport = "פספורט לא הוזן!";
+    private static string ThaiPassportNotExist = "פספורט לא קיים!";
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    public bool IsConnected =>
+      hubConnection.State == HubConnectionState.Connected;
+
+    /// <summary>
+    /// Modal Props and actions
+    /// </summary>
+    private bool IsVisible { get; set; } = false;
+    private string ModalError { get; set; } = "";
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+
+
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+
+
+    //INIT
+    protected override async Task OnInitializedAsync()
+    {
+        HamamaGamlonStorage = await localStorage.GetItemAsync<HamamaGamlonStorage>(localsrorage);
+        GreenGamList = HamamotGamlonDict.HamamaGamlonDictInit();
+
+        if (HamamaGamlonStorage != null)
+        {
+            Hamama = HamamaGamlonStorage.Hamama;
+            Gamlon = HamamaGamlonStorage.Gamlon;
+            GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
+        }
+        else
+        {
+            Hamama = "1";
+            GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+
+    }
+
+    #region Green/Gamlon Buttons
+
+    //plus 1 button for green house
+    private void PlusOneGreenBtn()
+    {
+        var intHamama = Convert.ToInt32(Hamama);
+        intHamama++;
+
+        if (intHamama > 7)
+        {
+            intHamama = 1;
+        }
+        Hamama = intHamama.ToString();
+        var currentGamlon = Convert.ToInt32(Gamlon);
+        GamlonListForButton = GreenGamList.Where(x => x.Key == intHamama).Select(x => x.Value).ToList();
+        if (!GamlonListForButton.Any(x => x.Contains(currentGamlon)))
+        {
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+
+    }
+    //minus 1 button green house
+    private void MinusOneGreenBtn()
+    {
+        var intHamama = Convert.ToInt32(Hamama);
+        intHamama--;
+
+        if (intHamama < 1)
+        {
+            intHamama = 7;
+        }
+        Hamama = intHamama.ToString();
+        var currentGamlon = Convert.ToInt32(Gamlon);
+        GamlonListForButton = GreenGamList.Where(x => x.Key == intHamama).Select(x => x.Value).ToList();
+        if (!GamlonListForButton.Any(x => x.Contains(currentGamlon)))
+        {
+            Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
+        }
+    }
+    //plus 1 button gamlons
+    private void PlusOneGamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon++;
+        if (intGamlon > GamlonListForButton.FirstOrDefault().Max())
+        {
+            intGamlon = GamlonListForButton.Min().FirstOrDefault();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //minus 1 button gamlon
+    private void MinusOneGamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon--;
+        if (intGamlon < GamlonListForButton.FirstOrDefault().Min())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Max();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //plus 5 buttun gamlond
+    private void Plus5GamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon = intGamlon + 5;
+        if (intGamlon > GamlonListForButton.FirstOrDefault().Max())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Min();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    //minus 5 button gamlons
+    private void Minus5GamlonBtn()
+    {
+        var intGamlon = Convert.ToInt32(Gamlon);
+        intGamlon = intGamlon - 5;
+        if (intGamlon < GamlonListForButton.FirstOrDefault().Min())
+        {
+            intGamlon = GamlonListForButton.FirstOrDefault().Max();
+        }
+        Gamlon = intGamlon.ToString();
+    }
+    #endregion
+
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+
+    //When insertPassport Button clicked!
+    public async void InsertObject()
+    {
+        AfterActionSpinner = true;
+
+        if (passportInput == null || passportInput == "")
+        {
+            ModalError = NoEnteredPassport;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            passportInput = "";
+            AfterActionSpinner = false;
+            return;
+        }
+        else if (Hamama == null || Gamlon == null)
+        {
+            ModalError = WrongGreenHouseValue;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+            passportInput = "";
+            AfterActionSpinner = false;
+            return;
+        }
+        else
+        {
+            try
+            {
+                kobipassportModel = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
+            }
+            catch (Exception)
+            {
+                kobipassportModel.PassportNum =Convert.ToInt32(passportInput);
+                kobipassportModel.Hamama = Hamama.Trim();
+                kobipassportModel.Gamlon = Gamlon.Trim();
+
+                var backrslt = await Http.PostAsJsonAsync("api/KPassports/NewPassportInsertByManager", kobipassportModel);
+                var backcontent = await backrslt.Content.ReadAsStringAsync();
+
+                //Http Response Failed On Insert
+                if (!backrslt.IsSuccessStatusCode)
+                {
+                    if (backcontent == "NOTFOUND")
+                    {
+                        ModalError = ThaiNotFound;
+                        OpenDialog();
+                        passportInput = "";
+                        if (IsConnected) await SendMessage();
+
+                    }
+                    else if (backcontent == "DUPLICATE")
+                    {
+                        ModalError = ThaiDuplicate;
+                        OpenDialog();
+                        passportInput = "";
+                        if (IsConnected) await SendMessage();
+                    }
+
+                }
+                else
+                {
+
+                    if (IsConnected) await SendMessage();
+                    ToastContent = "נשמר";
+                    passportInput = "";
+                    StateHasChanged();
+                    await ShowToast();
+
+                }
+                AfterActionSpinner = false;
+                return;
+            }
+
+
+            kobipassportModel.Hamama = Hamama.Trim();
+            kobipassportModel.Gamlon = Gamlon.Trim();
+
+            if (kobipassportModel.PassportStatus.Trim() == Status.GrowingRoom)
+            {
+                kobipassportModel.MetzayEnteringDate = DateTime.Now;
+                kobipassportModel.PassportStatus = status.Trim();
+                kobipassportModel.PassportStatusCode = (int)PassportStatusCode.WaitingForConfirmation;
+            }
+
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{kobipassportModel.K_PassportId}", kobipassportModel);
+            var content = await rslt.Content.ReadAsStringAsync();
+
+            //Http Response Failed On Insert
+            if (!rslt.IsSuccessStatusCode)
+            {
+                if (content == "NOTFOUND")
+                {
+                    ModalError = ThaiNotFound;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+
+                }
+                else if (content == "DUPLICATE")
+                {
+                    ModalError = ThaiDuplicate;
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+                }
+
+
+            }
+            else
+            {
+                HamamaGamlonStorage = new HamamaGamlonStorage();
+                HamamaGamlonStorage.Hamama = Hamama;
+                HamamaGamlonStorage.Gamlon = Gamlon;
+
+                await localStorage.SetItemAsync(localsrorage, HamamaGamlonStorage);
+
+                if (IsConnected) await SendMessage();
+                ToastContent = ThaiSaved;
+                passportInput = "";
+                StateHasChanged();
+                await ShowToast();
+
+            }
+
+
+        }
+        AfterActionSpinner = false;
+    }
+
+
+    //2 DROPLIST HAMAMA AND GAMLON SETTINGS
+    public bool EnableStateDropDown = false;
+    public bool EnableCitytDropDown = false;
+    public string StateValue { get; set; } = null;
+    public Query StateQuery { get; set; } = null;
+    public string CityValue { get; set; } = null;
+    public Query CityQuery { get; set; } = null;
+
+    public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
+    {
+        this.EnableStateDropDown = true;
+        this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
+        this.StateValue = null;
+        this.CityValue = null;
+    }
+
+
+    //END DROPDOWN SETTINGS
+
+}

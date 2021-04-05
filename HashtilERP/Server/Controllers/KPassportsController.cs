@@ -481,6 +481,76 @@ namespace HashtilERP.Server
 
             return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
         }
+
+        [HttpPost("NewPassportInsertByManager")]
+        public async Task<ActionResult<K_Passport>> PostNewKPassportByManager(K_Passport kPassport)
+        {
+            Passport sap;
+            Oitm sapOitm;
+            try
+            {
+                sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
+                sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
+
+
+            }
+            //if no passport in SAP
+            catch (Exception)
+            {
+                return StatusCode(500, "NOTFOUND");
+            }
+
+
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+
+            var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
+            //if duplicate in K_Passport
+            if (dup != null)
+            {
+                return StatusCode(500, "DUPLICATE");
+            }
+            DateTime passingDate;
+            kPassport.UserName = screenName.Trim();
+            kPassport.SowDate = sap.UDateSow;
+            passingDate = (DateTime)sap.UDateSow;
+            kPassport.DateEnd = sap.UDateEnd;
+            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanOrdP * 1000) / sap.UTraySow);
+            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
+            kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
+            kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
+            kPassport.PlantsAmount = sap.UQuanProd * 1000;
+            kPassport.PassportStatus = Status.InGreenHouse.Trim();
+            kPassport.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+            kPassport.ItemCode = sap.UItemCode.Trim();
+            kPassport.SapDocEntry = sap.DocEntry;
+            kPassport.PassportCondition = Status.NotChecked.Trim();
+            kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
+            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
+            kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
+            kPassport.Gidul = sapOitm.UHebGidul.Trim();
+            kPassport.IsSavedForCx = false;
+            kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
+            _context.KPassport.Add(kPassport);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                if (KPassportExists(kPassport.K_PassportId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
+        }
+
         #endregion
 
         #region DELETE

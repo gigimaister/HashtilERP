@@ -246,7 +246,14 @@
                                 @{ var passport2 = (context as K_Passport);
                                                                 <div class="form-row" dir="rtl">
                                                                     <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align: right; font-weight:500">הוכנסה לחדר הנבטה ע"י:</label>
+                                                                        @{ if (passport2.GrowingRoom == null)
+                                                                            {
+                                                                                <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
+                                                                            }
+                                                                            else
+                                                                            { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
+                                                                            }
+                                                                        }
                                                                     </div>
                                                                     <div class="col-form-label">
                                                                         <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
