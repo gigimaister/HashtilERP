@@ -42,13 +42,18 @@
             </button>
         </div>
     }
-    <div class="col" style="text-align:left">
-        <button class="btn btn-warning"
-                type="button"
-                @onclick="ClearGridSearch">
-            ניקוי חיפוש
-        </button>
-    </div>
+<div class="col" style="text-align:left">
+    <button class="btn btn-info"
+            type="button"
+            @onclick="ClearGridfilter">
+        הסר מסנן
+    </button>
+    <button class="btn btn-warning"
+            type="button"
+            @onclick="ClearGridSearch">
+        ניקוי חיפוש
+    </button>
+</div>
 </div>
 @if (ShowScanBarcode)
 {
@@ -166,14 +171,19 @@
     //Search after Passport Scan
     public async void SearchBtnHandler(string searchKey)
     {
-        await this.SfGrid.Search(searchKey);      
+        await this.SfGrid.Search(searchKey);
     }
 
     //Clear Grid "Search" Box
     public async void ClearGridSearch()
     {
-        await this.SfGrid.Search("");      
+        await this.SfGrid.Search("");
     }
+    public async void ClearGridfilter()
+    {
+        await this.SfGrid.ClearFiltering();
+    }
+
 
     //Check if userAgent is Pc Or Mobile
     public async Task FindResponsiveness()

@@ -53,6 +53,11 @@
         </div>
     }
     <div class="col" style="text-align:left">
+        <button class="btn btn-info"
+                type="button"
+                @onclick="ClearGridfilter">
+            הסר מסנן
+        </button>
         <button class="btn btn-warning"
                 type="button"
                 @onclick="ClearGridSearch">
@@ -466,6 +471,11 @@
     public void ClearGridSearch()
     {
         this.SfGrid.Search("");
+    }
+    //Clear Grid "Filter" Box
+    public async void ClearGridfilter()
+    {
+        await this.SfGrid.ClearFiltering();
     }
 
     //CELL MAGASH TYPE STYLE

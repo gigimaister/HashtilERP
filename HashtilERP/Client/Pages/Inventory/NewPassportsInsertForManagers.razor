@@ -174,7 +174,7 @@
     string passportInput;
     string Hamama { get; set; }
     string Gamlon { get; set; }
-    string status = Status.WaitingForOK;
+    string status = Status.InGreenHouse;
     K_Passport kobipassportModel = new K_Passport();
     private HubConnection hubConnection;
     Dictionary<int, List<int>> GreenGamList { get; set; }
@@ -420,15 +420,32 @@
                 return;
             }
 
-
             kobipassportModel.Hamama = Hamama.Trim();
             kobipassportModel.Gamlon = Gamlon.Trim();
 
+            //if in growing room
             if (kobipassportModel.PassportStatus.Trim() == Status.GrowingRoom)
             {
+
                 kobipassportModel.MetzayEnteringDate = DateTime.Now;
                 kobipassportModel.PassportStatus = status.Trim();
-                kobipassportModel.PassportStatusCode = (int)PassportStatusCode.WaitingForConfirmation;
+                kobipassportModel.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+            }
+            //if in inventory
+            else if (kobipassportModel.PassportStatus.Trim() == Status.InGreenHouse)
+            {
+                kobipassportModel.PassportStatus = status.Trim();
+                kobipassportModel.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+            }
+
+            else
+            {
+                ModalError = "פספורט נעול לשינויים!";
+                OpenDialog();
+                passportInput = "";
+                if (IsConnected) await SendMessage();
+                AfterActionSpinner = false;
+                return;
             }
 
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{kobipassportModel.K_PassportId}", kobipassportModel);
