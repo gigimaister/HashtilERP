@@ -77,7 +77,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" Toolbar=@Tool AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports"  @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowFiltering="true" AllowResizing="true">
 
 
     <GridEvents TValue="K_Passport"></GridEvents>
@@ -518,9 +518,9 @@
     {
         this.SfGrid.Search("");
     }
-    public async void ClearGridfilter()
+    public void ClearGridfilter()
     {
-        await this.SfGrid.ClearFiltering();
+         this.SfGrid.ClearFiltering();
     }
     //INITIALIZED
     protected override async Task OnInitializedAsync()
