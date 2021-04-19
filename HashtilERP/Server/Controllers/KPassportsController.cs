@@ -419,6 +419,7 @@ namespace HashtilERP.Server
         {
             Passport sap;
             Oitm sapOitm;
+            int? startingAvg;
             try
             {
                  sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
@@ -447,8 +448,9 @@ namespace HashtilERP.Server
             kPassport.SowDate = sap.UDateSow;
             passingDate = (DateTime)sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
-            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanOrdP*1000) / sap.UTraySow);  
-            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days) ;
+            //if ZIREY LAKOACH
+            if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
+            kPassport.PassportStartingAVG = startingAvg; kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days) ;
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = sap.UQuanProd*1000;
@@ -504,6 +506,7 @@ namespace HashtilERP.Server
 
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
+            int? startingAvg;
 
             var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
             //if duplicate in K_Passport
@@ -516,7 +519,9 @@ namespace HashtilERP.Server
             kPassport.SowDate = sap.UDateSow;
             passingDate = (DateTime)sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
-            kPassport.PassportStartingAVG = Convert.ToInt32((sap.UQuanOrdP * 1000) / sap.UTraySow);
+            //if ZIREY LAKOACH
+            if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000/sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000/ sap.UTraySow); }
+            kPassport.PassportStartingAVG = startingAvg;
             kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);

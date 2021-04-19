@@ -377,9 +377,26 @@
             {
                 kobipassportModel = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
             }
+
+
             catch (Exception)
             {
-                kobipassportModel.PassportNum =Convert.ToInt32(passportInput);
+                try
+                {
+                    kobipassportModel.PassportNum = Convert.ToInt32(passportInput);
+                }
+                catch (Exception)
+                {
+                    ModalError = "פספורט לא חוקי!";
+                    OpenDialog();
+                    passportInput = "";
+                    if (IsConnected) await SendMessage();
+                    AfterActionSpinner = false;
+
+                    return;
+                }
+
+                kobipassportModel.MetzayEnteringDate = DateTime.Now;
                 kobipassportModel.Hamama = Hamama.Trim();
                 kobipassportModel.Gamlon = Gamlon.Trim();
 

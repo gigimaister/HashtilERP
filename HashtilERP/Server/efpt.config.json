@@ -1,23 +1,45 @@
 ﻿{
-   "ContextClassName": "HashtilERPContext",
+   "CodeGenerationMode": 0,
+   "ContextClassName": "DBTestVol1Context",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "Data",
+   "OutputPath": "DBTestVol1",
+   "ProceduresReturnList": false,
    "ProjectRootNamespace": "HashtilERP",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
+         "Name": "[db_datareader].[K_Order]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[K_OrderPassports]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[db_datareader].[K_Passport]",
          "ObjectType": 0
       },
       {
+         "Name": "[db_datareader].[K_PassportAuditTblVer2]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[db_datareader].[K_PassportInsertAudit]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[PassportAuditForm]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[UpdateK_PassportAudit]",
          "ObjectType": 0
       },
       {
@@ -29,14 +51,27 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[OCRD]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[OITM]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ORDR]",
          "ObjectType": 0
       },
       {
          "Name": "[dbo].[OWOR]",
          "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RDR1]",
+         "ObjectType": 0
       }
    ],
+   "UiHint": "HASHTIL-SAP1.Hashtil09",
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDbContextSplitting": false,
@@ -44,6 +79,10 @@
    "UseHandleBars": false,
    "UseInflector": false,
    "UseLegacyPluralizer": false,
+   "UseNoConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
    "UseNodaTime": false,
+   "UseNullableReferences": false,
    "UseSpatial": false
 }

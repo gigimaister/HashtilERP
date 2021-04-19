@@ -83,7 +83,6 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("UItemCode")]
         public virtual Oitm Oitm { get; set; }
 
-
         [ForeignKey("DocEntry")]
         public virtual List<Passprod> Passprods { get; set; }
     }

@@ -1,0 +1,158 @@
+﻿@model HashtilERP.Data.K_Order
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>K_Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DocEntry" class="control-label"></label>
+                <input asp-for="DocEntry" class="form-control" />
+                <span asp-validation-for="DocEntry" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PrepReportEnteringDate" class="control-label"></label>
+                <input asp-for="PrepReportEnteringDate" class="form-control" />
+                <span asp-validation-for="PrepReportEnteringDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="K_OrderEnteringDate" class="control-label"></label>
+                <input asp-for="K_OrderEnteringDate" class="form-control" />
+                <span asp-validation-for="K_OrderEnteringDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreationDate" class="control-label"></label>
+                <input asp-for="CreationDate" class="form-control" />
+                <span asp-validation-for="CreationDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MarketingDate" class="control-label"></label>
+                <input asp-for="MarketingDate" class="form-control" />
+                <span asp-validation-for="MarketingDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SaleNum" class="control-label"></label>
+                <input asp-for="SaleNum" class="form-control" />
+                <span asp-validation-for="SaleNum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CxName" class="control-label"></label>
+                <input asp-for="CxName" class="form-control" />
+                <span asp-validation-for="CxName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CardCode" class="control-label"></label>
+                <input asp-for="CardCode" class="form-control" />
+                <span asp-validation-for="CardCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gidul" class="control-label"></label>
+                <input asp-for="Gidul" class="form-control" />
+                <span asp-validation-for="Gidul" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Zan" class="control-label"></label>
+                <input asp-for="Zan" class="form-control" />
+                <span asp-validation-for="Zan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ItemCode" class="control-label"></label>
+                <input asp-for="ItemCode" class="form-control" />
+                <span asp-validation-for="ItemCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="JobPlantsNum" class="control-label"></label>
+                <input asp-for="JobPlantsNum" class="form-control" />
+                <span asp-validation-for="JobPlantsNum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="JobNumOfMagash" class="control-label"></label>
+                <input asp-for="JobNumOfMagash" class="form-control" />
+                <span asp-validation-for="JobNumOfMagash" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="JobPlansAvarage" class="control-label"></label>
+                <input asp-for="JobPlansAvarage" class="form-control" />
+                <span asp-validation-for="JobPlansAvarage" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumOfCarton" class="control-label"></label>
+                <input asp-for="NumOfCarton" class="form-control" />
+                <span asp-validation-for="NumOfCarton" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsCageSmall" class="control-label"></label>
+                <input asp-for="IsCageSmall" class="form-control" />
+                <span asp-validation-for="IsCageSmall" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsCxComeToPickUp" class="control-label"></label>
+                <input asp-for="IsCxComeToPickUp" class="form-control" />
+                <span asp-validation-for="IsCxComeToPickUp" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsPrinted" class="control-label"></label>
+                <input asp-for="IsPrinted" class="form-control" />
+                <span asp-validation-for="IsPrinted" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumOfCages" class="control-label"></label>
+                <input asp-for="NumOfCages" class="form-control" />
+                <span asp-validation-for="NumOfCages" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="HamamaRemarks" class="control-label"></label>
+                <input asp-for="HamamaRemarks" class="form-control" />
+                <span asp-validation-for="HamamaRemarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeliveryRemarks" class="control-label"></label>
+                <input asp-for="DeliveryRemarks" class="form-control" />
+                <span asp-validation-for="DeliveryRemarks" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="JobStatus" class="control-label"></label>
+                <input asp-for="JobStatus" class="form-control" />
+                <span asp-validation-for="JobStatus" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FixedCoordinationRemark" class="control-label"></label>
+                <input asp-for="FixedCoordinationRemark" class="form-control" />
+                <span asp-validation-for="FixedCoordinationRemark" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OpenCoordinationRemark" class="control-label"></label>
+                <input asp-for="OpenCoordinationRemark" class="form-control" />
+                <span asp-validation-for="OpenCoordinationRemark" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PassprodComments" class="control-label"></label>
+                <input asp-for="PassprodComments" class="form-control" />
+                <span asp-validation-for="PassprodComments" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

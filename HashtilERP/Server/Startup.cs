@@ -18,7 +18,7 @@ using Syncfusion.Blazor;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using HashtilERP.DBTestVol1;
 
 namespace HashtilERP.Server
 {
@@ -43,6 +43,11 @@ namespace HashtilERP.Server
             services.AddDbContext<HashtilERPContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<OrdersContext>(options =>
+               options.UseSqlServer(
+                   Configuration.GetConnectionString("DefaultConnection")));
+
 
 
             services.AddDatabaseDeveloperPageExceptionFilter();

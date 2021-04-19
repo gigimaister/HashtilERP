@@ -7,15 +7,18 @@ using Microsoft.EntityFrameworkCore;
 using HashtilERP.Data;
 using Microsoft.AspNetCore.Identity;
 using HashtilERP.Server.Models;
+using HashtilERP.DBTestVol1;
+using HashtilERP.Shared.Models;
+
 namespace HashtilERP.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class KOrderController : ControllerBase
     {
+        private readonly OrdersContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly HashtilERPContext _context;
-        public KOrderController(HashtilERPContext context, UserManager<ApplicationUser> userManager)
+        public KOrderController(OrdersContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -23,63 +26,113 @@ namespace HashtilERP.Server.Controllers
 
         //Preperetion Report(MIRI)
         [HttpGet("PrepReport")]
-        public async Task<ActionResult<IEnumerable<K_Order>>> GetCurrentMetzay()
+        public async Task<int> GetCurrentJobs()
         {
-            var prepReport = new List<K_Order>();
-            List<Passprod> listPassprod;
-            List<Passport> listPassport = new List<Passport>();
-
+            var prepReport = new List<KOrder>();
             var beginEnddate = new List<DateTime>();
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
-            var beginDate = beginEnddate[0];
-            var endDate = beginEnddate[1];
+            DateTime? beginDate = beginEnddate[0];
+            DateTime? endDate = beginEnddate[1];
             try
             {
-                var a = await _context.Passprod.Where(x=>x.UDateSupp >= beginDate && x.UDateSupp <= endDate).OrderBy(x => x.UDateSupp)                   
-                    .ToListAsync();
+                //get all Passports(!!) with Sun - Sat Jobs(Filter 1)
+                var passportsToOrders = await _context.Passport.Where(x => x.UDateEnd >= beginDate && x.UDateEnd <= endDate && x.UTraySow>0)
+                        .Include(x => x.Oitm)
+                        .Include(x => x.Passprods)
+                        .ToListAsync();
 
-               foreach(var b in a)
+                foreach(var passport in passportsToOrders)
                 {
-                    var t = await _context.Passport.Where(x => x.DocEntry == b.DocEntry).Include(x=>x.Oitm).FirstOrDefaultAsync();
-                    listPassport.Add((Passport)t);
-                }
+                    //Filter only sowed Passports(Filter 2)
+                    if (passport.UTraySow == 0) { continue; }
 
-                listPassport = await _context.Passport.Where(x => x.UDateEnd >= beginDate && x.UDateEnd <= endDate).Include(x => x.Passprods)
-                    .Include(x=>x.Oitm)                  
-                    .ToListAsync();
-
-                listPassprod = null;
-                foreach (var order in listPassprod)
-                {
-                    try
+                    foreach (var passprod in passport.Passprods)
                     {
-                        var passPort = listPassport.Where(x => x.DocEntry == order.DocEntry).Single();
-                        var newOrder = new K_Order();
-                        newOrder.MarketingDate = (DateTime)order.UDateSupp;
-                        newOrder.SaleNum = order.USaleNum;
-                        newOrder.Gidul = passPort.Oitm.UHebGidul ?? "gg";
-                        newOrder.Zan = passPort.UZanZl ?? passPort.Oitm.UHebZan;
-                        if (order.UQuantity < 5555554)
+                        //Continue filter for Cx's only(Filter 3)
+                        if (passprod.UQuantity == 0) { continue; }
+
+                        var korder = new KOrder
                         {
-                            newOrder.JobPlantsNum = Convert.ToInt32(order.UQuantity * 1000);
+                            DocEntry = passprod.DocEntry,
+                            PrepReportEnteringDate = DateTime.Today,
+                            MarketingDate = passprod.UDateSupp,
+                            SaleNum = passprod.USaleNum,
+                            CxName = passprod.UCustName,
+                            Gidul = passport.Oitm.UHebGidul,
+                            Zan = passport.UZanZl ?? passport.Oitm.UHebZan ?? passport.Oitm.UHebGidul,
+                            ItemCode = passport.UItemCode,
+                            PassprodComments = passprod.UComments ?? "",
+                            FixedCoordinationRemark = K_OrderStatus.NeedToSchedule.Trim(),
+
+                        };
+
+
+                        //if Cx's Seeds && if 1 trey was split for different types of seeds!
+                        if (passprod.UQuantity > 55555 && passport.UTraySow == 1)
+                        {
+                            korder.JobPlantsNum = Convert.ToInt32(passport.UQuanProd * 1000) / passport.Passprods.Count;
                         }
+
                         else
                         {
-                            //newOrder.JobPlantsNum = Convert.ToInt32(passPort.Select(x => x.UQuanProd * 1000));
+                            korder.JobPlantsNum = Convert.ToInt32(passprod.UQuantity * 1000);
                         }
-                        newOrder.CxName = order.UCustName;
-                        prepReport.Add(newOrder);
-                    }
-                    catch(Exception)
-                    { continue; }
+
+                        //adding cx number code to KOrder(because USaleNum string and DocNum is int...)
+                        var ordr = await _context.Ordr.Where(x => x.DocNum.ToString() == passprod.USaleNum).FirstOrDefaultAsync();
+
+                        korder.CardCode = ordr.CardCode;
+
+                        prepReport.Add(korder);
+                    }                      
+                   
                 }
 
-                return prepReport;
+                //retrieve KOrder list from db 
+                var listOfKOrder = await _context.KOrder.ToListAsync();
+
+                if (listOfKOrder.Count > 0)
+                {
+                    //remove duplicates
+                    foreach (var korder in listOfKOrder)
+                    {
+                        prepReport.RemoveAll(x => x.DocEntry == korder.DocEntry && x.SaleNum == korder.SaleNum);
+                    }
+                }            
+
+                var sdfg = prepReport;
+
+                if(prepReport.Count > 0)
+                {
+                    foreach(var korder in prepReport)
+                    {
+                        _context.Add(korder);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
             }
+
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                Console.WriteLine(e.Message);
             }
+            return 0;
         }
+
+        //Get SAP orders for 1 week(Sun - Sat)
+        [HttpGet("GetSapOrders")]
+        public async Task<List<KOrder>> GetSapOrders()
+        {
+            var beginEnddate = new List<DateTime>();
+            beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
+            DateTime? beginDate = beginEnddate[0];
+            DateTime? endDate = beginEnddate[1];
+            var sapOrders = await _context.KOrder.Where(x=>x.MarketingDate >= beginDate && x.MarketingDate <= endDate).ToListAsync();
+            return sapOrders;
+        }
+
     }
+
+   
 }

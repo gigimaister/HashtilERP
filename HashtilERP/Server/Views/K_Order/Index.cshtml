@@ -1,0 +1,185 @@
+﻿@model IEnumerable<HashtilERP.Data.K_Order>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.DocEntry)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PrepReportEnteringDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.K_OrderEnteringDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MarketingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SaleNum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CxName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CardCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gidul)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Zan)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobPlantsNum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobNumOfMagash)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobPlansAvarage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumOfCarton)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsCageSmall)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsCxComeToPickUp)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsPrinted)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NumOfCages)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.HamamaRemarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeliveryRemarks)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.JobStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FixedCoordinationRemark)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OpenCoordinationRemark)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PassprodComments)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocEntry)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrepReportEnteringDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.K_OrderEnteringDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MarketingDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SaleNum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CxName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CardCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Gidul)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Zan)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobPlantsNum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobNumOfMagash)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobPlansAvarage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumOfCarton)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCageSmall)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsCxComeToPickUp)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsPrinted)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumOfCages)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.HamamaRemarks)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DeliveryRemarks)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.JobStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FixedCoordinationRemark)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OpenCoordinationRemark)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PassprodComments)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.JobId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.JobId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.JobId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -52,14 +52,14 @@ namespace HashtilERP.Shared.Models
         public virtual KPassportInsertAudit KPassportInsertAudit { get; set; }
 
         [ForeignKey("K_PassportId")]
-        public List<PassportAuditForm> PassportAuditForms { get; set; }
+        public virtual List<PassportAuditForm> PassportAuditForms { get; set; }
 
 
         [ForeignKey("K_PassportId")]
-        public List<UpdateK_PassportAudit> UpdateK_PassportAudit { get; set; }
+        public virtual List<UpdateK_PassportAudit> UpdateK_PassportAudit { get; set; }
 
         [ForeignKey("K_PassportId")]
-        public List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
+        public virtual List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
     }
 
    

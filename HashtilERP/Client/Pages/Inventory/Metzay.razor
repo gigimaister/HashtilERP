@@ -182,10 +182,21 @@
 
                                             @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
                                             {
-                                                var temp = (cx.UQuantity * 1000);
+                                                decimal? temp;
+                                                int startAvg;
+                                                if (passport.Passport.UQuanOrdP > 5555554)
+                                                {
+                                                    temp = passport.Passport.UQuanProd*1000;
+                                                    startAvg = Convert.ToInt32((passport.Passport.UQuanProd * 1000) / passport.Passport.UTraySow);
+                                                }
+                                                else
+                                                {
+                                                    temp = (cx.UQuantity * 1000);
+                                                    startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
+                                                }
+
                                                 var display = string.Format("{0:#,0}", temp);
-                                                var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
-                                                var magashPercx = (cx.UQuantity * 1000) / startAvg;
+                                                var magashPercx = temp / startAvg;
                                                 var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
                                                 <tr>
                                                     <td>
@@ -710,7 +721,15 @@
     }
     public void ClearGridSearch()
     {
-        this.SfGrid.Search("");
+        try
+        {
+            this.SfGrid.Search("");
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
     }
     public async void ClearGridfilter()
     {
@@ -749,9 +768,16 @@
     //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
+        try
+        {
+            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/metzay");
+            StateHasChanged();
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
 
-        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/metzay");
-        StateHasChanged();
     }
 
     public bool IsConnected =>

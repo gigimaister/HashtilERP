@@ -12,8 +12,17 @@ namespace HashtilERP.Data
     {
         [Key]
         public int JobId { get; set; }
-        public DateTime CreationDate { get; set; } = DateTime.Today;
-        public DateTime MarketingDate { get; set; }
+        public int DocEntry { get; set; }
+        //when entered to prepreport
+        public DateTime? PrepReportEnteringDate { get; set; }
+
+        //when enter to outgoing KOrder table
+        public DateTime? K_OrderEnteringDate { get; set; }
+
+        //when enetring direct to KOrder table 
+        public DateTime? CreationDate { get; set; }
+
+        public DateTime? MarketingDate { get; set; }
         public string SaleNum { get; set; }
         public string CxName { get; set; }
         public string CardCode { get; set; }
@@ -41,16 +50,10 @@ namespace HashtilERP.Data
         public string FixedCoordinationRemark { get; set; }
         public string OpenCoordinationRemark { get; set; }
         public string UserName { get; set; }
+        public string PassprodComments { get; set; }
 
         [ForeignKey("JobId")]
         public virtual List<K_OrderPassports> K_OrderPassports { get; set; }
-
-        [ForeignKey("ItemCode")]
-        public virtual Oitm Oitm { get; set; }
-
-        
-
-
 
     }
 
@@ -75,8 +78,8 @@ namespace HashtilERP.Data
                     prepRepo.Add(DateTime.Today.AddDays(4));
                     break;
                 case DayOfWeek.Wednesday:
-                    prepRepo.Add(DateTime.Today.AddDays(-4));
-                    prepRepo.Add(DateTime.Today.AddDays(2));
+                    prepRepo.Add(DateTime.Today.AddDays(-3));
+                    prepRepo.Add(DateTime.Today.AddDays(3));
                     break;
                 case DayOfWeek.Thursday:
                     prepRepo.Add(DateTime.Today.AddDays(3));

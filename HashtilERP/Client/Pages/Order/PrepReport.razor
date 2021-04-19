@@ -16,16 +16,105 @@
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Data
 @using System.ComponentModel.DataAnnotations;
+@using Syncfusion.Blazor.Calendars
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers")]
-    <div style="text-align:right" class="alert alert-success" role="alert">
-        <h3 style="text-align:center">דוח תיאום הוצאות</h3>
+<div style="text-align:right" class="alert alert-primary" role="alert">
+    <h2 style="text-align:center">דוח תיאום הוצאות</h2>
+</div>
+<div style="text-align:right" class="alert alert-warning" role="alert">
+    <h3 style="text-align:center">מציג תוצאות בין התאריכים:@ReportBeginDate - @ReportEndDate</h3>
+</div>
+<div style="text-align:left">
+    <button class="btn btn-primary" type="submit">רענון</button>
+</div>
+<div class="alert alert-secondary" style="width:300px" role="alert">
+    <h6>בחירת טווח שונה להצגה</h6>
+    <SfDateRangePicker TValue="DateTime?" Width="200px" Placeholder="בחירת טווח"></SfDateRangePicker>
+</div>
+
+@{
+    var Tool = (new List<string>() { "Search" });
+}
+
+<div class="row">
+    <div class="col" style="text-align:left">
+        <button class="btn btn-info"
+                type="button"
+                @onclick="ClearGridfilter">
+            הסר מסנן
+        </button>
+        <button class="btn btn-warning"
+                type="button"
+                @onclick="ClearGridSearch">
+            ניקוי חיפוש
+        </button>
     </div>
+
+</div>
+@*grid*@
+<SfGrid DataSource="@K_Orders"  FrozenRows="0"  Height="500" Width="100%" @ref="@SfGrid" AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
+        AllowGrouping="false" AllowSorting="true">
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
+    <GridColumns>
+        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.SaleNum) HeaderText="מספר הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.CardCode) HeaderText="מספר לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות למזרע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.FixedCoordinationRemark) HeaderText="מצב"  EditType="EditType.DropDownEdit"  HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.OpenCoordinationRemark) HeaderText="הערות מתאמת דוח" EditorSettings="@CustomerEditParams" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+
+
+
 @code {
+    //Grid Object for costum actions
+    SfGrid<K_Order> SfGrid;
     public K_Order[] K_Orders;
+
+    //getting week sun to sat dates
+    string ReportBeginDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[0].ToShortDateString();
+    string ReportEndDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[1].ToShortDateString();
+
+    #region SfGrid methods and settings
+    //button clear filter
+    public async void ClearGridfilter()
+    {
+        await this.SfGrid.ClearFiltering();
+    }
+    //clear search box
+    public void ClearGridSearch()
+    {
+        try
+        {
+            this.SfGrid.Search("");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+    public IEditorSettings CustomerEditParams = new StringEditCellParams
+    {
+        Params = new TextBoxModel() { EnableRtl = true, ShowClearButton = false, Multiline = true }
+    };
+    #endregion
+
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
@@ -33,7 +122,12 @@
     //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
-        K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/PrepReport");
-        StateHasChanged();
+        try
+        {
+
+            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetSapOrders");
+            StateHasChanged();
+        }
+        catch (Exception e) { Console.WriteLine(e.Message); }
     }
 }
