@@ -142,7 +142,7 @@
     </DialogTemplates>
 </SfDialog>
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
+<SfGrid DataSource="@K_Passports" FrozenRows="0"  Height="500" Width="100%" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
         
         AllowSorting="true" EnableRtl="true" AllowResizing="true">
     <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
