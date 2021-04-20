@@ -43,6 +43,7 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("ItemCode")]
         public virtual Oitm Oitm { get; set; }
 
+        public OCRD Ocrd { get; set; }
     }
 
    

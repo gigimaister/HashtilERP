@@ -45,5 +45,39 @@ namespace HashtilERP.Shared.Models
             }
             return prepRepo;
         }
+
+        public static string GetHebrewDayOfTheWeek(DateTime? dateTime)
+        {
+            string HebrewDay = "";
+            DateTime NewDate = Convert.ToDateTime(dateTime);
+
+            switch (NewDate.DayOfWeek)
+            {
+                case DayOfWeek.Sunday:
+                    HebrewDay = "יום ראשון";
+                    break;
+                case DayOfWeek.Monday:
+                    HebrewDay = "יום שני";
+                    break;
+                case DayOfWeek.Tuesday:
+                    HebrewDay = "יום שלישי";
+                    break;
+                case DayOfWeek.Wednesday:
+                    HebrewDay = "יום רביעי";
+                    break;
+                case DayOfWeek.Thursday:
+                    HebrewDay = "יום חמישי";
+                    break;
+                case DayOfWeek.Friday:
+                    HebrewDay = "יום שישי";
+                    break;
+                case DayOfWeek.Saturday:
+                    HebrewDay = "יום שבת";
+                    break;
+               
+
+            }
+            return HebrewDay;
+        }
     }
 }

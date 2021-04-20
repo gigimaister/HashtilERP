@@ -460,7 +460,7 @@ namespace HashtilERP.Server
             kPassport.SapDocEntry = sap.DocEntry;
             kPassport.PassportCondition = Status.NotChecked.Trim();
             kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
-            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
+            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan ?? sapOitm.UHebGidul;
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
             kPassport.Gidul = sapOitm.UHebGidul.Trim();
             kPassport.IsSavedForCx = false;
@@ -532,7 +532,7 @@ namespace HashtilERP.Server
             kPassport.SapDocEntry = sap.DocEntry;
             kPassport.PassportCondition = Status.NotChecked.Trim();
             kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
-            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan;
+            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan ?? sapOitm.UHebGidul;
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
             kPassport.Gidul = sapOitm.UHebGidul.Trim();
             kPassport.IsSavedForCx = false;

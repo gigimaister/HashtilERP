@@ -18,5 +18,23 @@ namespace HashtilERP.Shared.Models
         public const string WantsToPostponed = "רוצה לדחות";
         public const string WasCanceled = "בוטל";
 
+        public static List<string> GetKOrderStatus()
+        {
+            var korderstatus = new List<string>
+            {
+                NeedToSchedule,
+                SchedualeWasOk,
+                NotAnswering,
+                WillLetUsKnow,
+                WillTalkToOren,
+                WantsMore,
+                WantsLess,
+                WantsToPostponed,
+                WasCanceled
+            };
+
+            return korderstatus;
+        }
+
     }
 }

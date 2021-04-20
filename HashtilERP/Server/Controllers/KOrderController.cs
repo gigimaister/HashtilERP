@@ -23,7 +23,7 @@ namespace HashtilERP.Server.Controllers
             _context = context;
             _userManager = userManager;
         }
-
+        #region GET REGION
         //Preperetion Report(MIRI)
         [HttpGet("PrepReport")]
         public async Task<int> GetCurrentJobs()
@@ -128,11 +128,45 @@ namespace HashtilERP.Server.Controllers
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             DateTime? beginDate = beginEnddate[0];
             DateTime? endDate = beginEnddate[1];
-            var sapOrders = await _context.KOrder.Where(x=>x.MarketingDate >= beginDate && x.MarketingDate <= endDate).ToListAsync();
+            var sapOrders = await _context.KOrder.Where(x=>x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
+                .Include(X=>X.Ocrd)
+                .ToListAsync();
             return sapOrders;
         }
+        #endregion
 
+        #region PUT REGION
+
+        [HttpPut("UpdatePrepReport/{id}")]
+        public async Task<IActionResult> UpdateSapPrepReport(int id, KOrder k_Order)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            k_Order.UserName = screenName;
+
+            if (id != k_Order.JobId)
+            {
+                return BadRequest();
+            }
+
+
+            _context.Entry(k_Order).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok();
+        }
+
+        #endregion
     }
 
-   
+
 }
