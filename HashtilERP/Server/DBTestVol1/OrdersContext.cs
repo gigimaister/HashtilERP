@@ -68,7 +68,7 @@ namespace HashtilERP.DBTestVol1
 
                 entity.Property(e => e.MarketingDate).HasColumnType("datetime");
 
-                entity.Property(e => e.OpenCoordinationRemark).HasMaxLength(50);
+                entity.Property(e => e.OpenCoordinationRemark).HasMaxLength(1000);
 
                 entity.Property(e => e.PassprodComments).HasMaxLength(50);
 

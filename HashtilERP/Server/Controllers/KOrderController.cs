@@ -39,6 +39,7 @@ namespace HashtilERP.Server.Controllers
                 var passportsToOrders = await _context.Passport.Where(x => x.UDateEnd >= beginDate && x.UDateEnd <= endDate && x.UTraySow>0)
                         .Include(x => x.Oitm)
                         .Include(x => x.Passprods)
+                        .OrderBy(x=>x.UDateEnd)
                         .ToListAsync();
 
                 foreach(var passport in passportsToOrders)
@@ -78,7 +79,7 @@ namespace HashtilERP.Server.Controllers
                             korder.JobPlantsNum = Convert.ToInt32(passprod.UQuantity * 1000);
                         }
 
-                        //adding cx number code to KOrder(because USaleNum string and DocNum is int...)
+                        //adding cx CardCode to KOrder(because USaleNum string and DocNum is int...)
                         var ordr = await _context.Ordr.Where(x => x.DocNum.ToString() == passprod.USaleNum).FirstOrDefaultAsync();
 
                         korder.CardCode = ordr.CardCode;
@@ -89,7 +90,7 @@ namespace HashtilERP.Server.Controllers
                 }
 
                 //retrieve KOrder list from db 
-                var listOfKOrder = await _context.KOrder.ToListAsync();
+                var listOfKOrder = await _context.KOrder.OrderBy(x=>x.MarketingDate).ToListAsync();
 
                 if (listOfKOrder.Count > 0)
                 {
@@ -121,15 +122,29 @@ namespace HashtilERP.Server.Controllers
         }
 
         //Get SAP orders for 1 week(Sun - Sat)
-        [HttpGet("GetSapOrders")]
-        public async Task<List<KOrder>> GetSapOrders()
+        [HttpGet("GetKOrders")]
+        public async Task<List<KOrder>> GetKOrders()
         {
             var beginEnddate = new List<DateTime>();
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             DateTime? beginDate = beginEnddate[0];
             DateTime? endDate = beginEnddate[1];
-            var sapOrders = await _context.KOrder.Where(x=>x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
-                .Include(X=>X.Ocrd)
+            var kOrders = await _context.KOrder.Where(x=>x.FixedCoordinationRemark != K_OrderStatus.WasCanceled  || x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
+                .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
+                .ToListAsync();
+
+            var korderFinal = kOrders.Where(x => x.FixedCoordinationRemark != K_OrderStatus.SchedualeWasOk).ToList();
+
+            return korderFinal;
+        }
+        [HttpGet("GetKOrdersByDateRange/{dateTime1}/{dateTime2}")]
+        public async Task<List<KOrder>> GetKOrdersDateRange(string dateTime1, string dateTime2)
+        {
+
+            DateTime beginDate = Convert.ToDateTime(dateTime1);
+            DateTime endDate = Convert.ToDateTime(dateTime2);
+            var sapOrders = await _context.KOrder.Where(x => x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
+                .Include(X => X.Ocrd).OrderBy(x => x.MarketingDate)
                 .ToListAsync();
             return sapOrders;
         }
