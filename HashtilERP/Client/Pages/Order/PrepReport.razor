@@ -51,7 +51,6 @@
     <br />
     <button type="button" class="btn btn-outline-secondary" @onclick="@(_ => {  GetKOrdersFromKOrderTable();})">ייבוא נתונים</button>
 </div>
-
 @if (K_Orders == null)
 {
     <div class="col-sm">
@@ -103,10 +102,13 @@
 </SfDialog>
 
 @*grid*@
-<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid" AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true">
-    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-                RowDataBound="RowBound"></GridEvents>
+<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid" 
+        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
+        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
+    <GridSelectionSettings  CheckboxOnly="true" EnableToggle="true"   PersistSelection="true"></GridSelectionSettings>
+
+    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler"  TValue="K_Order"
+       OnActionComplete="ActionCompletedHandler" RowSelected="RowSelectHandler" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
     <GridAggregates>
@@ -128,6 +130,7 @@
     </GridAggregates>
     <GridColumns>
         <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -146,91 +149,114 @@
 @*Row Edit Dialog*@
 <SfDialog Target="#target" EnableRtl="true"
           Width="550px"
-          Height="650px"
-          @bind-Visible="@RowEditDialogShow" ShowCloseIcon="true" IsModal="true">
+          Height="700px"
+          @bind-Visible="@RowEditDialogShow"  ShowCloseIcon="true" IsModal="true">
+
     <DialogTemplates>
         <Content>
-            <div class="container">
-                <div class="form-group">
-                    <div style="text-align:right" class="alert alert-success" role="alert">
-                        <div class="row">
-                            <h5 style="text-align:center">לקוח: @K_OrderForEdit.CxName</h5>
-                        </div>
-                        <div class="row">
-                            <h5>גידול: @K_OrderForEdit.Gidul</h5>
-                        </div>
-                        <div class="row">
-                            <h5>זן: @K_OrderForEdit.Zan</h5>
-                        </div>
-                        <div class="row">
-                            <h5>ת.הוצאה: @DateTimeToShortString(K_OrderForEdit.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForEdit.MarketingDate)</h5>
-                        </div>
-                    </div>
+            <SfTab HeaderPlacement="HeaderPosition.Top">
+                <TabItems>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="ראשי"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <br />
+                            <div class="container">
+                                <div class="form-group">
+                                    <div style="text-align:right" class="alert alert-success" role="alert">
+                                        <div class="row">
+                                            <h5 style="text-align:center">לקוח: @K_OrderForEdit.CxName</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>גידול: @K_OrderForEdit.Gidul</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>זן: @K_OrderForEdit.Zan</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>ת.הוצאה: @DateTimeToShortString(K_OrderForEdit.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForEdit.MarketingDate)</h5>
+                                        </div>
+                                    </div>
 
-                    <div class="row">
-                        <div class="col">
-                            <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
-                            <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
-                        </div>
-                        <div class="col">
-                            <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
-                            <SfDatePicker TValue="DateTime?" @bind-Value="@K_OrderForEdit.MarketingDate"></SfDatePicker>
-                        </div>
-                    </div>
-                    <br />
-                    <div class="row">
-                        <div class="col">
-                            <label style="font-size:16px;font-weight:bold" for="plantsinput">מצב הזמנה</label>
-                            <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@K_OrderForEdit.FixedCoordinationRemark" Placeholder=""></SfDropDownList>
-                        </div>
-                        <div class="col">
-                            <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
-                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.OpenCoordinationRemark"></SfTextBox>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @{ if (RowEditDialogShow == true)
-                {
-                    <div class="table-responsive">
-                        <table class="table table-striped" style="text-align:right;width:auto">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        שם
-                                    </th>
-                                    <th>
-                                        טלפון 1
-                                    </th>
-                                    <th>
-                                        טלפון 2
-                                    </th>
-                                    <th>
-                                        הערות
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        @K_OrderForEdit.Ocrd.CardName
-                                    </td>
-                                    <td>
-                                        @K_OrderForEdit.Ocrd.Phone1
-                                    </td>
-                                    <td>
-                                        @K_OrderForEdit.Ocrd.Phone2
-                                    </td>
-                                    <td>
-                                        @K_OrderForEdit.Ocrd.UStatus
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
+                                            <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
+                                        </div>
+                                        <div class="col">
+                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
+                                            <SfDatePicker TValue="DateTime?" @bind-Value="@K_OrderForEdit.MarketingDate"></SfDatePicker>
+                                        </div>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="col">
+                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">מצב הזמנה</label>
+                                            <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@K_OrderForEdit.FixedCoordinationRemark" Placeholder=""></SfDropDownList>
+                                        </div>
+                                        <div class="col">
+                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
+                                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.OpenCoordinationRemark"></SfTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @{ if (RowEditDialogShow == true)
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" style="text-align:right;width:auto">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        שם
+                                                    </th>
+                                                    <th>
+                                                        טלפון 1
+                                                    </th>
+                                                    <th>
+                                                        טלפון 2
+                                                    </th>
+                                                    <th>
+                                                        הערות
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        @K_OrderForEdit.Ocrd.CardName
+                                                    </td>
+                                                    <td>
+                                                        @K_OrderForEdit.Ocrd.Phone1
+                                                    </td>
+                                                    <td>
+                                                        @K_OrderForEdit.Ocrd.Phone2
+                                                    </td>
+                                                    <td>
+                                                        @K_OrderForEdit.Ocrd.UStatus
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                }
-            }
+                                }
+                            }
+                        </ContentTemplate>
+                    </TabItem>
+
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="היסטוריית עריכה"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+
+                        </ContentTemplate>
+                    </TabItem>
+                </TabItems>
+            </SfTab>
+
 
         </Content>
 
@@ -245,7 +271,7 @@
                     </div>
                 </div>
             </AuthorizeView>
-</FooterTemplate>
+        </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
 
@@ -255,6 +281,8 @@
 
     //list of KOrder(Grid Rows)
     K_Order[] K_Orders;
+
+    List<K_Order> KOrderForMultiEdit = new List<K_Order>();
 
     //KOrder Object for Edit Data
     K_Order K_OrderForEdit = new K_Order();
@@ -301,7 +329,25 @@
     //SfGrid Methods
     #region SfGrid methods and settings
 
-    //row double click
+    public void RowSelectHandler(RowSelectEventArgs<K_Order> args)
+    {
+        var sd = SfGrid.GetCurrentViewRecords().Result;
+        var dfg = SfGrid.SelectedRecords;
+    }
+
+    //filter Action For Multi Editing With row Selecting
+    public void ActionCompletedHandler(ActionEventArgs<K_Order> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Filtering)
+        {
+            KOrderForMultiEdit = SfGrid.GetCurrentViewRecords().Result;
+        }
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.ClearFiltering)
+        {
+            KOrderForMultiEdit = new List<K_Order>();
+        }
+    }
+
     public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
     {
         K_OrderForEdit = args.RowData;

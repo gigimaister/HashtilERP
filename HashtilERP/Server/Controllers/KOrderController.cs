@@ -74,6 +74,11 @@ namespace HashtilERP.Server.Controllers
                             korder.JobPlantsNum = Convert.ToInt32(passport.UQuanProd * 1000) / passport.Passprods.Count;
                         }
 
+                        //if Cx's Seeds and more than 1 Tray
+                        else if (passprod.UQuantity > 55555 && passport.UTraySow > 1)
+                        {
+                            korder.JobPlantsNum = Convert.ToInt32(passport.UQuanProd * 1000);
+                        }
                         else
                         {
                             korder.JobPlantsNum = Convert.ToInt32(passprod.UQuantity * 1000);
@@ -117,6 +122,7 @@ namespace HashtilERP.Server.Controllers
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                return 0;
             }
             return 0;
         }
@@ -129,18 +135,21 @@ namespace HashtilERP.Server.Controllers
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             DateTime? beginDate = beginEnddate[0];
             DateTime? endDate = beginEnddate[1];
-            var kOrders = await _context.KOrder.Where(x=>x.FixedCoordinationRemark != K_OrderStatus.WasCanceled  || x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
+            var kOrders = await _context.KOrder.Where(x=> x.FixedCoordinationRemark.Contains(K_OrderStatus.NeedToSchedule)  || x.FixedCoordinationRemark.Contains(K_OrderStatus.NotAnswering)
+            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsLess) || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsMore)
+            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsToPostponed) || x.FixedCoordinationRemark.Contains(K_OrderStatus.WillLetUsKnow)
+            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WillTalkToOren)
+            || x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
                 .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
                 .ToListAsync();
 
-            var korderFinal = kOrders.Where(x => x.FixedCoordinationRemark != K_OrderStatus.SchedualeWasOk).ToList();
 
-            return korderFinal;
+            return kOrders;
         }
         [HttpGet("GetKOrdersByDateRange/{dateTime1}/{dateTime2}")]
         public async Task<List<KOrder>> GetKOrdersDateRange(string dateTime1, string dateTime2)
         {
-
+            
             DateTime beginDate = Convert.ToDateTime(dateTime1);
             DateTime endDate = Convert.ToDateTime(dateTime2);
             var sapOrders = await _context.KOrder.Where(x => x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
