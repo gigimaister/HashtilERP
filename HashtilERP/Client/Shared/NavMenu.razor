@@ -19,10 +19,10 @@
             <ChildContent>
                 <div id="close" @onclick="@Close" class="e-icons"></div>
                 <ul class="nav-item px-3" style="width:250px;list-style-type:none;text-align:right">
-                    <AuthorizeView Roles="Administrator">
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
                         <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-home" aria-hidden="true"></span>&nbsp ראשי
+                            <NavLink class="nav-link" href="order/ordersfortodaytomorrow" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-home" aria-hidden="true"></span>&nbsp הוצ' להיום
                             </NavLink>
                         </li>
                     </AuthorizeView>
@@ -182,7 +182,7 @@
     .content {
         text-align: right;
         font-size: 20px;
-        padding: 150px;
+        padding: 0px;
     }
 
     .textArea {
