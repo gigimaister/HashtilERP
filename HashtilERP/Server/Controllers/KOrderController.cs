@@ -64,6 +64,7 @@ namespace HashtilERP.Server.Controllers
                             ItemCode = passport.UItemCode,
                             PassprodComments = passprod.UComments ?? "",
                             FixedCoordinationRemark = K_OrderStatus.NeedToSchedule.Trim(),
+                            JobStatus = K_OrderPhase.StandBy
 
                         };
 
@@ -146,7 +147,7 @@ namespace HashtilERP.Server.Controllers
 
             return kOrders;
         }
-        [HttpGet("GetKOrdersByDateRange/{dateTime1}/{dateTime2}")]
+        [HttpGet("GetKOrdersByDateRange/{dateTime1?}/{dateTime2?}")]
         public async Task<List<KOrder>> GetKOrdersDateRange(string dateTime1, string dateTime2)
         {
             

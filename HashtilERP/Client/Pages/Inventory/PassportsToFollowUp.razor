@@ -483,7 +483,7 @@
                 K_Passport.IsNeedToBeAudit = false;
             }
             K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
-            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{passporrtId}", K_Passport);
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
 
             var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
             var content = await rslt.Content.ReadAsStringAsync();

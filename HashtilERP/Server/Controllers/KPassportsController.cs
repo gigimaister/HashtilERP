@@ -115,6 +115,15 @@ namespace HashtilERP.Server
 
         }
         //Metzay
+        [HttpGet("ForKOrderJobs")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetPassportsForKOrderJobs()
+        {
+            var passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+
+            return passports;
+        }
+
+        //Metzay
         [HttpGet("metzay")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetCurrentMetzay()
         {

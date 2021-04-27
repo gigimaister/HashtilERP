@@ -40,7 +40,14 @@
         </div>
     </div>
 </div>
-
+@if (K_Orders == null)
+{
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="מייבא נתונים..." Type="SpinnerType.Bootstrap4" Visible="true" CssClass="e-customClass"></SfSpinner>
+        </div>
+    </div>
+}
 
 @*Spinner*@
 <div class="col-sm">
@@ -54,7 +61,9 @@
 @{
     var Tool = (new List<string>() { "Search" });
 }
-
+<div>
+    <button class="btn btn-primary" @onclick="BtnOpenNewJobForm">עבודה חדשה</button>
+</div>
 <div class="row">
     <div class="col" style="text-align:left">
         <button class="btn btn-info"
@@ -85,13 +94,12 @@
 </SfDialog>
 
 
-
 @*grid*@
 <SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="true" AllowSorting="true" AllowSelection="true">
+        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" EnableToggle="true" PersistSelection="true"></GridSelectionSettings>
-    <GridGroupSettings ShowDropArea="true"  ></GridGroupSettings>
+    <GridGroupSettings ShowDropArea="true"></GridGroupSettings>
     <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
                 OnActionComplete="ActionCompletedHandler" RowSelected="RowSelectHandler" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
@@ -258,6 +266,112 @@
     </DialogTemplates>
 </SfDialog>
 
+@*New Job Form Dialog*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="400px"
+          Height="700px"
+          @bind-Visible="@NewJobFormIsVisible" ShowCloseIcon="true" IsModal="true">
+
+    <DialogTemplates>
+        <Header>
+            <div class="alert alert-success" role="alert">
+                <h4 style="text-align:center">עבודה חדשה</h4>
+            </div>
+        </Header>
+        <Content>
+            <form>
+                <div class="form-group">
+                    <label>בחירת תאריך</label>
+                    <SfDatePicker TValue="DateTime?" EnableRtl="true" @bind-Value="@NewJobK_Order.MarketingDate" Placeholder='תאריך הוצאה'></SfDatePicker>
+                </div>
+                <div class="form-group">
+                    <label>בחירת לקוח</label>
+                    <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@NewJobK_Order.CxName" DataSource="@DropDownKOrderSapCxNames">
+                        <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
+                    </SfAutoComplete>
+                </div>
+                <div class="form-group">
+                    <label>בחירת גידול</label>
+                    <SfAutoComplete TValue="string" TItem="string" Placeholder="גידול" @onmousedown="@(e => GidulMouseClick(e))" @bind-Value="@NewJobK_Order.Gidul" DataSource="@Giduls">
+                    </SfAutoComplete>
+                </div>
+                <div class="form-group">
+                    <label>בחירת זן</label>
+                    <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" @onmousedown="@(e => ZanMouseClick(e))" @bind-Value="@NewJobK_Order.Zan" DataSource="@Zans">
+                    </SfAutoComplete>
+                </div>
+                <div class="form-group">
+                    <label>כ.שתילים</label>
+                    <input type="number" @bind-value="NewJobK_Order.JobPlantsNum" class="form-control" placeholder="שתילים" />
+                </div>
+                <div class="form-group">
+                    <label>כ.מגשים</label>
+                    <input type="number" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />
+                </div>
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">
+                        <label>כ.כלובים (רק אם רלוונטי!)</label>
+                        <input type="number" @bind-value="NewJobK_Order.NumOfCages" class="form-control" placeholder="כ.כלובים" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ממוצע</label>
+                    <input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" class="form-control" placeholder="ממוצע" />
+                </div>
+                @*check box*@
+                <div class="form-group">
+                    <div class="alert alert-warning" role="alert">
+                        <label>לסמן את הרלוונטי</label>
+                        <div>
+                            <SfRadioButton Label="כלובים קטנים" Name="Small" Value="true" EnableRtl="true" @onclick="() => Radiobtn(1)" Checked="false"></SfRadioButton>
+                        </div>
+                        <div>
+                            <SfRadioButton Label="להוציא מחר" Name="Delay" Value="true" EnableRtl="true" @onclick="() => Radiobtn(2)" Checked="false"></SfRadioButton>
+                        </div>
+                        <div>
+                            <SfRadioButton Label="מגיע לקחת" Name="CxCome" Value="true" EnableRtl="true" @onclick="() => Radiobtn(3)" Checked="false"></SfRadioButton>
+                        </div>
+                        <div>
+                            <SfRadioButton Label="לוודא הוצאה" Name="Delay" Value="true" EnableRtl="true" @onclick="() => Radiobtn(4)" Checked="false"></SfRadioButton>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>הערות הובלה</label>
+                    <SfTextBox Multiline=true EnableRtl="true" Placeholder="הערות הובלה" @bind-value="NewJobK_Order.DeliveryRemarks"></SfTextBox>
+                </div>
+                <div class="form-group">
+                    <label>הערות לחממה</label>
+                    <div class="multiline">
+                        <SfTextBox Multiline=true EnableRtl="false" Placeholder="הערות למנהל עבודה" @bind-value="NewJobK_Order.HamamaRemarks"></SfTextBox>
+                    </div>
+                </div>
+
+            </form>
+        </Content>
+        <FooterTemplate>
+            <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+                <div class="row text-center">
+                    <div class="col">
+                        <button class="btn btn-success" @onclick="@(_ => { BtnSendNewJob(NewJobK_Order); })">שליחה</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-outline-info" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">שליחה +</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
+                    </div>
+                </div>
+            </AuthorizeView>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+
+@*Toast Component*@
+<SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+
 @code {
     //Grid Object for costum actions
     SfGrid<K_Order> SfGrid;
@@ -314,10 +428,177 @@
         {
             ShowCorrectDate = false;
             K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow");
+            //GET CX FROM SAP
+            DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
+            //GET PASSPORTS
+            k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+
+            Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
+            Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+
+
             StateHasChanged();
         }
         catch (Exception e) { Console.WriteLine(e.Message); }
     }
+
+    //New Job Form
+    #region New Job Form
+
+    private bool NewJobFormIsVisible { get; set; } = false;
+
+    //object for insert new job
+    K_Order NewJobK_Order { get; set; } = new K_Order();
+
+    //list of korder only for dropdown sap cx list
+    K_Order[] DropDownKOrderSapCxNames;
+
+    //Passports for gidul and zan
+    K_Passport[] k_PassportsForJobs;
+
+    List<string> Giduls = new List<string>();
+    List<string> Zans = new List<string>();
+
+    //new job after button click
+    async void BtnSendNewJob(K_Order k_Order)
+    {
+        //if no cx and or market date null
+        if (k_Order.MarketingDate == null || k_Order.CxName == null)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "תאריך הוצאה ולקוח נדרשים!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+
+        //id market date for the past dates
+        var md = Convert.ToDateTime(k_Order.MarketingDate).Subtract(DateTime.Today).TotalDays;
+        if (md < 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "תאריך הוצאה חייב להיות עתידי!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+
+
+        NewJobFormIsVisible = false;
+        LoadingSpinner = true;
+        await SendNewJob(k_Order);
+        LoadingSpinner = false;
+    }
+
+    //New KOrder job
+    public async Task<int> SendNewJob(K_Order k_Order)
+    {
+        try
+        {
+            k_Order.KOrderEnteringDate = DateTime.Today;
+            k_Order.ItemCode = k_PassportsForJobs.Where(x => x.Gidul == k_Order.Gidul && x.Zan == k_Order.Zan).Select(x => x.ItemCode).Distinct().Single();
+
+            var rslt = await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderInsert", k_Order);
+            var content = await rslt.Content.ReadAsStringAsync();
+
+            //Http Response Failed On Insert
+            if (rslt.IsSuccessStatusCode)
+            {
+                if (IsConnected) await SendMessage();
+                ToastContent = "נשמר!";
+                StateHasChanged();
+                await ShowToast();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return 0;
+    }
+
+    //Giduz & Zan inputs
+    void GidulMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 1)
+        {
+            if (NewJobK_Order.Zan != null)
+            {
+                try
+                {
+                    NewJobK_Order.Gidul = k_PassportsForJobs.Where(x => x.Zan == NewJobK_Order.Zan).Select(x => x.Gidul).Distinct().Single();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
+                }
+            }
+        }
+    }
+    void ZanMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 1)
+        {
+            try
+            {
+                if (NewJobK_Order.Gidul != null)
+                {
+                    Zans = k_PassportsForJobs.Where(x => x.Gidul == NewJobK_Order.Gidul).Select(x => x.Zan).Distinct().ToList();
+                }
+                else
+                {
+                    NewJobK_Order.Gidul = k_PassportsForJobs.Where(x => x.Zan == NewJobK_Order.Zan).Select(x => x.Gidul).Distinct().Single();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+            }
+        }
+    }
+
+    //radio box
+    void Radiobtn(int i = 0)
+    {
+        switch (i)
+        {
+            case 1:
+                if (NewJobK_Order.IsCageSmall == null) { NewJobK_Order.IsCageSmall = true; return; }
+                NewJobK_Order.IsCageSmall = true ? false : false;
+                break;
+
+            case 2:
+                if (NewJobK_Order.IsTakeoutJobTomorrow == null) { NewJobK_Order.IsTakeoutJobTomorrow = true; return; }
+                NewJobK_Order.IsTakeoutJobTomorrow = true ? false : false;
+                if (NewJobK_Order.IsNeedToConfirmJob == true && NewJobK_Order.IsTakeoutJobTomorrow == true) { NewJobK_Order.IsNeedToConfirmJob = false; }
+                break;
+
+            case 3:
+                if (NewJobK_Order.IsCxComeToPickUp == null) { NewJobK_Order.IsCxComeToPickUp = true; return; }
+                NewJobK_Order.IsCxComeToPickUp = true ? false : false;
+                break;
+
+            case 4:
+                if (NewJobK_Order.IsNeedToConfirmJob == null) { NewJobK_Order.IsNeedToConfirmJob = true; return; }
+                NewJobK_Order.IsNeedToConfirmJob = true ? false : false;
+                if (NewJobK_Order.IsTakeoutJobTomorrow == true && NewJobK_Order.IsNeedToConfirmJob == true) { NewJobK_Order.IsTakeoutJobTomorrow = false; }
+                break;
+        }
+    }
+    //open new job form btn click
+    void BtnOpenNewJobForm()
+    {
+        NewJobFormIsVisible = true;
+    }
+    //close new job form
+    void NewJobCloseForm()
+    {
+        NewJobFormIsVisible = false;
+    }
+
+    #endregion
 
     //Error/Alert Modal
     #region Error/Alert Dialog
@@ -408,7 +689,7 @@
     //
     public void ActionCompletedHandler(ActionEventArgs<K_Order> args)
     {
-       
+
     }
 
     public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
@@ -539,5 +820,14 @@
 
     .schedule-was-cancel {
         background-color: lightpink
+    }
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
     }
 </style>

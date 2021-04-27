@@ -18,6 +18,22 @@ namespace HashtilERP.Shared.Models
         public const string WantsToPostponed = "רוצה לדחות";
         public const string WasCanceled = "בוטל";
 
+        //not active at this moment
+        public static Dictionary<int, string> KOrdertPhase()
+        {
+            var dict = new Dictionary<int, string>
+            {
+                { 0,"בהמתנה"},
+                { 1,"בהוצאה"},
+                { 2,"מוכנה"},
+                { 3,"בוטלה"},
+                { 4,"חזרה"},
+                { 5,""},
+                { 6,""},
+            };
+            return dict;
+        }
+
         public static List<string> GetKOrderStatus()
         {
             var korderstatus = new List<string>

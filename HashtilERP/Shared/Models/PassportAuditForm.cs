@@ -33,7 +33,8 @@ namespace HashtilERP.Shared.Models
              new AuditFormStatus(){ ID= "2", Text= "בעיית נביטה"},
              new AuditFormStatus(){ ID= "3", Text= "חולה"},
              new AuditFormStatus(){ ID= "4", Text= "שרוף"},
-             new AuditFormStatus(){ ID= "4", Text= "אחר"}
+             new AuditFormStatus(){ ID= "5", Text= "נבט במגש"},
+             new AuditFormStatus(){ ID= "6", Text= "אחר"}
         };
     }
 }

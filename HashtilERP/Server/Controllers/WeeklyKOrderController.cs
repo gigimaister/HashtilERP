@@ -39,12 +39,67 @@ namespace HashtilERP.Server.Controllers
             return k_Orders;
         }
 
+        //Preperetion Report(MIRI)
+        [HttpGet("GetSapCxList")]
+        public async Task<List<KOrder>> GetSapCxList()
+        {
+            var k_Orders = new List<KOrder>();
+
+            var ocrd = await _context.Ocrd.Where(x => x.CardType == "C" && x.UBsyType == "2" && x.FrozenFor == "N").ToListAsync();
+            if(ocrd.Count() > 0)
+            {
+                foreach(var ocr in ocrd)
+                {
+                    var order = new KOrder();
+                    order.CardCode = ocr.CardCode;
+                    order.CxName = ocr.CardName;
+                    k_Orders.Add(order);
+                }
+            }
+
+            return k_Orders;
+        }
+
+
+
+        #endregion
+
+        #region PUT REGION
+
+
+        #endregion
+
+        #region POST
+        [HttpPost("NewKOrderInsert")]
+        public async Task<int> PostNewKOrder(KOrder kOrder)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+
+            _context.KOrder.Add(kOrder);
+
+            try
+            {              
+                await _context.SaveChangesAsync();
+            }
+            //if no KOrder in KOrder Table
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            
+
+
+           
+            return 0;
+        }
+        #endregion
+
+        private bool KOrderExists(int id)
+        {
+            return _context.KOrder.Any(e => e.JobId == id);
+        }
 
     }
-    #endregion
-
-    #region PUT REGION
-   
-
-    #endregion
 }

@@ -381,7 +381,7 @@
             LoadingSpinner = true;
             await SendMultiRowsForEdit();
             LoadingSpinner = false;
-           
+
         }
 
     }
@@ -559,6 +559,7 @@
     {
         try
         {
+           
             var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
@@ -670,6 +671,7 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
+            LoadingSpinner = false;
         }
     }
 

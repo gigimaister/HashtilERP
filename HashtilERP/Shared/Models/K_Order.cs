@@ -28,6 +28,8 @@ namespace HashtilERP.Shared.Models
         public bool? IsCageSmall { get; set; }
         public bool? IsCxComeToPickUp { get; set; }
         public bool? IsPrinted { get; set; }
+        public bool? IsNeedToConfirmJob { get; set; }
+        public bool? IsTakeoutJobTomorrow { get; set; }
         public int? NumOfCages { get; set; }
         public string HamamaRemarks { get; set; }
         public string DeliveryRemarks { get; set; }
