@@ -8,9 +8,10 @@ namespace HashtilERP.Shared.Models
 {
     public static class KOrdersfunctions
     {
-        public static void SetAvgForKorder(int avg, K_Order k_Order)
+        public static void SetAvgForKorder(double avg, K_Order k_Order)
         {
             var reminder = k_Order.JobPlantsNum % avg;
+           
            
             if((reminder/avg) >= 0.5)
             {
@@ -29,7 +30,7 @@ namespace HashtilERP.Shared.Models
                 }
             }
 
-            k_Order.JobNumOfMagash = k_Order.JobPlantsNum/avg ;
+            k_Order.JobNumOfMagash = Convert.ToInt32(k_Order.JobPlantsNum/avg) ;
         }
     }
 }

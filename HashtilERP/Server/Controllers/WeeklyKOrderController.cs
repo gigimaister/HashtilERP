@@ -66,6 +66,33 @@ namespace HashtilERP.Server.Controllers
 
         #region PUT REGION
 
+        [HttpPut("UpdateTodayTomorrowOrder/{id}")]
+        public async Task<IActionResult> UpdateTodayTomorrowOrder(int id, KOrder k_Order)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            k_Order.UserName = screenName;
+
+            if (id != k_Order.JobId)
+            {
+                return BadRequest();
+            }
+
+
+            _context.Entry(k_Order).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok();
+        }
 
         #endregion
 
