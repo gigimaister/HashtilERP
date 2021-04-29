@@ -30,9 +30,9 @@
 }
 
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@GrowPassports" AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowResizing="true" AllowFiltering="true">
+<SfGrid DataSource="@GrowPassports"  FrozenRows="0" Height="500" Width="100%" AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowResizing="true" AllowFiltering="true">
     <GridEvents TValue="K_Passport" RowDataBound="RowBound"></GridEvents>
-    <GridFilterSettings Type="FilterType.CheckBox"></GridFilterSettings>
+    <GridFilterSettings Type="FilterType.Excel"></GridFilterSettings>
     <GridTemplates>
         <DetailTemplate>
             @{ var passport = (context as K_Passport);
@@ -124,6 +124,7 @@
     </GridAggregates>
 
     <GridColumns>
+        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingRoomExitDay) HeaderText="יציאה לחממות" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -131,7 +132,7 @@
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="Passport.UDateEnd" HeaderText="ת.הוצאה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingDays) HeaderText="ימי גידול" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>

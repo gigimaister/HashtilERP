@@ -122,12 +122,12 @@
 <SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
-    <GridSelectionSettings CheckboxOnly="true" EnableToggle="true" PersistSelection="true"></GridSelectionSettings>
+    <GridSelectionSettings CheckboxOnly="true"  Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 
     <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-         RowDeselected="RowDeselectHandler"       OnActionComplete="ActionCompletedHandler" RowSelected="RowSelectHandler" RowDataBound="RowBound"></GridEvents>
-    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
-    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
+        RowDeselected="RowDeSelected"   RowSelected="RowSelected" RowDataBound="RowBound"></GridEvents>
+    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Dialog"></GridEditSettings>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
     <GridAggregates>
         <GridAggregate>
             <GridAggregateColumns>
@@ -348,11 +348,14 @@
     //SfGrid Methods
     #region SfGrid methods and settings
 
+    //List KOrder for Multi AVG
+    List<K_Order> selectedRows = new List<K_Order>();
+
     //Edit Multiple rows at the same time
     public async void SendMultiEdit()
     {
 
-        var numOfuniqueCardCode = KOrderForMultiEditSelect.Select(x => x.CardCode).Distinct().Count();
+        var numOfuniqueCardCode = selectedRows.Select(x => x.CardCode).Distinct().Count();
 
         if (numOfuniqueCardCode == 0)
         {
@@ -388,7 +391,7 @@
 
     public async Task<int> SendMultiRowsForEdit()
     {
-        foreach (var order in KOrderForMultiEditSelect)
+        foreach (var order in selectedRows)
         {
             try
             {
@@ -419,74 +422,16 @@
         return 0;
     }
 
-    // when Select rows ON CHECKBOX
-    public void RowSelectHandler(RowSelectEventArgs<K_Order> args)
+    //Syncfusion RowSelect Way
+    public async Task RowSelected(RowSelectEventArgs<K_Order> args)
     {
-        //all selected records
-        var slectedrecords = SfGrid.SelectedRecords;
-        var currentRows = SfGrid.GetCurrentViewRecords().Result;
-
-        if (slectedrecords.Count() >= currentRows.Count())
-        {
-            KOrderForMultiEditSelect = currentRows;
-        }
-        else
-        {
-            KOrderForMultiEditSelect = slectedrecords;
-        }
-
+        selectedRows = SfGrid.SelectedRecords;
     }
 
-    // when Deselect rows ON CHECKBOX
-    public void RowDeselectHandler(RowDeselectEventArgs<K_Order> args)
+    //Syncfusion RowSelect Way
+    public async Task RowDeSelected(RowDeselectEventArgs<K_Order> args)
     {
-        //all selected records
-        var slectedrecords = SfGrid.SelectedRecords;
-        var currentRows = SfGrid.GetCurrentViewRecords().Result;
-        var tempOrders = new List<K_Order>();
-
-        //if selected > view rows and edit list is small
-        if (slectedrecords.Count() > currentRows.Count() && KOrderForMultiEditSelect.Count() <= currentRows.Count())
-        {
-            foreach (var i in slectedrecords)
-            {
-                if (KOrderForMultiEditSelect.Contains(i))
-                {
-                    tempOrders.Add(i);
-                }
-                else
-                {
-                    continue;
-                }
-            }
-
-            KOrderForMultiEditSelect = tempOrders;
-        }
-        //if selected > view rows and edit list was big
-        else if (slectedrecords.Count() > currentRows.Count() && KOrderForMultiEditSelect.Count() > currentRows.Count())
-        {
-            foreach (var i in slectedrecords)
-            {
-                if (currentRows.Contains(i))
-                {
-                    tempOrders.Add(i);
-                }
-            }
-
-            KOrderForMultiEditSelect = tempOrders;
-
-        }
-        else
-        {
-            KOrderForMultiEditSelect = slectedrecords;
-        }
-
-    }
-
-    //
-    public void ActionCompletedHandler(ActionEventArgs<K_Order> args)
-    {
-
+        selectedRows = SfGrid.SelectedRecords;
     }
 
     public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
@@ -559,7 +504,7 @@
     {
         try
         {
-           
+
             var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
