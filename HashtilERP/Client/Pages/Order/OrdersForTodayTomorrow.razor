@@ -27,8 +27,6 @@
     <h2 style="text-align:center">הוצאות להיום/מחר</h2>
 </div>
 
-
-
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
     <div class="alert alert-secondary" role="alert" style="width:300px">
@@ -67,6 +65,8 @@
 <div>
     <button class="btn btn-primary" @onclick="BtnOpenNewJobForm">עבודה חדשה</button>
 </div>
+
+@*Clear search and filter Btns*@
 <div class="row">
     <div class="col" style="text-align:left">
         <button class="btn btn-info"
@@ -82,6 +82,7 @@
     </div>
 
 </div>
+
 @*Alert/Error message Dialog*@
 <SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorDialogIsVisible" EnableRtl="true">
     <DialogEvents OnOverlayClick="@OnOverlayclick">
@@ -96,8 +97,8 @@
     </DialogButtons>
 </SfDialog>
 
-@*grid*@
-<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
+@*Grid No.1*@
+<SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
@@ -114,6 +115,26 @@
                             var aggregate = (context as AggregateTemplateContext);
 
                             <b>ספירה: @aggregate.Count</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobPlantsNum) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
 
                         }
                     </FooterTemplate>
@@ -138,7 +159,7 @@
     </GridColumns>
 </SfGrid>
 
-@*Row Edit Dialog*@
+@*Edit Row Dialog*@
 <SfDialog Target="#target" EnableRtl="true"
           Width="800px"
           Height="800px"
@@ -173,71 +194,119 @@
 
                                     <div class="row">
                                         <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
-                                            <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
+                                            <div class="form-group">
+                                                <label>בחירת תאריך</label>
+                                                <SfDatePicker TValue="DateTime?" EnableRtl="true" @bind-Value="@K_OrderForEdit.MarketingDate" Placeholder='תאריך הוצאה'></SfDatePicker>
+                                            </div>
                                         </div>
                                         <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
-                                            <SfDatePicker TValue="DateTime?" @bind-Value="@K_OrderForEdit.MarketingDate"></SfDatePicker>
+                                            <div class="form-group">
+                                                <label>בחירת לקוח</label>
+                                                <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@K_OrderForEdit.CxName" DataSource="@DropDownKOrderSapCxNames">
+                                                    <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
+                                                </SfAutoComplete>
+                                            </div>
                                         </div>
                                     </div>
-                                    <br />
                                     <div class="row">
                                         <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">מצב הזמנה</label>
-                                            <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@K_OrderForEdit.FixedCoordinationRemark" Placeholder=""></SfDropDownList>
+                                            <div class="form-group">
+                                                <label>בחירת גידול</label>
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="גידול" @onmousedown="@(e => GidulMouseClick(e))" @bind-Value="@K_OrderForEdit.Gidul" DataSource="@Giduls">
+                                                </SfAutoComplete>
+                                            </div>
                                         </div>
                                         <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
-                                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.OpenCoordinationRemark"></SfTextBox>
+                                            <div class="form-group">
+                                                <label>בחירת זן</label>
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" @onmousedown="@(e => ZanMouseClick(e))" @bind-Value="@K_OrderForEdit.Zan" DataSource="@Zans">
+                                                </SfAutoComplete>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>כ.שתילים</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobPlantsNum" class="form-control" placeholder="שתילים" />
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>כ.מגשים</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobNumOfMagash" class="form-control" placeholder="מגשים" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>ממוצע</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobPlansAvarage" max="999" @onkeydown="EditOrderKeyDown" class="form-control" placeholder="ממוצע" />
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="row">
+                                                <label>כ.שתילים: @AutoPlantsCalc</label>
+                                            </div>
+                                            <div class="row">
+                                                <label>מגשים: @K_OrderForEdit.JobNumOfMagash</label>
+                                            </div>
+                                            <div class="row">
+                                                <label>ממוצע לחישוב: @AVGAutoCalc</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*check box*@
+                                    <div class="form-group">
+                                        <div class="alert alert-warning" role="alert">
+                                            <label>לסמן את הרלוונטי</label>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsCageSmall" EnableRtl="true" Label="כלובים קטנים"></SfCheckBox>
+                                                    </div>
+                                                    <div>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsCxComeToPickUp" EnableRtl="true" Label="מגיע לקחת"></SfCheckBox>
+                                                    </div>
+                                                    <div>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
+                                                    </div>
+                                                </div>
+                                                <div class="col">
+                                                    <div>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsNeedToConfirmJob" EnableRtl="true" Label="לוודא הוצאה"></SfCheckBox>
+                                                    </div>
+                                                    <div>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsNeedToConfirmJob" EnableRtl="true" Label="סל ירק"></SfCheckBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>הערות הובלה</label>
+                                        <SfTextBox Multiline=true EnableRtl="true" Placeholder="הערות הובלה" @bind-value="K_OrderForEdit.DeliveryRemarks"></SfTextBox>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>הערות לחממה</label>
+                                        <div class="multiline">
+                                            <SfTextBox Multiline=true EnableRtl="false" Placeholder="הערות למנהל עבודה" @bind-value="K_OrderForEdit.HamamaRemarks"></SfTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+
+                                        </div>
+                                        <div class="col">
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            @{ if (RowEditDialogShow == true)
-                                {
-                                    <div class="table-responsive">
-                                        <table class="table table-striped" style="text-align:right;width:auto">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        שם
-                                                    </th>
-                                                    <th>
-                                                        טלפון 1
-                                                    </th>
-                                                    <th>
-                                                        טלפון 2
-                                                    </th>
-                                                    <th>
-                                                        הערות
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>
-                                                        @K_OrderForEdit.Ocrd.CardName
-                                                    </td>
-                                                    <td>
-                                                        @K_OrderForEdit.Ocrd.Phone1
-                                                    </td>
-                                                    <td>
-                                                        @K_OrderForEdit.Ocrd.Phone2
-                                                    </td>
-                                                    <td>
-                                                        @K_OrderForEdit.Ocrd.UStatus
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
 
-                                }
-                            }
                         </ContentTemplate>
                     </TabItem>
-
                     <TabItem>
                         <ChildContent>
                             <TabHeader Text="היסטוריית עריכה"></TabHeader>
@@ -266,6 +335,69 @@
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
+
+<br />
+<div style="text-align:right" class="alert alert-danger" role="alert">
+    <h2 style="text-align:center">עבודות לוודא/להוציא מחר</h2>
+</div>
+@*GRID No. 2*@
+<SfGrid DataSource="@NeedToConfirmRecords" FrozenRows="0" Height="100" Width="100%" @ref="@SfGridNo2"
+        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
+        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
+    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
+                RowDataBound="RowBound"></GridEvents>
+    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+    <GridAggregates>
+        <GridAggregate>
+            <GridAggregateColumns>
+                <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>ספירה: @aggregate.Count</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobPlantsNum) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+            </GridAggregateColumns>
+        </GridAggregate>
+
+    </GridAggregates>
+    <GridColumns>
+        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כ.שתילים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobNumOfMagash) HeaderText="כ.מגשים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+    </GridColumns>
+</SfGrid>
 
 @*New Job Form Dialog*@
 <SfDialog Target="#target" EnableRtl="true"
@@ -324,22 +456,22 @@
                     </div>
                     <div class="col">
                         <div class="row">
-                            <label>ממוצע לחישוב: @AVGAutoCalc</label>
-                        </div>
-                        <div class="row">
-                            <label>מגשים: @NewJobK_Order.JobNumOfMagash</label>
-                        </div>
-                        <div class="row">
                             <label>כ.שתילים: @AutoPlantsCalc</label>
                         </div>
+                        <div class="row">
+                            <label>מגשים: @K_OrderForEdit.JobNumOfMagash</label>
+                        </div>
+                        <div class="row">
+                            <label>ממוצע לחישוב: @AVGAutoCalc</label>
+                        </div>
                     </div>
-                </div>           
+                </div>
                 @*<div class="form-group">
-                    <div class="alert alert-danger" role="alert">
-                        <label>כ.כלובים (רק אם רלוונטי!)</label>
-                        <input type="number" @bind-value="NewJobK_Order.NumOfCages" class="form-control" placeholder="כ.כלובים" />
-                    </div>
-                </div>*@
+                        <div class="alert alert-danger" role="alert">
+                            <label>כ.כלובים (רק אם רלוונטי!)</label>
+                            <input type="number" @bind-value="NewJobK_Order.NumOfCages" class="form-control" placeholder="כ.כלובים" />
+                        </div>
+                    </div>*@
 
                 @*check box*@
                 <div class="form-group">
@@ -411,7 +543,6 @@
     //list of KOrder(Grid Rows)
     K_Order[] K_Orders;
 
-    List<K_Order> KOrderForMultiEditSelect = new List<K_Order>();
 
     //KOrder Object for Edit Data
     K_Order K_OrderForEdit = new K_Order();
@@ -464,6 +595,13 @@
             DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
             //GET PASSPORTS
             k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+
+            //For Greed No.1
+            GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
+            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
+
+            //For GRID No. 2
+            NeedToConfirmRecords = K_Orders.Where(x => x.IsNeedToConfirmJob == true || x.IsTakeoutJobTomorrow == true).ToList();
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
@@ -550,8 +688,11 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
+            return 1;
         }
 
+        NewJobK_Order = new K_Order();
+        AVGAutoCalc = "";
         return 0;
     }
 
@@ -650,6 +791,7 @@
     //open new job form btn click
     void BtnOpenNewJobForm()
     {
+        AutoPlantsCalc = "";
         NewJobFormIsVisible = true;
     }
     //close new job form
@@ -681,11 +823,15 @@
 
     #endregion
 
-    //SfGrid Methods
+    //SfGrid No. 1 Methods
     #region SfGrid methods and settings
 
     //Grid Object for costum actions
     SfGrid<K_Order> SfGrid;
+
+    //LoadData objects for greed
+    List<K_Order> GridNo1List = new List<K_Order>();
+
 
     //List KOrder for Multi AVG
     List<K_Order> selectedRows = new List<K_Order>();
@@ -782,6 +928,7 @@
     {
         K_OrderForEdit = args.RowData;
         RowEditDialogShow = true;
+        AVGAutoCalc = "";
     }
 
     //Nullble DateTime To Short Date String
@@ -818,8 +965,24 @@
     };
     #endregion
 
+    //GRID 2 SETTING
+    #region GRID 2
+
+    //Grid Object for costum actions
+    SfGrid<K_Order> SfGridNo2;
+
+    //List KOrder for Multi AVG
+    List<K_Order> NeedToConfirmRecords = new List<K_Order>();
+
+
+
+    #endregion
+
     //Grid Edit Modal
     #region Grid Edit Modal
+
+    //AVG string for Auto calc num of magash
+    string EditAVGAutoCalc = "";
 
     //cx marketing date Min limit
     public DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
@@ -844,12 +1007,12 @@
         LoadingSpinner = false;
     }
 
-
+    //UPDATE Row
     public async Task<int> UpdateEditRow(K_Order k_Order)
     {
         try
         {
-            var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{k_Order.JobId}", k_Order);
+            var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
             {
@@ -871,6 +1034,57 @@
         }
         return 0;
     }
+
+    //AVG Input
+    void EditOrderKeyDown(KeyboardEventArgs args)
+    {
+        var tempkOrderAutoPlants = new K_Order();
+        tempkOrderAutoPlants.JobPlantsNum = K_OrderForEdit.JobPlantsNum;
+        try
+        {
+            if (args.Code == "Backspace" && AVGAutoCalc.Length > 0)
+            {
+                AVGAutoCalc = AVGAutoCalc.Remove(AVGAutoCalc.Length - 1, 1);
+            }
+            else if (args.Code == "Delete")
+            {
+                AVGAutoCalc = "";
+            }
+            else
+            {
+                AVGAutoCalc += args.Key;
+            }
+            if (AVGAutoCalc.Length > 3)
+            {
+                AVGAutoCalc = AVGAutoCalc.Remove(AVGAutoCalc.Length - 1, 1);
+                K_OrderForEdit.JobPlansAvarage = Convert.ToInt32(AVGAutoCalc);
+
+                ErrorDialogIsVisible = true;
+                ErrorModalHeaderContent = "שגיאת ממוצע!";
+                ModalError = "אורך ממוצע מקס' הינו 3 ספרות!";
+            }
+
+            var intAVG = Convert.ToInt32(AVGAutoCalc);
+            K_OrderForEdit.JobNumOfMagash = K_OrderForEdit.JobPlantsNum / intAVG;
+
+            KOrdersfunctions.SetAvgForKorder(intAVG, tempkOrderAutoPlants);
+            try
+            {
+                AutoPlantsCalc = tempkOrderAutoPlants.JobPlantsNum.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+
     #endregion
 
     #region TOAST
