@@ -39,6 +39,9 @@ namespace HashtilERP.DBTestVol1
         public string UserName { get; set; }
         public string PassprodComments { get; set; }
 
+        [ForeignKey("JobId")]
+        public virtual List<KOrderPassports> K_OrderPassports { get; set; }
+
         [ForeignKey("CardCode")]
         public Ocrd Ocrd { get; set; }
     }

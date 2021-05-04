@@ -142,7 +142,7 @@
     </DialogTemplates>
 </SfDialog>
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" FrozenRows="0"  Height="500" Width="100%" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
+<SfGrid DataSource="@K_Passports" FrozenRows="0"  Height="500" Width="100%"  AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
         
         AllowSorting="true" EnableRtl="true" AllowResizing="true">
     <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
@@ -150,6 +150,7 @@
                 CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
     <GridPageSettings PageSize="40"></GridPageSettings>
+
     <GridTemplates>
 
         <DetailTemplate>
@@ -860,6 +861,13 @@
                 return 1;
             }
         }
+        if (context.MagashAmount < 0)
+        {
+            ModalError = "לא ניתן להזין מספר שלילי!";
+            IsVisible = true;
+            return 1;
+        }
+
         if (context.MagashAmount == 0)
         {
             context.IsNeedToBeChecked = true;

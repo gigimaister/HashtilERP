@@ -12,5 +12,11 @@ namespace HashtilERP.Shared.Models
         public int? JobId { get; set; }
         public int? K_PassportId { get; set; }       
         public int? PassportMagashAmpunt { get; set; }
+        public string UserName { get; set; }
+        public int? SelectedAVG { get; set; }
+        public int? K_PassportNum { get; set; }
+        public int? Platns => PassportMagashAmpunt * SelectedAVG;
+        
+        public K_Passport K_Passport { get; set; }
     }
 }

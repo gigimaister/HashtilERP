@@ -299,6 +299,34 @@ namespace HashtilERP.Server
             return kPassport;
         }
 
+        //KPassports For Korder By ItemCode
+        [HttpGet("GetKPassportsForKOrderByItemCode/{itemcode}")]
+        public async Task<List<K_Passport>> GetKPassportsForKOrder(string itemcode)
+        {
+            var k_Passports = new List<K_Passport>();
+
+            k_Passports = await _context.KPassport.Where(x => x.ItemCode == itemcode && x.PassportStatus == Status.InGreenHouse)
+                 .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                .ToListAsync();
+
+            return k_Passports;
+        }
+
+        //KPassports For Korder By Gidul && Zan
+        [HttpGet("GetKPassportsForKOrderByGidulZan/{gidul}/{zan}")]
+        public async Task<List<K_Passport>> GetKPassportsForKOrderByGidulZan(string gidul, string zan)
+        {
+            var k_Passports = new List<K_Passport>();
+
+            k_Passports = await _context.KPassport.Where(x => x.Gidul == gidul && x.Zan == zan).ToListAsync();
+
+            return k_Passports;
+        }
+
         #endregion
 
         #region PUT

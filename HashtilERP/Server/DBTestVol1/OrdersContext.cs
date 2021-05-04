@@ -87,9 +87,9 @@ namespace HashtilERP.DBTestVol1
 
                 entity.ToTable("K_OrderPassports");
 
-                entity.Property(e => e.PassportsToOrdersId).ValueGeneratedNever();
+                entity.Property(e => e.PassportsToOrdersId).ValueGeneratedOnAdd();
 
-                entity.Property(e => e.KPassportId).HasColumnName("K_PassportId");
+                entity.Property(e => e.K_PassportId).HasColumnName("K_PassportId");
             });
 
             modelBuilder.Entity<KPassport>(entity =>

@@ -370,7 +370,7 @@
     //When insertPassport Button clicked!
     public async void InsertObject()
     {
-        AfterActionSpinner = true;
+
 
         if (passportInput == null || passportInput == "")
         {
@@ -392,10 +392,11 @@
         }
         else
         {
+            AfterActionSpinner = true;
             await SendNewPassport();
-
+            AfterActionSpinner = false;
         }
-        AfterActionSpinner = false;
+
     }
 
     protected async Task<int> SendNewPassport()

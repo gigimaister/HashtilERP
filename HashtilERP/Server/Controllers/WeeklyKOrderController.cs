@@ -34,6 +34,7 @@ namespace HashtilERP.Server.Controllers
             k_Orders = await _context.KOrder.Where(x =>(x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today )|| (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today.AddDays(1))
             ||(x.PrepReportEnteringDate== null && x.MarketingDate == DateTime.Today.AddDays(1)) || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today) )
                 .Include(x=>x.Ocrd)
+                .Include(x=>x.K_OrderPassports)
                 .ToListAsync();
 
             return k_Orders;
@@ -60,8 +61,7 @@ namespace HashtilERP.Server.Controllers
             return k_Orders;
         }
 
-
-
+      
         #endregion
 
         #region PUT REGION
@@ -102,6 +102,7 @@ namespace HashtilERP.Server.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
+            kOrder.UserName = screenName;
 
             _context.KOrder.Add(kOrder);
 
@@ -114,13 +115,51 @@ namespace HashtilERP.Server.Controllers
             {
                 Console.WriteLine(e.Message);
             }
-
-            
-
-
-           
+                     
             return 0;
         }
+
+        [HttpPost("NewKOrderPassport")]
+        public async Task<int> NewKOrderPassport(KOrderPassports kOrderPassports)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kOrderPassports.UserName = screenName;
+
+            _context.KOrderPassports.Add(kOrderPassports);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            //if no KOrder in KOrder Table
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return 0;
+        }
+            #endregion
+
+        #region DELETE
+
+            // DELETE: api/WeeklyKOrder/5
+            [HttpDelete("KOrderPassportsDelete/{id}")]
+        public async Task<IActionResult> KOrderPassportsDelete(int id)
+        {
+            var kordpass = await _context.KOrderPassports.FindAsync(id);
+            if (kordpass == null)
+            {
+                return NotFound();
+            }
+
+            _context.KOrderPassports.Remove(kordpass);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
         #endregion
 
         private bool KOrderExists(int id)

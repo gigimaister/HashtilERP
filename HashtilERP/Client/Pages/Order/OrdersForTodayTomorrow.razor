@@ -103,7 +103,7 @@
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
     <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-                RowSelected="RowSelected" RowDeselected="RowDeSelected" RowDataBound="RowBound"></GridEvents>
+                CommandClicked="OnCommandClicked" RowSelected="RowSelected" RowDeselected="RowDeSelected" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
     <GridAggregates>
@@ -155,7 +155,15 @@
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-
+        <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="80px">
+                <GridCommandColumns>
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "בחירת פספורט", CssClass = "e-info" })">
+                    </GridCommandColumn>
+                </GridCommandColumns>
+            </GridColumn>
+        </AuthorizeView>
     </GridColumns>
 </SfGrid>
 
@@ -212,14 +220,14 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>בחירת גידול</label>
-                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="גידול" @onmousedown="@(e => GidulMouseClick(e))" @bind-Value="@K_OrderForEdit.Gidul" DataSource="@Giduls">
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="גידול" @onmousedown="@(e => EditGidulMouseClick(e))" @bind-Value="@K_OrderForEdit.Gidul" DataSource="@Giduls">
                                                 </SfAutoComplete>
                                             </div>
                                         </div>
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>בחירת זן</label>
-                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" @onmousedown="@(e => ZanMouseClick(e))" @bind-Value="@K_OrderForEdit.Zan" DataSource="@Zans">
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" @onmousedown="@(e => EditZanMouseClick(e))" @bind-Value="@K_OrderForEdit.Zan" DataSource="@Zans">
                                                 </SfAutoComplete>
                                             </div>
                                         </div>
@@ -536,16 +544,385 @@
     <ToastPosition X="Center"></ToastPosition>
 </SfToast>
 
+@*Pick Passports Modal*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="95%"
+          Height="90%"
+          @bind-Visible="@PickPassForKorderModalBool" ShowCloseIcon="true" IsModal="true">
+
+    <DialogTemplates>
+        <Content>
+            <SfTab HeaderPlacement="HeaderPosition.Top">
+                <TabItems>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="בחירת מזרע"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <div style="text-align:right" class="alert alert-info" role="alert">
+                                <div class="row">
+                                    <div class="col">
+                                        <h5 style="text-align:right">לקוח: @K_OrderForPickPassport.CxName</h5>
+                                        <h5 style="text-align:right">שתילים: @string.Format("{0:#,0}", K_OrderForPickPassport.JobPlantsNum)</h5>
+                                        <h5 style="text-align:right">ממוצע: @K_OrderForPickPassport.JobPlansAvarage</h5>
+                                    </div>
+                                    <div class="col">
+                                        <h5 style="text-align:right"> @DateTimeToShortString(K_OrderForPickPassport.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForPickPassport.MarketingDate)</h5>
+                                        <h5 style="text-align:right">מגשים: @K_OrderForPickPassport.JobNumOfMagash</h5>
+                                    </div>
+                                    <div class="col">
+                                        <h5 style="text-align:right">גידול: @K_OrderForPickPassport.Gidul</h5>
+                                        <h5 style="text-align:right">זן: @K_OrderForPickPassport.Zan</h5>
+                                    </div>
+
+                                    <div class="col">
+                                        <h4 style="text-align:right">מגשים להוצאה: @K_OrderForPickPassport.JobNumOfMagash</h4>
+                                        <h4 style="text-align:right">מגשים שנבחרו: @string.Format("{0:#,0}", KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))</h4>
+                                    </div>
+                                    <div class="col">
+                                        <h4 style="text-align:right">שתילים להוצאה: @string.Format("{0:#,0}", K_OrderForPickPassport.JobPlantsNum)</h4>
+                                        <h4 style="text-align:right">שתילים שנבחרו: @string.Format("{0:#,0}", KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports, 1))</h4>
+                                        <h4 style="text-align:center"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-success" @onclick="BtnSendKOrderPassportsToDB">שליחה</button>
+                            </div>
+                            <br/>
+                            <div style="text-align:right" class="alert alert-warning" role="alert">
+                                <div class="row">
+                                    @*KOrderPassports objects *@
+                                    <SfGrid DataSource="@kOrderPassports" @ref="@SfGridKorderPassports"
+                                          Toolbar="@(new List<string>() {  "Delete" })"
+                                            AllowSorting="true" TValue="K_OrderPassports" EnableRtl="true">
+                                        <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompletedHandler" TValue="K_OrderPassports"></GridEvents>
+                                        <GridEditSettings AllowAdding="false" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+                                        <GridColumns>
+                                            <GridColumn Field=@nameof(K_OrderPassports.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                            <GridColumn Field="@nameof(K_OrderPassports.K_PassportNum)" HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                            <GridColumn Field=@nameof(K_OrderPassports.PassportMagashAmpunt) HeaderText="מגשים"  AllowEditing="true"  HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                            <GridColumn Field="@nameof(K_OrderPassports.SelectedAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                            <GridColumn Field="@nameof(K_OrderPassports.Platns)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                        </GridColumns>
+                                    </SfGrid>
+                                </div>
+                            </div>
+
+
+                            @*GRID SECTION START HERE*@
+                            <SfGrid DataSource="@k_PassportsForKorder" FrozenRows="0" Height="500" Width="100%" AllowPaging="true" @ref="@SfGridKpassport" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true"
+                                    AllowSorting="true" EnableRtl="true" AllowResizing="true">
+                                <GridEvents QueryCellInfo="CustomizeCell" CommandClicked="OnCommandClickedPickPassports" RowDataBound="PickPassportsRowBound"
+                                            TValue="K_Passport"></GridEvents>
+                                <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+                                <GridPageSettings PageSize="40"></GridPageSettings>
+                                <GridTemplates>
+
+                                    <DetailTemplate>
+
+                                        <div style="text-align:right;width:auto">
+                                            <SfTab HeaderPlacement="HeaderPosition.Top">
+                                                <TabItems>
+                                                    <TabItem>
+                                                        <ChildContent>
+                                                            <TabHeader Text="לקוחות"></TabHeader>
+                                                        </ChildContent>
+                                                        <ContentTemplate>
+                                                            @{ var passport = (context as K_Passport);
+                                                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>
+                                                                                לקוח
+                                                                            </th>
+                                                                            <th>
+                                                                                הזמנה
+                                                                            </th>
+                                                                            <th>
+                                                                                מגשים
+                                                                            </th>
+
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+
+                                                                        @foreach (var cx in passport.Passport.Passprods.OrderByDescending(x => x.UQuantity))
+                                                                        {
+                                                                            decimal? temp;
+                                                                            int startAvg;
+                                                                            if (passport.Passport.UQuanOrdP > 5555554)
+                                                                            {
+                                                                                temp = passport.Passport.UQuanProd * 1000;
+                                                                                startAvg = Convert.ToInt32((passport.Passport.UQuanProd * 1000) / passport.Passport.UTraySow);
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                temp = (cx.UQuantity * 1000);
+                                                                                startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
+                                                                            }
+
+                                                                            var display = string.Format("{0:#,0}", temp);
+                                                                            var magashPercx = temp / startAvg;
+                                                                            var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
+                                                                            <tr>
+                                                                                <td>
+                                                                                    @cx.UCustName
+                                                                                </td>
+                                                                                <td>
+                                                                                    @display
+                                                                                </td>
+                                                                                <td>
+                                                                                    @magashPercxScreen
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                        </ContentTemplate>
+                                                    </TabItem>
+                                                    <TabItem>
+                                                        <ChildContent>
+                                                            <TabHeader Text="הערות"></TabHeader>
+                                                        </ChildContent>
+                                                        <ContentTemplate>
+                                                            @{ var passport1 = (context as K_Passport);
+                                                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>
+                                                                                תאריך
+                                                                            </th>
+                                                                            <th>
+                                                                                נוספה ע"י
+                                                                            </th>
+                                                                            <th>
+                                                                                מצב
+                                                                            </th>
+                                                                            <th>
+                                                                                תיאור
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+
+                                                                        @foreach (var form in passport1.PassportAuditForms.OrderByDescending(x => x.CreateDate))
+                                                                        {
+                                                                            if (passport1.PassportAuditForms.Count == 0)
+                                                                            {
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        אין
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        אין
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        אין
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        אין
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <tr>
+                                                                                    <td>
+                                                                                        @form.CreateDate
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @form.UserName
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @form.AuditStatus
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        @form.Remark
+                                                                                    </td>
+                                                                                </tr>
+                                                                            }
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                        </ContentTemplate>
+                                                    </TabItem>
+                                                    <TabItem>
+                                                        <ChildContent>
+                                                            <TabHeader Text="היסטוריית עריכה"></TabHeader>
+                                                        </ChildContent>
+                                                        <ContentTemplate>
+                                                            @{ var passport2 = (context as K_Passport);
+                                                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>
+                                                                                תאריך
+                                                                            </th>
+                                                                            <th>
+                                                                                נערכה ע"י
+                                                                            </th>
+                                                                            <th>
+                                                                                תיאור
+                                                                            </th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach (var updateAudit in passport2.k_PassportAuditTblVer2s.OrderByDescending(x => x.Date))
+                                                                        {
+
+                                                                            <tr>
+                                                                                <td>
+                                                                                    @updateAudit.Date
+                                                                                </td>
+                                                                                <td>
+                                                                                    @updateAudit.UserName
+                                                                                </td>
+                                                                                <td>
+                                                                                    @updateAudit.AuditString
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                        </ContentTemplate>
+                                                    </TabItem>
+                                                    <TabItem>
+                                                        <ChildContent>
+                                                            <TabHeader Text="נתונים נוספים"></TabHeader>
+                                                        </ChildContent>
+                                                        <ContentTemplate>
+                                                            @{ var passport2 = (context as K_Passport);
+                                                                <div class="form-row" dir="rtl">
+                                                                    <div class="col-form-label">
+                                                                        @{ if (passport2.GrowingRoom == null)
+                                                                            {
+                                                                                <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
+                                                                            }
+                                                                            else
+                                                                            { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
+                                                                            }
+                                                                        }
+                                                                    </div>
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                                                    </div>
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-row" dir="rtl">
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align: right; font-weight:500">מקדם זריעה SAP:</label>
+                                                                    </div>
+                                                                    <div class="col-form-label">
+                                                                        <label class="form-check-label" style="text-align:right">@passport2.PassportStartingAVG</label>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </ContentTemplate>
+                                                    </TabItem>
+                                                </TabItems>
+                                            </SfTab>
+                                        </div>
+                                    </DetailTemplate>
+
+                                </GridTemplates>
+
+                                <GridAggregates>
+                                    <GridAggregate>
+                                        <GridAggregateColumns>
+                                            <GridAggregateColumn Field=@nameof(K_Passport.PassportNum) Type="AggregateType.Count">
+                                                <FooterTemplate>
+                                                    @{
+                                                        var aggregate = (context as AggregateTemplateContext);
+
+                                                        <b>ספירה: @aggregate.Count</b>
+
+                                                    }
+                                                </FooterTemplate>
+                                            </GridAggregateColumn>
+                                            <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Sum">
+                                                <FooterTemplate>
+                                                    @{
+                                                        var aggregate = (context as AggregateTemplateContext);
+                                                        <div>
+                                                            <b>סכום: @aggregate.Sum</b>
+                                                        </div>
+                                                    }
+                                                </FooterTemplate>
+                                            </GridAggregateColumn>
+                                        </GridAggregateColumns>
+                                    </GridAggregate>
+
+                                </GridAggregates>
+
+                                <GridColumns>
+                                    <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"> </GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+                                        <Template>
+                                            @{
+                                                var value = (context as K_Passport);
+                                                var AVG = value.PassportAVG == -1 ? "ללא" : Convert.ToString(value.PassportAVG);
+                                                <b>@AVG</b>
+                                            }
+                                        </Template>
+                                    </GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field="@nameof(K_Passport.PlantsAmount)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                    <GridColumn HeaderText="בחירה" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Width="50px">
+                                        <GridCommandColumns>
+                                            <GridCommandColumn Type=CommandButtonType.None
+                                                               ButtonOption="@(new CommandButtonOptions() {  IconCss ="e-icons e-plus-icon", CssClass = "e-round", IsPrimary = true })">
+                                            </GridCommandColumn>
+                                        </GridCommandColumns>
+                                    </GridColumn>
+                                </GridColumns>
+
+                            </SfGrid>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text=""></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+
+                        </ContentTemplate>
+                    </TabItem>
+                </TabItems>
+            </SfTab>
+
+
+        </Content>
+
+        <FooterTemplate>
+
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+
 @code {
+
     //Page settings
     #region Page Settings
 
     //list of KOrder(Grid Rows)
     K_Order[] K_Orders;
-
-
-    //KOrder Object for Edit Data
-    K_Order K_OrderForEdit = new K_Order();
 
     //"מחפש בין התאריכים Show Counter"
     bool ShowCorrectDate = false;
@@ -671,7 +1048,30 @@
         try
         {
             k_Order.KOrderEnteringDate = DateTime.Today;
-            k_Order.ItemCode = k_PassportsForJobs.Where(x => x.Gidul == k_Order.Gidul && x.Zan == k_Order.Zan).Select(x => x.ItemCode).Distinct().Single();
+
+            if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
+            {
+                try
+                {
+                    k_Order.ItemCode = k_PassportsForJobs.Where(x => x.Gidul == k_Order.Gidul && x.Zan == k_Order.Zan).Select(x => x.ItemCode).Distinct().FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    ErrorDialogIsVisible = true;
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "גידול וזן לא קיימים!";
+                    return 1;
+
+                }
+                if (String.IsNullOrEmpty(k_Order.ItemCode))
+                {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "גידול וזן לא קיימים!";
+                    return 1;
+                }
+            }
+
 
             var rslt = await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderInsert", k_Order);
             var content = await rslt.Content.ReadAsStringAsync();
@@ -839,6 +1239,44 @@
     //AVGInput For Multu AVG
     int? MultiAVGInput { get; set; }
 
+    //Command Button Clicked In grid
+    public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
+    {
+        if (args.CommandColumn.ButtonOption.Content == "בחירת פספורט")
+        {
+            kOrderPassports = new List<K_OrderPassports>();
+
+
+
+            if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
+            {
+                ErrorDialogIsVisible = true;
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "יש לבחור גידול וזן מתאימים!";
+            }
+            else
+            {
+                LoadingSpinner = true;
+
+
+                K_OrderForPickPassport = args.RowData;
+
+                PickPassForKorderModalBool = true;
+
+                if (K_OrderForPickPassport.K_OrderPassports != null && K_OrderForPickPassport.K_OrderPassports.Count > 0)
+                {
+                    kOrderPassports = K_OrderForPickPassport.K_OrderPassports;
+                }
+                await GetKpassportsForKorder(args.RowData);
+
+                LoadingSpinner = false;
+            }
+
+
+        }
+
+    }
+
     //Syncfusion RowSelect Way
     public async Task RowSelected(RowSelectEventArgs<K_Order> args)
     {
@@ -965,6 +1403,520 @@
     };
     #endregion
 
+    //Pick Passports
+    #region Pick Passports
+
+    //Grid Obj
+    SfGrid<K_Passport> SfGridKpassport;
+
+    //grid for KorderPassports
+    SfGrid<K_OrderPassports> SfGridKorderPassports;
+
+    //PICK Pass for jobs
+    List<K_Passport> k_PassportsForKorder { get; set; }
+
+    //Passports To KOrder Obj
+    List<K_OrderPassports> kOrderPassports { get; set; } = new List<K_OrderPassports>();
+
+    K_OrderPassports korderPassport { get; set; } = new K_OrderPassports();
+
+    K_OrderPassports orderTopassport { get; set; } = new K_OrderPassports();
+
+    //KPassports for KOrderPassports UPDATE
+    List<K_Passport> k_PassportsForKOrderPassportsUpdate { get; set; }
+
+
+    //KOrder Obj for pick passport
+    K_Order K_OrderForPickPassport { get; set; } = new K_Order();
+
+    private bool PickPassForKorderModalBool { get; set; } = false;
+
+    //int to check edit on korderpassports
+    int? KorderPassport { get; set; }
+
+    decimal? temp;
+    int startAvg;
+
+    public void ActionBeginHandler(ActionEventArgs<K_OrderPassports> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+            StateHasChanged();
+        }
+
+    }
+
+    async void BtnSendKOrderPassportsToDB()
+    {
+
+        LoadingSpinner = true;
+
+        //if DB list Exist
+        if (K_OrderForPickPassport.K_OrderPassports != null && K_OrderForPickPassport.K_OrderPassports.Count > 0)
+        {
+            //if Temp List exist
+            if (kOrderPassports != null && kOrderPassports.Count > 0)
+            {
+                //NEED TO DEL DB LIST AND INSERT TEMP == 1
+                //&& Update KPassport
+                await SendKOrderPassportsToDB(1);
+            }
+            //if Temp list empty
+            else
+            {
+                //NEED TO DEL DB LIST == 2
+                //&& Update KPassport
+                await SendKOrderPassportsToDB(2);
+            }
+        }
+        //if no DB list
+        else
+        {
+            //if Temp List exist
+            if (kOrderPassports != null && kOrderPassports.Count > 0)
+            {
+                //NEED TO INSERT TEMP == 3
+                //&& Update KPassport
+                await SendKOrderPassportsToDB(3);
+            }
+            //if Temp list empty
+            else
+            {
+                //Do Nothing Or Alert == 0
+                await SendKOrderPassportsToDB();
+            }
+        }
+
+        LoadingSpinner = false;
+    }
+
+    async Task<int> SendKOrderPassportsToDB(int action = 0)
+    {
+        k_PassportsForKOrderPassportsUpdate = new List<K_Passport>();
+        switch (action)
+        {
+            case 0:
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "אין מה לשלוח!";
+                ErrorDialogIsVisible = true;
+                break;
+            case 1:
+
+                //DELETE DB List
+                foreach (var korderpass in K_OrderForPickPassport.K_OrderPassports)
+                {
+                    try
+                    {
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                    await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{korderpass.PassportsToOrdersId}");
+                }
+                //INSERT NEW List
+                foreach (var korderpass in kOrderPassports)
+                {
+                    try
+                    {
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                    await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderPassport", korderpass);
+                }
+
+                var distictList = k_PassportsForKOrderPassportsUpdate.Distinct().ToList();
+
+                //UPDATE KPassport magash
+                foreach (var kpassport in distictList)
+                {
+                    await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
+                }
+
+                break;
+            case 2:
+                //DELETE DB List
+                foreach (var korderpass in K_OrderForPickPassport.K_OrderPassports)
+                {
+                    try
+                    {
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                    await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{korderpass.PassportsToOrdersId}");
+                }
+                var distictList1 = k_PassportsForKOrderPassportsUpdate.Distinct();
+                //UPDATE KPassport magash
+                foreach (var kpassport in distictList1)
+                {
+                    await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
+                }
+                break;
+            case 3:
+                //INSERT NEW List
+                foreach (var korderpass in kOrderPassports)
+                {
+                    try
+                    {
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+
+                    await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderPassport", korderpass);
+                }
+
+                var distictList2 = k_PassportsForKOrderPassportsUpdate.Distinct();
+                //UPDATE KPassport magash
+                foreach (var kpassport in distictList2)
+                {
+                    await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
+                }
+                break;
+        }
+
+        return 0;
+    }
+    //KorderPassport grid events
+    public async void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
+    {
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+            KorderPassport = args.Data.PassportMagashAmpunt;
+        }
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+        {
+            var kpassport = k_PassportsForKorder.Where(x => x.K_PassportId == args.Data.K_PassportId).FirstOrDefault();
+            kpassport.MagashAmount += args.Data.PassportMagashAmpunt;
+            SfGridKpassport.Refresh();
+            return;
+        }
+        if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+
+            if (args.Data.PassportMagashAmpunt == 0)
+            {
+                var kpassport = k_PassportsForKorder.Where(x => x.K_PassportId == args.Data.K_PassportId).FirstOrDefault();
+                kpassport.MagashAmount += KorderPassport;
+                await SfGridKorderPassports.DeleteRecord("K_PassportId", args.Data);
+                SfGridKpassport.Refresh();
+                return;
+            }
+            else if (args.Data.PassportMagashAmpunt < 0)
+            {
+
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא ניתן להזין כמות מגשים שלילית!";
+                ErrorDialogIsVisible = true;
+                return;
+            }
+            //IF After update magash < Before update magash
+            if (KorderPassport > args.Data.PassportMagashAmpunt)
+            {
+                var kpassport = k_PassportsForKorder.Where(x => x.K_PassportId == args.Data.K_PassportId).FirstOrDefault();
+                kpassport.MagashAmount += (KorderPassport - args.Data.PassportMagashAmpunt);
+                SfGridKpassport.Refresh();
+
+            }
+            //after update magash < before update magash
+            if (KorderPassport < args.Data.PassportMagashAmpunt)
+            {
+                var index = kOrderPassports.FindIndex(x => x.K_PassportId == args.Data.K_PassportId);
+                var kpassport = k_PassportsForKorder.Where(x => x.K_PassportId == args.Data.K_PassportId).FirstOrDefault();
+                //if still we have enoughe magash after update
+                if (kpassport.MagashAmount > (args.Data.PassportMagashAmpunt - KorderPassport))
+                {
+                    kpassport.MagashAmount -= (args.Data.PassportMagashAmpunt - KorderPassport);
+                }
+                //if not enough magash
+                else
+                {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "אין מספיק מגשים בפספורט!";
+                    ErrorDialogIsVisible = true;
+                    kOrderPassports[index].PassportMagashAmpunt = KorderPassport;
+                    SfGridKorderPassports.Refresh();
+                    SfGridKpassport.Refresh();
+                    return;
+                }
+                SfGridKpassport.Refresh();
+            }
+
+        }
+    }
+
+    //Command Button Clicked In grid
+    public async void OnCommandClickedPickPassports(CommandClickEventArgs<K_Passport> args)
+    {
+        if (args.CommandColumn.ButtonOption.Content == "")
+        {
+            var chosenKPassport = args.RowData;
+
+            if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
+            {
+                ErrorDialogIsVisible = true;
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פסספורט!";
+                return;
+            }
+            else if (KOrdersfunctions.IsPassportEmpty(chosenKPassport))
+            {
+                ErrorDialogIsVisible = true;
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
+                return;
+            }
+            int? kpassportAvarage = KOrdersfunctions.GetKpassportAvg(chosenKPassport);
+
+            var dupPassport = new K_Passport();
+
+
+            //Check if we have DO NOT have a Existing list
+            if (kOrderPassports == null || kOrderPassports.Count == 0)
+            {
+                korderPassport.JobId = K_OrderForPickPassport.JobId;
+                korderPassport.K_PassportNum = chosenKPassport.PassportNum;
+                korderPassport.K_PassportId = chosenKPassport.K_PassportId;
+                korderPassport.SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage));
+
+                //Check if KPassport.Magash > WorkTotalMagash(WTM)
+                if (chosenKPassport.MagashAmount > K_OrderForPickPassport.JobNumOfMagash)
+                {
+                    //update kpassport magash
+                    chosenKPassport.MagashAmount -= K_OrderForPickPassport.JobNumOfMagash;
+                    korderPassport.PassportMagashAmpunt = K_OrderForPickPassport.JobNumOfMagash;
+                }
+                //KPassport.Magash < WTM
+                else
+                {
+                    korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount; ;
+                    //then kpassport.magash = 0
+                    chosenKPassport.MagashAmount = 0;
+                }
+
+                //Adding korderpassport to list
+                kOrderPassports.Add(korderPassport);
+            }
+            //IF WE HAVE EXISTING LIST
+            else
+            {
+                //If we have the selecting passport in that List
+                if (KOrdersfunctions.CheckIfKpassInsideKordPassports(kOrderPassports, chosenKPassport))
+                {
+                    //WTM - RTM
+                    var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
+                    //index for list obj edit
+                    var index = kOrderPassports.FindIndex(x => x.K_PassportId == chosenKPassport.K_PassportId);
+                    //korderpassport obj for logic
+                    var korderpassportObj = kOrderPassports.Where(x => x.K_PassportId == chosenKPassport.K_PassportId).FirstOrDefault();
+
+                    //if WTM > LTM
+                    if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
+                    {
+                        //if kpassport.magash > RTM
+                        if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
+                        {
+                            //Updating the obj in the list
+                            kOrderPassports[index].PassportMagashAmpunt += korderMinusToalMagashList;
+                            chosenKPassport.MagashAmount -= korderMinusToalMagashList;
+                        }
+                        //kpassport < RTM
+                        else
+                        {
+                            kOrderPassports[index].PassportMagashAmpunt += chosenKPassport.MagashAmount;
+                            //then kpassport.magash = 0
+                            chosenKPassport.MagashAmount = 0;
+                        }
+                    }
+                    //WTM < LTM
+                    else
+                    {
+                        //if we good with magash amount only add 1 at a time
+                        kOrderPassports[index].PassportMagashAmpunt += 1;
+                        chosenKPassport.MagashAmount -= 1;
+
+                    }
+
+                }
+                //NO PASSPORT IN THE EXISTING LIST
+                else
+                {
+                    //WTM - RTM
+                    var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
+
+                    korderPassport = new K_OrderPassports()
+                    {
+                        JobId = K_OrderForPickPassport.JobId,
+                        K_PassportNum = chosenKPassport.PassportNum,
+                        K_PassportId = chosenKPassport.K_PassportId,
+                        SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage))
+                    };
+
+                    //IF WTM > List Total Magash(LTM)
+                    if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
+                    {
+                        //If kpassport.magash > Relative Total Magash(korder.magash - LTM)
+                        if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
+                        {
+                            //update kpassport magash
+                            chosenKPassport.MagashAmount -= korderMinusToalMagashList;
+                            korderPassport.PassportMagashAmpunt = korderMinusToalMagashList;
+                        }
+                        //kpassport.magash < RTM
+                        else
+                        {
+                            korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
+                            //then kpassport.magash = 0
+                            chosenKPassport.MagashAmount = 0;
+                        }
+
+                    }
+                    //WTM < LTM
+                    else
+                    {
+                        korderPassport.PassportMagashAmpunt = 1;
+                        chosenKPassport.MagashAmount -= 1;
+                    }
+
+                    //Adding korderpassport to list
+                    kOrderPassports.Add(korderPassport);
+                }
+            }
+
+        }
+        SfGridKorderPassports.Refresh();
+        SfGridKpassport.Refresh();
+    }
+
+
+    //Get Passports By ItemCode
+    async Task<int> GetKpassportsForKorder(K_Order k_Order)
+    {
+        k_PassportsForKorder = new List<K_Passport>();
+        k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByItemCode/{k_Order.ItemCode}");
+        StateHasChanged();
+        SfGridKorderPassports.Refresh();
+
+        return 0;
+    }
+
+
+    //Design Pick Pass Grid Same AS Metzay
+
+    //ROW IsNeedToBeAudit STYLE
+    public void PickPassportsRowBound(RowDataBoundEventArgs<K_Passport> args)
+    {
+        if (args.Data.IsNeedToBeAudit == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        }
+        if (args.Data.IsNeedToBeAudit == true && args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved-audit" });
+        }
+        if (args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved" });
+        }
+
+    }
+
+    //CELL MAGASH TYPE STYLE
+    public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
+    {
+        if (args.Column.Field == "CelsTray")
+        {
+            try
+            {
+
+                if (Convert.ToDouble(args.Data.CelsTray) == 180)
+                {
+                    args.Cell.AddClass(new string[] { "magash-180" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 187)
+                {
+                    args.Cell.AddClass(new string[] { "magash-187" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 442)
+                {
+                    args.Cell.AddClass(new string[] { "magash-442" });
+                }
+                else
+                {
+                    args.Cell.AddClass(new string[] { "magash-308" });
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+        }
+        ////PASSPORT STYLE
+        if (args.Column.Field == "PassportNum")
+        {
+            args.Cell.AddClass(new string[] { "passport" });
+        }
+        //LOW AVG
+        if (args.Column.Field == "PassportAVG")
+        {
+            if (args.Data.IsLowAVG == true)
+            {
+                args.Cell.AddClass(new string[] { "is-low-avg" });
+            }
+        }
+
+        //HAMAMA STYLE
+        if (args.Column.Field == "Hamama")
+        {
+            if (args.Data.Hamama.Trim() == "1")
+            {
+                args.Cell.AddClass(new string[] { "hamama1" });
+            }
+            else if (args.Data.Hamama.Trim() == "2")
+            {
+                args.Cell.AddClass(new string[] { "hamama2" });
+            }
+            else if (args.Data.Hamama.Trim() == "3")
+            {
+                args.Cell.AddClass(new string[] { "hamama3" });
+            }
+            else if (args.Data.Hamama.Trim() == "4")
+            {
+                args.Cell.AddClass(new string[] { "hamama4" });
+            }
+            else if (args.Data.Hamama.Trim() == "5")
+            {
+                args.Cell.AddClass(new string[] { "hamama5" });
+            }
+            else if (args.Data.Hamama.Trim() == "6")
+            {
+                args.Cell.AddClass(new string[] { "hamama6" });
+            }
+            else if (args.Data.Hamama.Trim() == "7")
+            {
+                args.Cell.AddClass(new string[] { "hamama7" });
+            }
+            else if (args.Data.Hamama.Trim() == null)
+            {
+                args.Cell.AddClass(new string[] { "null" });
+            }
+        }
+    }
+
+    #endregion
+
     //GRID 2 SETTING
     #region GRID 2
 
@@ -980,6 +1932,9 @@
 
     //Grid Edit Modal
     #region Grid Edit Modal
+
+    //KOrder Object for Edit Data
+    K_Order K_OrderForEdit = new K_Order();
 
     //AVG string for Auto calc num of magash
     string EditAVGAutoCalc = "";
@@ -1001,6 +1956,7 @@
 
     async void SendRowEdit(K_Order k_Order)
     {
+
         RowEditDialogShow = false;
         LoadingSpinner = true;
         await UpdateEditRow(k_Order);
@@ -1012,6 +1968,31 @@
     {
         try
         {
+            if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
+            {
+                try
+                {
+                    k_Order.ItemCode = k_PassportsForJobs.Where(x => x.Gidul == k_Order.Gidul && x.Zan == k_Order.Zan).Select(x => x.ItemCode).Distinct().FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    ErrorDialogIsVisible = true;
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "גידול וזן לא קיימים!";
+                    return 1;
+
+                }
+                if (String.IsNullOrEmpty(k_Order.ItemCode))
+                {
+                    ErrorDialogIsVisible = true;
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "גידול וזן לא קיימים!";
+                    return 1;
+                }
+
+            }
+
             var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
@@ -1035,11 +2016,56 @@
         return 0;
     }
 
+
+    //Giduz & Zan inputs
+    void EditGidulMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 1)
+        {
+            if (K_OrderForEdit.Zan != null)
+            {
+                try
+                {
+                    K_OrderForEdit.Gidul = k_PassportsForJobs.Where(x => x.Zan == K_OrderForEdit.Zan).Select(x => x.Gidul).Distinct().Single();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
+                }
+            }
+        }
+    }
+    //After Pick Zan MouseClick
+    void EditZanMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 1)
+        {
+            try
+            {
+                if (K_OrderForEdit.Gidul != null)
+                {
+                    Zans = k_PassportsForJobs.Where(x => x.Gidul == K_OrderForEdit.Gidul).Select(x => x.Zan).Distinct().ToList();
+                }
+                else
+                {
+                    K_OrderForEdit.Gidul = k_PassportsForJobs.Where(x => x.Zan == K_OrderForEdit.Zan).Select(x => x.Gidul).Distinct().Single();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+            }
+        }
+    }
     //AVG Input
     void EditOrderKeyDown(KeyboardEventArgs args)
     {
         var tempkOrderAutoPlants = new K_Order();
         tempkOrderAutoPlants.JobPlantsNum = K_OrderForEdit.JobPlantsNum;
+
         try
         {
             if (args.Code == "Backspace" && AVGAutoCalc.Length > 0)
@@ -1132,4 +2158,102 @@
     .e-toast-container .e-toast {
         background-color: black;
     }
+
+    .magash-180 {
+        background-color: plum;
+    }
+
+    .magash-187 {
+        background-color: lightyellow;
+    }
+
+    .magash-442 {
+        background-color: grey;
+        font-weight: bold;
+    }
+
+    .magash-308 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .magash-250 {
+        background-color: green;
+        font-weight: bold;
+    }
+
+    .magash-210 {
+        background-color: hotpink;
+        font-weight: bold;
+    }
+
+    .magash-260 {
+        background-color: rosybrown;
+        font-weight: bold;
+    }
+
+    .passport {
+        background-color: powderblue;
+        font-weight: bold;
+        color: red;
+    }
+
+    .null {
+        background-color: antiquewhite;
+        font-weight: bold;
+    }
+
+    .hamama1 {
+        background-color: cornflowerblue;
+        font-weight: bold;
+    }
+
+    .hamama2 {
+        background-color: yellow;
+        font-weight: bold;
+    }
+
+    .hamama3 {
+        background-color: lightpink;
+        font-weight: bold;
+    }
+
+    .hamama4 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .hamama5 {
+        background-color: gray;
+        font-weight: bold;
+    }
+
+    .hamama6 {
+        background-color: cadetblue;
+        font-weight: bold;
+    }
+
+    .hamama7 {
+        background-color: palevioletred;
+        font-weight: bold;
+    }
+    /*   GRID ROW STYLE*/
+    .is-need-to-be-audit {
+        background-color: orange;
+    }
+
+    .is-need-to-be-saved {
+        background-color: deepskyblue;
+    }
+
+    .is-need-to-be-saved-audit {
+        background-color: mediumpurple;
+    }
+
+    .is-low-avg {
+        background-color: orangered;
+    }
+
+    .e-plus-icon::before {
+        content: '\e823';
 </style>
