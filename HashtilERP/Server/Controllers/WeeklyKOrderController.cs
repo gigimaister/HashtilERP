@@ -35,6 +35,7 @@ namespace HashtilERP.Server.Controllers
             ||(x.PrepReportEnteringDate== null && x.MarketingDate == DateTime.Today.AddDays(1)) || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today) )
                 .Include(x=>x.Ocrd)
                 .Include(x=>x.K_OrderPassports)
+                .ThenInclude(x=>x.K_Passport)
                 .ToListAsync();
 
             return k_Orders;
@@ -147,15 +148,17 @@ namespace HashtilERP.Server.Controllers
             [HttpDelete("KOrderPassportsDelete/{id}")]
         public async Task<IActionResult> KOrderPassportsDelete(int id)
         {
-            var kordpass = await _context.KOrderPassports.FindAsync(id);
+            var kordpass = await _context.KOrderPassports.Where(x=>x.JobId == id).ToListAsync();
             if (kordpass == null)
             {
                 return NotFound();
             }
-
-            _context.KOrderPassports.Remove(kordpass);
-            await _context.SaveChangesAsync();
-
+            foreach(var korpas in kordpass)
+            {
+                _context.KOrderPassports.Remove(korpas);
+                await _context.SaveChangesAsync();
+            }
+           
             return NoContent();
         }
 

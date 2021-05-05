@@ -18,6 +18,5 @@ namespace HashtilERP.Data
         public int? K_PassportNum { get; set; }
 
         public K_Passport K_Passport { get; set; }
-
     }
 }

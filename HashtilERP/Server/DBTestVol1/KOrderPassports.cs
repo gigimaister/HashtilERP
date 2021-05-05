@@ -18,8 +18,7 @@ namespace HashtilERP.DBTestVol1
         public int? K_PassportNum { get; set; }
 
 
-        [ForeignKey("JobId")]
+        [ForeignKey("K_PassportId")]
         public KPassport K_Passport { get; set; }
-
     }
 }

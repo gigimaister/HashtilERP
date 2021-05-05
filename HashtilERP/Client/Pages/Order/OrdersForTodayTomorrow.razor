@@ -150,6 +150,7 @@
         <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כ.שתילים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.JobNumOfMagash) HeaderText="כ.מגשים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -586,28 +587,50 @@
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <button class="btn btn-success" @onclick="BtnSendKOrderPassportsToDB">שליחה</button>
-                            </div>
-                            <br/>
-                            <div style="text-align:right" class="alert alert-warning" role="alert">
-                                <div class="row">
-                                    @*KOrderPassports objects *@
-                                    <SfGrid DataSource="@kOrderPassports" @ref="@SfGridKorderPassports"
-                                          Toolbar="@(new List<string>() {  "Delete" })"
-                                            AllowSorting="true" TValue="K_OrderPassports" EnableRtl="true">
-                                        <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompletedHandler" TValue="K_OrderPassports"></GridEvents>
-                                        <GridEditSettings AllowAdding="false" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
-                                        <GridColumns>
-                                            <GridColumn Field=@nameof(K_OrderPassports.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                            <GridColumn Field="@nameof(K_OrderPassports.K_PassportNum)" HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                            <GridColumn Field=@nameof(K_OrderPassports.PassportMagashAmpunt) HeaderText="מגשים"  AllowEditing="true"  HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                            <GridColumn Field="@nameof(K_OrderPassports.SelectedAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                            <GridColumn Field="@nameof(K_OrderPassports.Platns)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                        </GridColumns>
-                                    </SfGrid>
+                            @*Spinner*@
+                            <div class="col-sm">
+                                <div class="spin-row">
+                                    <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" Visible="@LoadingSpinner" CssClass="e-customClass"></SfSpinner>
                                 </div>
                             </div>
+
+                            <div>
+
+                                @{ if (K_OrderForPickPassport.K_OrderPassports != null && K_OrderForPickPassport.K_OrderPassports.Count() > 0)
+                                    {
+                                        <button class="btn btn-primary" @onclick="@(_ => {BtnSendKOrderPassportsToDB(1);})">עדכון</button>
+                                        <button class="btn btn-danger" @onclick="@(_ => {BtnSendKOrderPassportsToDB(4);})">מחיקה</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-success" @onclick="@(_ => {BtnSendKOrderPassportsToDB(3);})">שליחה</button>
+                                    }
+                                }
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col">
+                                    <div style="text-align:right" class="alert alert-warning" role="alert">
+                                        @*KOrderPassports objects *@
+                                        <SfGrid DataSource="@kOrderPassports" @ref="@SfGridKorderPassports"
+                                                Toolbar="@(new List<string>() {  "Delete" })"
+                                                AllowSorting="true" TValue="K_OrderPassports" EnableRtl="true">
+                                            <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompletedHandler" TValue="K_OrderPassports"></GridEvents>
+                                            <GridEditSettings AllowAdding="false" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+                                            <GridColumns>
+                                                <GridColumn Field=@nameof(K_OrderPassports.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                                <GridColumn Field="@nameof(K_OrderPassports.K_PassportNum)" HeaderText="פספורט" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                                <GridColumn Field=@nameof(K_OrderPassports.PassportMagashAmpunt) HeaderText="מגשים" AllowEditing="true" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                                <GridColumn Field="@nameof(K_OrderPassports.SelectedAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                                <GridColumn Field="@nameof(K_OrderPassports.Platns)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+                                            </GridColumns>
+                                        </SfGrid>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                   
+                                </div>
+                            </div>    
 
 
                             @*GRID SECTION START HERE*@
@@ -1246,7 +1269,9 @@
         {
             kOrderPassports = new List<K_OrderPassports>();
 
+            K_OrderPassportsEditSendDB = new List<K_OrderPassports>();
 
+            K_OrderPassportsEditSendDB = K_OrderForPickPassport.K_OrderPassports;
 
             if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
             {
@@ -1267,6 +1292,8 @@
                 {
                     kOrderPassports = K_OrderForPickPassport.K_OrderPassports;
                 }
+                SfGridKorderPassports.Refresh();
+
                 await GetKpassportsForKorder(args.RowData);
 
                 LoadingSpinner = false;
@@ -1425,6 +1452,8 @@
     //KPassports for KOrderPassports UPDATE
     List<K_Passport> k_PassportsForKOrderPassportsUpdate { get; set; }
 
+    //List of KOrderPassports for edit after send to DB
+    List<K_OrderPassports> K_OrderPassportsEditSendDB { get; set; }
 
     //KOrder Obj for pick passport
     K_Order K_OrderForPickPassport { get; set; } = new K_Order();
@@ -1443,53 +1472,42 @@
         {
             StateHasChanged();
         }
-
     }
-
-    async void BtnSendKOrderPassportsToDB()
+    //SEND TO DB BTN
+    async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
-
         LoadingSpinner = true;
 
-        //if DB list Exist
-        if (K_OrderForPickPassport.K_OrderPassports != null && K_OrderForPickPassport.K_OrderPassports.Count > 0)
+        switch (dbAction)
         {
-            //if Temp List exist
-            if (kOrderPassports != null && kOrderPassports.Count > 0)
-            {
-                //NEED TO DEL DB LIST AND INSERT TEMP == 1
-                //&& Update KPassport
+            case 0:
+
+                break;
+            case 1:
                 await SendKOrderPassportsToDB(1);
-            }
-            //if Temp list empty
-            else
-            {
-                //NEED TO DEL DB LIST == 2
-                //&& Update KPassport
-                await SendKOrderPassportsToDB(2);
-            }
-        }
-        //if no DB list
-        else
-        {
-            //if Temp List exist
-            if (kOrderPassports != null && kOrderPassports.Count > 0)
-            {
-                //NEED TO INSERT TEMP == 3
-                //&& Update KPassport
+                break;
+            case 2:
+
+                break;
+            case 3:
                 await SendKOrderPassportsToDB(3);
-            }
-            //if Temp list empty
-            else
-            {
-                //Do Nothing Or Alert == 0
-                await SendKOrderPassportsToDB();
-            }
+                break;
+            case 4:
+                await SendKOrderPassportsToDB(4);
+                break;
         }
 
+
+        PickPassForKorderModalBool = false;
+
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        await ShowToast();
         LoadingSpinner = false;
     }
 
+    //DB SEND LOGIC
     async Task<int> SendKOrderPassportsToDB(int action = 0)
     {
         k_PassportsForKOrderPassportsUpdate = new List<K_Passport>();
@@ -1513,8 +1531,8 @@
                     {
                         Console.WriteLine(e.Message);
                     }
-                    await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{korderpass.PassportsToOrdersId}");
                 }
+                await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{K_OrderForPickPassport.JobId}");
                 //INSERT NEW List
                 foreach (var korderpass in kOrderPassports)
                 {
@@ -1584,10 +1602,15 @@
                     await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
                 }
                 break;
+            case 4:
+
+                await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{K_OrderForPickPassport.JobId}");
+                break;
         }
 
         return 0;
     }
+
     //KorderPassport grid events
     public async void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
     {
@@ -1793,9 +1816,7 @@
                     kOrderPassports.Add(korderPassport);
                 }
             }
-
         }
-        SfGridKorderPassports.Refresh();
         SfGridKpassport.Refresh();
     }
 
@@ -1968,6 +1989,7 @@
     {
         try
         {
+
             if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
             {
                 try
