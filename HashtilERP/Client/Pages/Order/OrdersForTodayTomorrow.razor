@@ -17,7 +17,7 @@
 @using Syncfusion.Blazor.Data
 @using System.ComponentModel.DataAnnotations;
 @using Syncfusion.Blazor.Calendars
-@using Syncfusion.Blazor.ProgressBar
+@using Syncfusion.Blazor.SplitButtons
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -29,16 +29,29 @@
 
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
-    <div class="alert alert-secondary" role="alert" style="width:300px">
-        <div class="row" style="text-align:right;width:400px;">
-            <div class="col">
-                <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
-            </div>
-            <div class="col" style="text-align:right">
-                <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
+    <div class="row">
+        <div class="col" style="text-align:right">
+            <div class="alert alert-secondary" role="alert" style="width:300px">
+                <div class="row" style="text-align:right;width:400px;">
+                    <div class="col">
+                        <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
+                    </div>
+                    <div class="col" style="text-align:right">
+                        <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
+                    </div>
+                </div>
             </div>
         </div>
+        <div class="col" style="text-align:left">
+            <SfProgressButton Content="שליחה להדפסה" CssClass="e-outline e-success" @onclick="@(_ => {SentToBartenderPrint(0);})">
+                <ProgressButtonSpinSettings Position="SpinPosition.Right"></ProgressButtonSpinSettings>
+            </SfProgressButton>
+            <SfProgressButton Content="ביטול להדפסה" CssClass="e-outline e-danger" @onclick="@(_ => {SentToBartenderPrint(1);})">
+                <ProgressButtonSpinSettings Position="SpinPosition.Left"></ProgressButtonSpinSettings>
+            </SfProgressButton>
+        </div>
     </div>
+
 </AuthorizeView>
 
 @if (K_Orders == null)
@@ -98,11 +111,11 @@
 </SfDialog>
 
 @*Grid No.1*@
-<SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
+<SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
-    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
+    <GridEvents QueryCellInfo="CustomizeCell" OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
                 CommandClicked="OnCommandClicked" RowSelected="RowSelected" RowDeselected="RowDeSelected" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
@@ -157,7 +170,7 @@
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="80px">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="119px">
                 <GridCommandColumns>
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "בחירת פספורט", CssClass = "e-info" })">
@@ -554,6 +567,8 @@
     <DialogTemplates>
         <Content>
             <SfTab HeaderPlacement="HeaderPosition.Top">
+                <TabEvents Selecting="Select">
+                </TabEvents>
                 <TabItems>
                     <TabItem>
                         <ChildContent>
@@ -628,9 +643,9 @@
                                     </div>
                                 </div>
                                 <div class="col">
-                                   
+
                                 </div>
-                            </div>    
+                            </div>
 
 
                             @*GRID SECTION START HERE*@
@@ -966,6 +981,14 @@
 
     //Loading Spinner
     bool LoadingSpinner { get; set; } = false;
+
+    public void Select(SelectingEventArgs args)
+    {
+        if (args.IsSwiped)
+        {
+            args.Cancel = true;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -1315,6 +1338,56 @@
         selectedRows = SfGrid.SelectedRecords;
     }
 
+    //BARTENDER PRINT / UNPRINT
+    async void SentToBartenderPrint(int Isprint = 0)
+    {
+        LoadingSpinner = true;
+
+        var listKorder = await SfGrid.GetSelectedRecords();
+        if (listKorder.Count() == 0)
+        {
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+            LoadingSpinner = false;
+            return;
+        }
+        try
+        {
+            foreach (var order in listKorder)
+            {
+                if (Isprint == 0)
+                {
+                    order.IsPrinted = true;
+                }
+                else
+                {
+                    order.IsPrinted = false;
+                }
+                await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            if (IsConnected) await SendMessage();
+            ToastContent = e.Message;
+            StateHasChanged();
+            await ShowToast();
+            MultiAVGInput = null;
+            LoadingSpinner = false;
+
+        }
+
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        await ShowToast();
+        MultiAVGInput = null;
+        LoadingSpinner = false;
+
+    }
+
 
     //MULTI AVG BTN CLICK
     async void BtnSendMultiAVG()
@@ -1603,7 +1676,22 @@
                 }
                 break;
             case 4:
-
+                foreach (var korderpass in kOrderPassports)
+                {
+                    try
+                    {
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
+                }
+                //UPDATE KPassport magash
+                foreach (var kpassport in k_PassportsForKOrderPassportsUpdate)
+                {
+                    await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
+                }
                 await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{K_OrderForPickPassport.JobId}");
                 break;
         }
@@ -2157,7 +2245,26 @@
     {
 
     }
+    //IsPrinted TYPE STYLE
+    public void CustomizeCell(QueryCellInfoEventArgs<K_Order> args)
+    {
+        if (args.Column.Field == "CxName")
+        {
+            try
+            {
 
+                if (args.Data.IsPrinted == true)
+                {
+                    args.Cell.AddClass(new string[] { "is-printed" });
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+    }
 
     #endregion
 }
@@ -2274,6 +2381,10 @@
 
     .is-low-avg {
         background-color: orangered;
+    }
+
+    .is-printed {
+        background-color: yellow;
     }
 
     .e-plus-icon::before {

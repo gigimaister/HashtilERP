@@ -157,6 +157,8 @@
 
             <div style="text-align:right;width:auto">
                 <SfTab HeaderPlacement="HeaderPosition.Top">
+                    <TabEvents Selecting="Select">
+                    </TabEvents>
                     <TabItems>
                         <TabItem>
                             <ChildContent>
@@ -187,7 +189,7 @@
                                                 int startAvg;
                                                 if (passport.Passport.UQuanOrdP > 5555554)
                                                 {
-                                                    temp = passport.Passport.UQuanProd*1000;
+                                                    temp = passport.Passport.UQuanProd * 1000;
                                                     startAvg = Convert.ToInt32((passport.Passport.UQuanProd * 1000) / passport.Passport.UTraySow);
                                                 }
                                                 else
@@ -331,16 +333,16 @@
                             <ContentTemplate>
                                 @{ var passport2 = (context as K_Passport);
                                     <div class="form-row" dir="rtl">
-                                         <div class="col-form-label">
-                                           @{ if (passport2.GrowingRoom == null)
-                                                                                {
-                                                                                    <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
-                                                                                }
-                                           else
-                                           { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
-                                           }
-                                         }
-                                         </div>
+                                        <div class="col-form-label">
+                                            @{ if (passport2.GrowingRoom == null)
+                                                {
+                                                    <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
+                                                }
+                                                else
+                                                { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
+                                                }
+                                            }
+                                        </div>
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
                                         </div>
@@ -745,7 +747,13 @@
         isDevice = mobile ? "Mobile" : "Desktop";
 
     }
-
+    public void Select(SelectingEventArgs args)
+    {
+        if (args.IsSwiped)
+        {
+            args.Cancel = true;
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await FindResponsiveness();
