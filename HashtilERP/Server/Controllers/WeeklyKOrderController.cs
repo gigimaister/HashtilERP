@@ -14,7 +14,7 @@ namespace HashtilERP.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WeeklyKOrderController : Controller
+    public class WeeklyKOrderController : ControllerBase
     {
         private readonly OrdersContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -30,13 +30,17 @@ namespace HashtilERP.Server.Controllers
         public async Task<List<KOrder>> GetKOrdersForTodayTomorrow()
         {
             var k_Orders = new List<KOrder>();
-
-            k_Orders = await _context.KOrder.Where(x =>(x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today )|| (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today.AddDays(1))
-            ||(x.PrepReportEnteringDate== null && x.MarketingDate == DateTime.Today.AddDays(1)) || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today) )
-                .Include(x=>x.Ocrd)
-                .Include(x=>x.K_OrderPassports)
-                .ThenInclude(x=>x.K_Passport)
-                .ToListAsync();
+            try
+            {
+                k_Orders = await _context.KOrder.Where(x => (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today) || (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today.AddDays(1))
+          || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today.AddDays(1)) || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today))
+              .Include(x => x.Ocrd)
+              .Include(x => x.K_OrderPassports)
+              .ThenInclude(x => x.K_Passport)
+              .Include(x => x.k_OrderRemarks)
+              .ToListAsync();
+            }
+          catch(Exception e) { Console.WriteLine(e.Message); }
 
             return k_Orders;
         }
@@ -138,6 +142,28 @@ namespace HashtilERP.Server.Controllers
             {
                 Console.WriteLine(e.Message);
             }
+            return 0;
+        }
+
+        [HttpPost("NewKOrderRemark")]
+        public async Task<int> NewKOrderRemark(KOrderRemark kOrderRemark)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kOrderRemark.UserName = screenName;
+            kOrderRemark.K_OrderRemarkStamp = DateTime.Now;
+
+            _context.KOrderRemarks.Add(kOrderRemark);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            //if no KOrder in KOrder Table
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
             return 0;
         }
             #endregion

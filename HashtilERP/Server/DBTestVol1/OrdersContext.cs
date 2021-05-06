@@ -33,6 +33,8 @@ namespace HashtilERP.DBTestVol1
         public virtual DbSet<Rdr1> Rdr1 { get; set; }
         public virtual DbSet<UpdateKPassportAudit> UpdateKPassportAudit { get; set; }
 
+        public virtual DbSet<KOrderRemark> KOrderRemarks { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("db_datareader")
@@ -90,6 +92,15 @@ namespace HashtilERP.DBTestVol1
                 entity.Property(e => e.PassportsToOrdersId).ValueGeneratedOnAdd();
 
                 entity.Property(e => e.K_PassportId).HasColumnName("K_PassportId");
+            });
+
+            modelBuilder.Entity<KOrderRemark>(entity =>
+            {
+                entity.HasKey(e => e.K_OrderRemarkId);
+
+                entity.ToTable("K_OrderRemark");
+
+                entity.Property(e => e.K_OrderRemarkId).ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<KPassport>(entity =>

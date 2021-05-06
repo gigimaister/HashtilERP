@@ -47,6 +47,9 @@ namespace HashtilERP.Shared.Models
         public virtual Oitm Oitm { get; set; }
 
         public OCRD Ocrd { get; set; }
+
+        [ForeignKey("JobId")]
+        public List<K_OrderRemark> k_OrderRemarks { get; set; }
     }
 
    

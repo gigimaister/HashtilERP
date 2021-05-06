@@ -45,5 +45,8 @@ namespace HashtilERP.DBTestVol1
 
         [ForeignKey("CardCode")]
         public Ocrd Ocrd { get; set; }
+
+        [ForeignKey("JobId")]
+        public List<KOrderRemark> k_OrderRemarks { get; set; }
     }
 }

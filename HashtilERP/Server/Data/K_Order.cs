@@ -58,6 +58,8 @@ namespace HashtilERP.Data
         [ForeignKey("JobId")]
         public virtual List<K_OrderPassports> K_OrderPassports { get; set; }
 
+        [ForeignKey("JobId")]
+        public List<K_OrderRemark> k_OrderRemarks { get; set; }
     }
 
     //GET BEGIN AND END PREPREPORT DATE RANGE
