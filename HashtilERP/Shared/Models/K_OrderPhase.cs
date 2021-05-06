@@ -9,7 +9,7 @@ namespace HashtilERP.Shared.Models
    public static class K_OrderPhase
     {
         public const string StandBy = "בהמתנה";
-        public const string AttachedPassports = "צוות פספורט";
+        public const string AttachedPassports = "ירדו כמויות";
         public const string InProgress = "בהוצאה";
         public const string Finish = "מוכנה";
         public const string Canceled = "בוטלה";

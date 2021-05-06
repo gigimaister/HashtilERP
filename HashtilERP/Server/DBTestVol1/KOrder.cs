@@ -30,6 +30,7 @@ namespace HashtilERP.DBTestVol1
         public bool? IsPrinted { get; set; }
         public bool? IsNeedToConfirmJob { get; set; }
         public bool? IsTakeoutJobTomorrow { get; set; }
+        public bool? IsDeliveryNote { get; set; }
         public int? NumOfCages { get; set; }
         public string HamamaRemarks { get; set; }
         public string DeliveryRemarks { get; set; }
