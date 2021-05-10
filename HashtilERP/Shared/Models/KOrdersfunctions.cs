@@ -132,5 +132,28 @@ namespace HashtilERP.Shared.Models
             }
             return false;
         }
+
+        public static string BoolRemarksToString(bool? isCagesmall, bool? isCometopickup)
+        {
+            string Text = "";
+
+            if(isCagesmall == true && isCometopickup == true) 
+            {
+                Text =  "כלובים קטנים ומגיע לקחת"; 
+            }
+            else if (isCagesmall == true && (isCometopickup == false || isCometopickup == null))
+            {
+                Text = "כלובים קטנים";
+            }
+            else if (isCometopickup == true && (isCagesmall == false  || isCagesmall == null) )
+            {
+                Text = "מגיע לקחת";
+            }
+            else
+            {
+                Text = "רגיל";
+            }
+            return Text;
+        }
     }
 }

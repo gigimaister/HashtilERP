@@ -52,6 +52,8 @@ namespace HashtilERP.Shared.Models
 
         [ForeignKey("JobId")]
         public List<K_OrderRemark> k_OrderRemarks { get; set; }
+
+        public string AnotherFixedRemarks => KOrdersfunctions.BoolRemarksToString(IsCageSmall, IsCxComeToPickUp);
     }
 
    

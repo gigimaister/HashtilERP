@@ -193,6 +193,7 @@
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
             <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="119px">
                 <GridCommandColumns>
@@ -335,17 +336,14 @@
                                                     </div>
                                                     <div>
                                                         <SfCheckBox @bind-Checked="@K_OrderForEdit.IsCxComeToPickUp" EnableRtl="true" Label="מגיע לקחת"></SfCheckBox>
-                                                    </div>
-                                                    <div>
-                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
-                                                    </div>
+                                                    </div>               
                                                 </div>
                                                 <div class="col">
                                                     <div>
                                                         <SfCheckBox @bind-Checked="@K_OrderForEdit.IsNeedToConfirmJob" EnableRtl="true" Label="לוודא הוצאה"></SfCheckBox>
-                                                    </div>
+                                                    </div>  
                                                     <div>
-                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsNeedToConfirmJob" EnableRtl="true" Label="סל ירק"></SfCheckBox>
+                                                        <SfCheckBox @bind-Checked="@K_OrderForEdit.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
                                                     </div>
                                                 </div>
                                             </div>
@@ -687,17 +685,14 @@
                                 </div>
                                 <div>
                                     <SfCheckBox @bind-Checked="@NewJobK_Order.IsCxComeToPickUp" EnableRtl="true" Label="מגיע לקחת"></SfCheckBox>
-                                </div>
-                                <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
-                                </div>
+                                </div>                               
                             </div>
                             <div class="col">
                                 <div>
                                     <SfCheckBox @bind-Checked="@NewJobK_Order.IsNeedToConfirmJob" EnableRtl="true" Label="לוודא הוצאה"></SfCheckBox>
-                                </div>
+                                </div>  
                                 <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsNeedToConfirmJob" EnableRtl="true" Label="סל ירק"></SfCheckBox>
+                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
                                 </div>
                             </div>
                         </div>
