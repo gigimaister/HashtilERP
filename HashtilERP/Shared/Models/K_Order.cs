@@ -54,6 +54,8 @@ namespace HashtilERP.Shared.Models
         public List<K_OrderRemark> k_OrderRemarks { get; set; }
 
         public string AnotherFixedRemarks => KOrdersfunctions.BoolRemarksToString(IsCageSmall, IsCxComeToPickUp);
+
+        public string GetIsJobDeliveryOut => KOrdersfunctions.GetIsKorderDeliveryBillOut(IsDeliveryNote);
     }
 
    

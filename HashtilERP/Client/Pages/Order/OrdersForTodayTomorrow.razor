@@ -203,6 +203,7 @@
                 </GridCommandColumns>
             </GridColumn>
         </AuthorizeView>
+        <GridColumn Field=@nameof(K_Order.GetIsJobDeliveryOut) HeaderText="ת.משלוח" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 </SfGrid>
 
@@ -528,7 +529,7 @@
     <DialogTemplates>
         <Content>
             <div>
-                <SfTextBox Multiline=true EnableRtl="true" Placeholder="הערות" @bind-value="K_OrderRemark.Remark"></SfTextBox>
+                <SfTextBox Multiline=true EnableRtl="true" Placeholder="הערה חדשה" @bind-value="K_OrderRemark.Remark"></SfTextBox>
             </div>
         </Content>
         <FooterTemplate>
@@ -712,19 +713,19 @@
             </form>
         </Content>
         <FooterTemplate>
-            <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-                <div class="row text-center">
+            <div class="row text-center">
+                <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
                     <div class="col">
                         <button class="btn btn-success" @onclick="@(_ => { BtnSendNewJob(NewJobK_Order); })">שליחה</button>
                     </div>
                     <div class="col">
                         <button class="btn btn-outline-info" @onclick="@(_ => { BtnAddAnotherJobToCx(); })">שליחה +</button>
                     </div>
-                    <div class="col">
-                        <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
-                    </div>
+                </AuthorizeView>
+                <div class="col">
+                    <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
                 </div>
-            </AuthorizeView>
+            </div>
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
@@ -797,6 +798,7 @@
                                         <button class="btn btn-success" @onclick="@(_ => {BtnSendKOrderPassportsToDB(3);})">שליחה</button>
                                     }
                                 }
+
                             </div>
                             <br />
                             <div class="row">
@@ -2117,6 +2119,7 @@
             StateHasChanged();
         }
     }
+   
     //SEND TO DB BTN
     async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
@@ -2398,7 +2401,7 @@
             {
                 ErrorDialogIsVisible = true;
                 ErrorModalHeaderContent = "שגיאה!";
-                ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פסספורט!";
+                ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
                 return;
             }
             else if (KOrdersfunctions.IsPassportEmpty(chosenKPassport))
@@ -2409,9 +2412,6 @@
                 return;
             }
             int? kpassportAvarage = KOrdersfunctions.GetKpassportAvg(chosenKPassport);
-
-            var dupPassport = new K_Passport();
-
 
             //Check if we have DO NOT have a Existing list
             if (kOrderPassports == null || kOrderPassports.Count == 0)
@@ -2527,6 +2527,7 @@
 
             SfGridKorderPassports.Refresh();
             SfGridKpassport.Refresh();
+            if (IsConnected) await SendMessage();
             StateHasChanged();
 
         }

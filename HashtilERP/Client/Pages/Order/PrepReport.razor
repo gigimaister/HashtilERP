@@ -39,10 +39,11 @@
         </div>
     }
 }
-
-<div style="text-align:left">
-    <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
-</div>
+<AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+    <div style="text-align:left">
+        <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
+    </div>
+</AuthorizeView>
 <div class="alert alert-secondary" style="width:300px" role="alert">
     <h6>בחירת טווח שונה להצגה</h6>
     <div>

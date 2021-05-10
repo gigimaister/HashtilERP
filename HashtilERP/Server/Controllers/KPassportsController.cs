@@ -118,7 +118,15 @@ namespace HashtilERP.Server
         [HttpGet("ForKOrderJobs")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetPassportsForKOrderJobs()
         {
-            var passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+            var passports = new List<K_Passport>();
+            try
+            {
+                 passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             return passports;
         }

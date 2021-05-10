@@ -155,5 +155,15 @@ namespace HashtilERP.Shared.Models
             }
             return Text;
         }
+
+        public static string GetIsKorderDeliveryBillOut(bool? isDeliveryout)
+        {
+            string Text = "";
+            if (isDeliveryout == true)
+            {
+                Text = "יצאה";
+            }
+            return Text;
+        }
     }
 }
