@@ -214,7 +214,7 @@
                                         </div>
                                         <div class="col">
                                             <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
-                                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.OpenCoordinationRemark"></SfTextBox>
+                                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.PassprodComments"></SfTextBox>
                                         </div>
                                     </div>
                                 </div>
@@ -396,6 +396,7 @@
             try
             {
                 order.FixedCoordinationRemark = FixedRemarkForMultiEdit;
+                if(order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk) { order.JobStatus = K_OrderPhase.StandBy; }
                 var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{order.JobId}", order);
 
                 if (rslt.IsSuccessStatusCode)

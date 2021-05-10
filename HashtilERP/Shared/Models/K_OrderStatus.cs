@@ -18,6 +18,13 @@ namespace HashtilERP.Shared.Models
         public const string WantsToPostponed = "רוצה לדחות";
         public const string WasCanceled = "בוטל";
 
+        //for who cancel Korder
+        public const string WhoHashtil = "המשתלה";
+
+        public const string WhoCx = "הלקוח";
+
+
+
         //not active at this moment
         public static Dictionary<int, string> KOrdertPhase()
         {
@@ -50,6 +57,16 @@ namespace HashtilERP.Shared.Models
             };
 
             return korderstatus;
+        }
+        public static List<string> GetWhoCancelKorderList()
+        {
+            var korderWhocancelList = new List<string>
+            {
+                WhoHashtil,
+                WhoCx
+            };
+
+            return korderWhocancelList;
         }
 
     }

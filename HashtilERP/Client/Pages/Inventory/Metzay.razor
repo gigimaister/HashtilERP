@@ -622,6 +622,8 @@
     //Objects list populate grid
     public K_Passport[] K_Passports;
 
+    public K_Passport KPassportForAllToEditCheck { get; set; } = new K_Passport();
+
     //for AuditForm
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
 
@@ -817,7 +819,12 @@
     //PUT K_Passport Green/Gamlon/Magash Amount
     public async Task<int> UpdatePassport(K_Passport context)
     {
-
+        if (KPassportForAllToEditCheck.Hamama == context.Hamama && KPassportForAllToEditCheck.Gamlon == context.Gamlon && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
+        {
+            ModalError = "לא בוצעו שינויים!";
+            IsVisible = true;
+            return 1;
+        }
 
         if (InputHamama != "")
         {
@@ -985,6 +992,9 @@
         }
         if (args.CommandColumn.ButtonOption.Content == "עריכה")
         {
+            KPassportForAllToEditCheck.Hamama = args.RowData.Hamama;
+            KPassportForAllToEditCheck.Gamlon = args.RowData.Gamlon;
+            KPassportForAllToEditCheck.MagashAmount = args.RowData.MagashAmount;
 
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             OpenCustomEditDialog();

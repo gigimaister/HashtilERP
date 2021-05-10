@@ -32,8 +32,9 @@ namespace HashtilERP.Server.Controllers
             var k_Orders = new List<KOrder>();
             try
             {
-                k_Orders = await _context.KOrder.Where(x => (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today) || (x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.MarketingDate == DateTime.Today.AddDays(1))
-          || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today.AddDays(1)) || (x.PrepReportEnteringDate == null && x.MarketingDate == DateTime.Today))
+                k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today || x.MarketingDate == DateTime.Today.AddDays(1))
+                && (x.JobStatus == K_OrderPhase.StandBy || x.JobStatus == K_OrderPhase.AttachedPassports || x.JobStatus == K_OrderPhase.InProgress 
+                || x.JobStatus == K_OrderPhase.Finish))
               .Include(x => x.Ocrd)
               .Include(x => x.K_OrderPassports)
               .ThenInclude(x => x.K_Passport)
@@ -66,7 +67,36 @@ namespace HashtilERP.Server.Controllers
             return k_Orders;
         }
 
-      
+        //Thai Korder Ready
+        [HttpGet("GetKOrder/Thai/{id}")]
+        public async Task<KOrder> GetKOrderThai(int id)
+        {
+            var korder = new KOrder();
+            try
+            {
+                korder = await _context.KOrder.Where(x => x.JobId == id).FirstOrDefaultAsync();                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return korder;
+        }
+
+
+        [HttpGet("GetChangedJobsAfterDelivery")]
+        public async Task<List<KOrder>> GetChangedJobsAfterDelivery()
+        {
+            var k_Orders = new List<KOrder>();
+            k_Orders = await _context.KOrder.Where(x => x.IsWasChangedAfterDeliveryReport == true)
+              .Include(x => x.Ocrd)
+              .Include(x => x.K_OrderPassports)
+              .ThenInclude(x => x.K_Passport)
+              .Include(x => x.k_OrderRemarks)
+              .ToListAsync();
+            return k_Orders;
+        }
         #endregion
 
         #region PUT REGION
@@ -99,6 +129,10 @@ namespace HashtilERP.Server.Controllers
             return Ok();
         }
 
+
+        
+
+
         #endregion
 
         #region POST
@@ -130,6 +164,7 @@ namespace HashtilERP.Server.Controllers
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kOrderPassports.UserName = screenName;
+            kOrderPassports.PassportsToOrdersId = 0;
 
             _context.KOrderPassports.Add(kOrderPassports);
 

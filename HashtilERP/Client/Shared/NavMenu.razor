@@ -33,6 +33,13 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
                     <AuthorizeView Roles="Administrator">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="pages/listroles" Match="NavLinkMatch.All" @onclick="Close">
@@ -52,7 +59,6 @@
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren">
                         <li class="nav-item px-3" style="text-align:right">
                             <NavLink class="nav-link" href="inventory/growingrooms" Match="NavLinkMatch.All" @onclick="Close">
-                                @*GrowingRoom*@
                                 <span class="oi oi-globe" @onclick="Close" aria-hidden="true"></span>&nbspחדרי הנבטה
                             </NavLink>
                         </li>
@@ -60,8 +66,16 @@
                     <AuthorizeView Roles="Administrator,Thai-GreenHouse">
                         <li class="nav-item px-3" style="text-align:right">
                             <NavLink class="nav-link" href="thai-greenhouse/newmovingpassports" Match="NavLinkMatch.All" @onclick="Close">
-                                @*GrowingRoom*@
+                                @*MovingPassports*@
                                 <span class="oi oi-yen" aria-hidden="true"></span>&nbsp ใหม่หรือปรับปรุง
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Thai-GreenHouse">
+                        <li class="nav-item px-3" style="text-align:right">
+                            <NavLink class="nav-link" href="thai-greenhouse/thaigreenkorderfinish" Match="NavLinkMatch.All" @onclick="Close">
+                                @*KOrder Ready*@
+                                <span class="oi oi-signal" aria-hidden="true"></span>&nbsp เสร็จงาน
                             </NavLink>
                         </li>
                     </AuthorizeView>
@@ -141,7 +155,7 @@
                     <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/newpassportsinsertformanagers" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-plus" aria-hidden="true"></span>&nbsp חדשים 
+                                <span class="oi oi-plus" aria-hidden="true"></span>&nbsp חדשים
                             </NavLink>
                         </li>
                     </AuthorizeView>

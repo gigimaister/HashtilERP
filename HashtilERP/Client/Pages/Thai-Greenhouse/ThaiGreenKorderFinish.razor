@@ -1,0 +1,207 @@
+﻿@page "/thai-greenhouse/thaigreenkorderfinish"
+@inject IJSRuntime jsRuntime
+
+@using Syncfusion.Blazor.Data
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Thai-GreenHouse")]
+@*finish job*@
+<h3 style="text-align:center">เสร็จงาน</h3>
+
+
+@if (isDevice == "Mobile" || 1 == 1)
+{
+    <div style="text-align:right">
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+            @*ENTER SCAN*@
+            แทรกการสแกน
+        </button>
+    </div>
+
+}
+<br />
+@*//Paasport Input*@
+<input type="text" class="form-control" style="width:auto;text-align:center"
+       placeholder="รหัสงาน"
+       @bind=@JobId />
+<br />
+<br />
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { JobId=e; ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)" />
+
+}
+<div style="text-align:right">
+    <button class="btn btn-success"
+            type="button"
+            @onclick="@KOrderFinish">
+        @*ENTER SCAN*@
+        แทรกการสแกน
+    </button>
+</div>
+<br />
+<br />
+@*spinner*@
+<SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+
+
+@*Toast Component*@
+<SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+
+@code {
+    //Thai strings
+    private static string ThaiSaved = "บันทึกแล้ว!";
+    string ThaiNoJobId = "ไม่ได้ป้อนรหัสงาน!";
+
+
+    //Hub
+    private HubConnection hubConnection;
+
+    //Toast
+    SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+
+    //spinner
+    bool AfterActionSpinner { get; set; } = false;
+
+    //barcode
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+
+    //JobId
+    public string JobId { get; set; } = "";
+
+    #region Error Modal
+    private bool IsVisible { get; set; } = false;
+    private string ModalError { get; set; } = "";
+
+
+    //INIT
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+    #endregion
+    async void KOrderFinish()
+    {
+        if (String.IsNullOrEmpty(JobId))
+        {
+            ModalError = ThaiNoJobId;
+            OpenDialog();
+            return;
+        }
+        AfterActionSpinner = true;
+        await SendKOrderJobFinish();
+        AfterActionSpinner = false;
+
+    }
+
+    //DB Action
+    public async Task<int> SendKOrderJobFinish()
+    {
+        try
+        {
+            var kord = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{JobId}");
+            kord.JobStatus = K_OrderPhase.Finish;
+            var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{JobId}", kord);
+            if (rslt.IsSuccessStatusCode)
+            {
+                if (IsConnected) await SendMessage();
+                ToastContent = ThaiSaved;
+                JobId = "";
+                StateHasChanged();
+                await ShowToast();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return 1;
+        }
+
+        return 0;
+    }
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    public bool IsConnected =>
+      hubConnection.State == HubConnectionState.Connected;
+
+
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+}
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+    }
+
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
+    }
+</style>

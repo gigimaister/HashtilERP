@@ -1,0 +1,627 @@
+﻿@page "/order/shippingcertificatechanged"
+@inject IJSRuntime jsRuntime
+
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Syncfusion.Blazor.Inputs
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Data
+@using System.ComponentModel.DataAnnotations;
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.SplitButtons
+
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B")]
+<div style="text-align:right" class="alert alert-danger" role="alert">
+    <h2 style="text-align:center">הוצאות ששונו לאחר שתעודת משלוח יצאה</h2>
+</div>
+
+@if (K_Orders == null)
+{
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="מייבא נתונים..." Type="SpinnerType.Bootstrap4" Visible="true" CssClass="e-customClass"></SfSpinner>
+        </div>
+    </div>
+}
+
+@*Spinner*@
+<div class="col-sm">
+    <div class="spin-row">
+        <SfSpinner Size="40" Label="טוען..." Type="SpinnerType.Bootstrap4" Visible="@LoadingSpinner" CssClass="e-customClass"></SfSpinner>
+    </div>
+</div>
+@*Toast Component*@
+<SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+@{
+    var Tool = (new List<string>() { "Search" });
+}
+@*Grid No.1*@
+<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
+        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
+        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
+    <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
+                CommandClicked="OnCommandClicked" RowSelected="RowSelected" RowDeselected="RowDeSelected"></GridEvents>
+    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+    <GridAggregates>
+        <GridAggregate>
+            <GridAggregateColumns>
+                <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>ספירה: @aggregate.Count</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Order.JobPlantsNum) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            <b>@aggregate.Sum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+            </GridAggregateColumns>
+        </GridAggregate>
+
+    </GridAggregates>
+    <GridColumns>
+        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כ.שתילים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobNumOfMagash) HeaderText="כ.מגשים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="50px">
+                <GridCommandColumns>
+                    <GridCommandColumn Type=CommandButtonType.None
+                                       ButtonOption="@(new CommandButtonOptions() { Content = "טופל", CssClass = "e-success" })">
+                    </GridCommandColumn>
+                </GridCommandColumns>
+            </GridColumn>
+        </AuthorizeView>
+    </GridColumns>
+</SfGrid>
+@*Edit Row Dialog*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="800px"
+          Height="800px"
+          @bind-Visible="@RowEditDialogShow" ShowCloseIcon="true" IsModal="true">
+
+    <DialogTemplates>
+        <Content>
+            <div class="row">
+                <div class="col">
+                </div>
+                <div class="col" style="text-align:left">
+                </div>
+            </div>
+            <hr>
+            <SfTab HeaderPlacement="HeaderPosition.Top">
+                <TabItems>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="ראשי"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <br />
+                            <div class="container">
+                                <div class="form-group">
+                                    <div style="text-align:right" class="alert alert-success" role="alert">
+                                        <div class="row">
+                                            <h5 style="text-align:center">לקוח: @K_OrderForEdit.CxName</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>גידול: @K_OrderForEdit.Gidul</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>זן: @K_OrderForEdit.Zan</h5>
+                                        </div>
+                                        <div class="row">
+                                            <h5>ת.הוצאה: @DateTimeToShortString(K_OrderForEdit.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForEdit.MarketingDate)</h5>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>בחירת תאריך</label>
+                                                <SfDatePicker TValue="DateTime?" EnableRtl="true" Readonly="true" @bind-Value="@K_OrderForEdit.MarketingDate" Placeholder='תאריך הוצאה'></SfDatePicker>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>בחירת לקוח</label>
+                                                <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@K_OrderForEdit.CxName" Readonly="true">
+                                                    <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
+                                                </SfAutoComplete>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>בחירת גידול</label>
+                                                <SfAutoComplete TValue="string" TItem="string"  Placeholder="גידול" @bind-Value="@K_OrderForEdit.Gidul" Readonly="true">
+                                                </SfAutoComplete>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>בחירת זן</label>
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" Readonly="true" @bind-Value="@K_OrderForEdit.Zan">
+                                                </SfAutoComplete>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>כ.שתילים</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobPlantsNum" readonly="readonly" class="form-control" placeholder="שתילים" />
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>כ.מגשים</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobNumOfMagash" readonly="readonly" class="form-control" placeholder="מגשים" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="form-group">
+                                                <label>ממוצע</label>
+                                                <input type="number" @bind-value="K_OrderForEdit.JobPlansAvarage" max="999" readonly="readonly" class="form-control" placeholder="ממוצע" />
+                                            </div>
+                                        </div>
+                                        <div class="col">
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>הערות הובלה</label>
+                                        <SfTextBox Multiline=true EnableRtl="true" Readonly="true" Placeholder="הערות הובלה" @bind-value="K_OrderForEdit.DeliveryRemarks"></SfTextBox>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>הערות לחממה</label>
+                                        <div class="multiline">
+                                            <SfTextBox Multiline=true EnableRtl="false" Readonly="true" Placeholder="הערות למנהל עבודה" @bind-value="K_OrderForEdit.HamamaRemarks"></SfTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+
+                                        </div>
+                                        <div class="col">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="פרטים נוספים"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            @{if (K_OrderForEdit.K_OrderPassports.Count > 0)
+                                {
+                                    <div class="alert alert-primary" style="text-align:right" role="alert">
+                                        <h4 class="alert-heading">פירוט פספורטים מצוותים</h4>
+                                        <hr>
+                                        <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        פספורט
+                                                    </th>
+                                                    <th>
+                                                        חממה
+                                                    </th>
+                                                    <th>
+                                                        גמלון
+                                                    </th>
+                                                    <th>
+                                                        מגשים
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var kpassport in K_OrderForEdit.K_OrderPassports)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            @kpassport.K_PassportNum
+                                                        </td>
+                                                        <td>
+                                                            @kpassport.K_Passport.Hamama
+                                                        </td>
+                                                        <td>
+                                                            @kpassport.K_Passport.Gamlon
+                                                        </td>
+                                                        <td>
+                                                            @kpassport.PassportMagashAmpunt
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <div style="text-align:right" class="alert alert-danger" role="alert">
+                                        <h3>
+                                            לא צוותו פספורטים
+                                        </h3>
+                                    </div>
+                                }
+                            }
+                            <div class="alert alert-success" style="text-align:right" role="alert">
+                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                תאריך
+                                            </th>
+                                            <th>
+                                                נוספה ע"י
+                                            </th>
+                                            <th>
+                                                הערה
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var form in K_OrderForEdit.k_OrderRemarks.OrderByDescending(x => x.K_OrderRemarkStamp))
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    @form.K_OrderRemarkStamp
+                                                </td>
+                                                <td>
+                                                    @form.UserName
+                                                </td>
+                                                <td>
+                                                    @form.Remark
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="היסטוריית עריכה"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+
+                        </ContentTemplate>
+                    </TabItem>
+                </TabItems>
+            </SfTab>
+
+
+        </Content>
+
+        <FooterTemplate>
+            <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+                <div class="row text-center">
+                    <div class="col">
+                        <button class="btn btn-success" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">טופל</button>
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-danger" @onclick="@CancelRowEditDialogShow">ביטול</button>
+                    </div>
+                </div>
+            </AuthorizeView>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+@*Alert/Error message Dialog*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorDialogIsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header>@ErrorModalHeaderContent</Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+@code {
+    //Page settings
+    #region Page Settings
+
+    //list of KOrder(Grid Rows)
+    K_Order[] K_Orders;
+
+    //"מחפש בין התאריכים Show Counter"
+    bool ShowCorrectDate = false;
+
+    //For short date string
+    string startDate, endDate;
+
+    // Hub
+    private HubConnection hubConnection;
+    public bool IsConnected =>
+    hubConnection.State == HubConnectionState.Connected;
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+
+    //getting week sun to sat dates
+    string ReportBeginDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[0].ToShortDateString();
+    string ReportEndDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[1].ToShortDateString();
+
+    //Loading Spinner
+    bool LoadingSpinner { get; set; } = false;
+
+    public void Select(SelectingEventArgs args)
+    {
+        if (args.IsSwiped)
+        {
+            args.Cancel = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+        hubConnection = new HubConnectionBuilder()
+           .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+           .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+
+            Task.Run(async () => { await LoadData(); });
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    //Get list Of KOrder Todat/Tomorrow Objects
+    protected async Task LoadData()
+    {
+        try
+        {
+            ShowCorrectDate = false;
+            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetChangedJobsAfterDelivery");
+
+            StateHasChanged();
+        }
+        catch (Exception e) { Console.WriteLine(e.Message); }
+    }
+    #endregion
+    //SfGrid No. 1 Methods
+    #region SfGrid methods and settings
+
+    //Grid Object for costum actions
+    SfGrid<K_Order> SfGrid;
+
+    //LoadData objects for greed
+    List<K_Order> GridNo1List = new List<K_Order>();
+
+
+    //List KOrder for Multi AVG
+    List<K_Order> selectedRows = new List<K_Order>();
+
+
+    //Command Button Clicked In grid
+    public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
+    {
+        if (args.CommandColumn.ButtonOption.Content == "טופל")
+        {
+            LoadingSpinner = true;
+            await UpdateEditRow(args.RowData);
+            LoadingSpinner = false;
+        }
+    }
+
+    //Syncfusion RowSelect Way
+    public async Task RowSelected(RowSelectEventArgs<K_Order> args)
+    {
+        selectedRows = SfGrid.SelectedRecords;
+    }
+    //Syncfusion RowSelect Way
+    public async Task RowDeSelected(RowDeselectEventArgs<K_Order> args)
+    {
+        selectedRows = SfGrid.SelectedRecords;
+    }
+
+    //On double click Open
+    public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
+    {
+        K_OrderForEdit = args.RowData;
+        RowEditDialogShow = true;
+    }
+
+    //Nullble DateTime To Short Date String
+    string DateTimeToShortString(DateTime? dateTime)
+    {
+        DateTime date = Convert.ToDateTime(dateTime);
+        var shortDate = date.ToShortDateString();
+        return shortDate;
+    }
+
+    //button clear filter
+    public async void ClearGridfilter()
+    {
+        await this.SfGrid.ClearFiltering();
+    }
+
+    //clear search box
+    public void ClearGridSearch()
+    {
+        try
+        {
+            this.SfGrid.Search("");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+    public IEditorSettings CustomerEditParams = new StringEditCellParams
+    {
+        Params = new TextBoxModel() { EnableRtl = true, ShowClearButton = false, Multiline = true }
+    };
+    #endregion
+    //TOAST
+    #region TOAST
+    //TOAST
+    public SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+    #endregion
+    //Grid Edit Modal
+    #region Grid Edit Modal
+
+    //KOrder Object for Edit Data
+    K_Order K_OrderForEdit = new K_Order();
+
+
+    //cx marketing date Min limit
+    public DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+
+    //KOrder Job Status list
+    List<string> KOrderStatusList = K_OrderStatus.GetKOrderStatus();
+
+    // Property to control the row edit dialog.
+    public bool RowEditDialogShow { get; set; } = false;
+
+    //cancel Edit row Modal
+    public void CancelRowEditDialogShow()
+    {
+        RowEditDialogShow = false;
+    }
+
+    async void SendRowEdit(K_Order k_Order)
+    {
+
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        await UpdateEditRow(k_Order);
+        LoadingSpinner = false;
+    }
+
+    //UPDATE Row
+    public async Task<int> UpdateEditRow(K_Order k_Order)
+    {
+        try
+        {
+            k_Order.IsWasChangedAfterDeliveryReport = false;
+            var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
+            if (rslt.IsSuccessStatusCode)
+            {
+                if (IsConnected) await SendMessage();
+                ToastContent = "נשמר!";
+                StateHasChanged();
+                await ShowToast();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return 0;
+    }
+    #endregion
+    //Error/Alert Modal
+    #region Error/Alert Dialog
+    //Main Message
+    private string ModalError { get; set; } = "";
+    private string ErrorModalHeaderContent { get; set; } = "";
+    private bool ErrorDialogIsVisible { get; set; } = false;
+
+    private void OnOverlayclick(Microsoft.AspNetCore.Components.Web.MouseEventArgs arg)
+    {
+        this.ErrorDialogIsVisible = false;
+    }
+
+    private void CloseDialog()
+    {
+        this.ErrorDialogIsVisible = false;
+    }
+
+    #endregion
+}
+
+
+<style>
+    .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
+        stroke: #48EB43;
+    }
+
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
+    }
+</style>

@@ -64,7 +64,6 @@ namespace HashtilERP.Server.Controllers
                             ItemCode = passport.UItemCode,
                             PassprodComments = passprod.UComments ?? "",
                             FixedCoordinationRemark = K_OrderStatus.NeedToSchedule.Trim(),
-                            JobStatus = K_OrderPhase.StandBy
 
                         };
 

@@ -192,6 +192,7 @@
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
             <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="119px">
                 <GridCommandColumns>
@@ -212,8 +213,25 @@
 
     <DialogTemplates>
         <Content>
-            <div>
-                <button class="btn btn-warning" @onclick="@ShowKorderRemark">הערה</button>
+            <div class="row">
+                <div class="col">
+                    <button class="btn btn-warning" @onclick="@ShowKorderRemark">הערה</button>
+                </div>
+                <div class="col" style="text-align:left">
+                    @{if (K_OrderForEdit.IsJobCancel == true)
+                        {
+                            <AuthorizeView Roles="Administrator, Manager-GreenHouse">
+                                <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => {DeletePassAndCancelJob();})">מחיקה ואישור</button>
+                            </AuthorizeView>
+                            <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => {SetJobIsCancelFalse();})">יוצאת</button>
+
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                        }
+                    }
+                </div>
             </div>
             <hr>
             <SfTab HeaderPlacement="HeaderPosition.Top">
@@ -364,7 +382,7 @@
                             @{if (K_OrderForEdit.K_OrderPassports.Count > 0)
                                 {
                                     <div class="alert alert-primary" style="text-align:right" role="alert">
-                                        <h4 class="alert-heading">פירוט פספורטים מצוותים</h4>
+                                        <h4 class="alert-heading">פספורטים מצוותים</h4>
                                         <hr>
                                         <table class="table table-striped table-hover" style="text-align:right;width:auto">
                                             <thead>
@@ -415,42 +433,42 @@
                                     </div>
                                 }
                             }
-                        <div class="alert alert-success" style="text-align:right" role="alert">
-                            <table class="table table-striped table-hover" style="text-align:right;width:auto">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            תאריך
-                                        </th>
-                                        <th>
-                                            נוספה ע"י
-                                        </th>
-                                        <th>
-                                            הערה
-                                        </th>                                     
-                                    </tr>
-                                </thead>
-                                <tbody>
+                            <div class="alert alert-success" style="text-align:right" role="alert">
+                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                תאריך
+                                            </th>
+                                            <th>
+                                                נוספה ע"י
+                                            </th>
+                                            <th>
+                                                הערה
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
 
-                                    @foreach (var form in K_OrderForEdit.k_OrderRemarks.OrderByDescending(x=>x.K_OrderRemarkStamp))
-                                    {
-                                       
-                                    <tr>
-                                        <td>
-                                            @form.K_OrderRemarkStamp
-                                        </td>
-                                        <td>
-                                            @form.UserName
-                                        </td>
-                                        <td>
-                                            @form.Remark
-                                        </td>                                     
-                                    </tr>
-                                        
-                                   }
-                                </tbody>
-                            </table>
-                        </div>
+                                        @foreach (var form in K_OrderForEdit.k_OrderRemarks.OrderByDescending(x => x.K_OrderRemarkStamp))
+                                        {
+
+                                            <tr>
+                                                <td>
+                                                    @form.K_OrderRemarkStamp
+                                                </td>
+                                                <td>
+                                                    @form.UserName
+                                                </td>
+                                                <td>
+                                                    @form.Remark
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         </ContentTemplate>
                     </TabItem>
                     <TabItem>
@@ -482,8 +500,30 @@
     </DialogTemplates>
 </SfDialog>
 
+@*KOrder Job Cancel Dialog*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="350"
+          Height="350"
+          @bind-Visible="@CancelKorderShow" ShowCloseIcon="true" IsModal="true">
+    <DialogTemplates>
+        <Content>
+            <div>
+                <label style="font-size:16px;font-weight:bold" for="plantsinput">מי ביטל?</label>
+                <SfDropDownList TValue="string" TItem="string" enab DataSource="@KorderCancelWhoCancelList" @bind-Value="@WhoCancel" Placeholder=""></SfDropDownList>
+                <label style="font-size:16px;font-weight:bold" for="plantsinput">סיבת ביטול(קצר)</label>
+                <SfTextBox Multiline=true EnableRtl="true" Placeholder="סיבה" @bind-value="TboxCancel"></SfTextBox>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
+            <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+
+
 @*KOrder Remark Dialog*@
-<SfDialog  Target="#target" EnableRtl="true"
+<SfDialog Target="#target" EnableRtl="true"
           Width="200"
           Height="200"
           @bind-Visible="@KOrderRemarkShow" ShowCloseIcon="true" IsModal="true">
@@ -1126,6 +1166,81 @@
 </SfDialog>
 
 @code {
+
+    //KOrder Cnacel Dialog
+    #region KOrder Cnacel Dialog
+    public bool CancelKorderShow { get; set; } = false;
+
+    //T.box and Who canceled
+    string TboxCancel, WhoCancel;
+
+    //KOrder Job Status list
+    List<string> KorderCancelWhoCancelList = K_OrderStatus.GetWhoCancelKorderList();
+
+    void KorderCancelHide()
+    {
+        CancelKorderShow = false;
+    }
+
+    void KorderCancelShow()
+    {
+        CancelKorderShow = true;
+    }
+
+
+    async void SendOrderCancelForm()
+    {
+        if (String.IsNullOrEmpty(TboxCancel) || String.IsNullOrEmpty(WhoCancel))
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "יש למלא את שתי האופציות!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+
+        KorderCancelHide();
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        await SendJobCancelForm();
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        LoadingSpinner = false;
+        await ShowToast();
+
+    }
+    async Task<int> SendJobCancelForm()
+    {
+        try
+        {
+
+            K_OrderRemark.JobId = K_OrderForEdit.JobId;
+            K_OrderRemark.Remark = $"ביטול עבודה-מי ביטל: {WhoCancel} סיבת ביטול:{TboxCancel}";
+            if (K_OrderForEdit.IsDeliveryNote == true) { K_OrderForEdit.IsWasChangedAfterDeliveryReport = true; }
+
+            if (K_OrderForEdit.K_OrderPassports.Count() > 0)
+            {
+                K_OrderForEdit.IsJobCancel = true;
+            }
+            else
+            {
+                K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+            }
+
+            await Http.PostAsJsonAsync(("api/WeeklyKOrder/NewKOrderRemark"), K_OrderRemark);
+            await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+            K_OrderRemark = new K_OrderRemark();
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return 1;
+        }
+        return 0;
+    }
+    #endregion
+
     //KOrder Remark
     #region KOrder Remark
 
@@ -1141,6 +1256,54 @@
     void KOrderRemarkHide()
     {
         KOrderRemarkShow = false;
+    }
+    async void SetJobIsCancelFalse()
+    {
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        K_OrderForEdit.IsJobCancel = false;
+        var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+        if (!StandByrslt.IsSuccessStatusCode)
+        {
+
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = StandByrslt.ReasonPhrase; ;
+            ErrorDialogIsVisible = true;
+            LoadingSpinner = false;
+            return;
+        }
+
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        LoadingSpinner = false;
+        await ShowToast();
+
+
+    }
+
+    async void DeletePassAndCancelJob(int action = 0)
+    {
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        await SendKOrderPassportsToDB(4);
+        K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+        var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+        if (!StandByrslt.IsSuccessStatusCode)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = StandByrslt.ReasonPhrase; ;
+            ErrorDialogIsVisible = true;
+            LoadingSpinner = false;
+            return;
+        }
+
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        LoadingSpinner = false;
+        await ShowToast();
+
     }
 
     async void SendOrderRemark()
@@ -1317,6 +1480,7 @@
         try
         {
             k_Order.KOrderEnteringDate = DateTime.Today;
+            k_Order.JobStatus = K_OrderPhase.StandBy;
 
             if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
             {
@@ -1331,7 +1495,6 @@
                     ErrorModalHeaderContent = "שגיאה!";
                     ModalError = "גידול וזן לא קיימים!";
                     return 1;
-
                 }
                 if (String.IsNullOrEmpty(k_Order.ItemCode))
                 {
@@ -1638,8 +1801,8 @@
                     {
                         var message = $"{kord.CxName + "\n" + kord.Gidul + "\n" + kord.Zan + "\n" + kord.JobNumOfMagash}!";
                         ErrorDialogIsVisible = true;
-                        ErrorModalHeaderContent ="שגיאת עבודה!";
-                        ModalError = "לא ניתן להדפיס עבודה ללא פספורטים!" + "\n"+ message;
+                        ErrorModalHeaderContent = "שגיאת עבודה!";
+                        ModalError = "לא ניתן להדפיס עבודה ללא פספורטים!" + "\n" + message;
                         LoadingSpinner = false;
                         return;
                     }
@@ -1782,6 +1945,8 @@
     public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
     {
         K_OrderForEdit = args.RowData;
+        K_OrderForAllEdit.Gidul = args.RowData.Gidul;
+        K_OrderForAllEdit.Zan = args.RowData.Zan;
         RowEditDialogShow = true;
         AVGAutoCalc = "";
     }
@@ -1907,6 +2072,8 @@
                 ActionDialogText = "האם למחוק את כל הפספורטים המצוותים לעבודה זו?";
                 DialogVisability = true;
                 return;
+            case 5:
+                break;
         }
 
 
@@ -2268,8 +2435,12 @@
                     kOrderPassports.Add(korderPassport);
                 }
             }
+
+            SfGridKorderPassports.Refresh();
+            SfGridKpassport.Refresh();
+            StateHasChanged();
+
         }
-        SfGridKpassport.Refresh();
     }
 
 
@@ -2454,6 +2625,9 @@
     //KOrder Object for Edit Data
     K_Order K_OrderForEdit = new K_Order();
 
+    //Public KOrder obj for check edit
+    K_Order K_OrderForAllEdit { get; set; } = new K_Order();
+
     //AVG string for Auto calc num of magash
     string EditAVGAutoCalc = "";
 
@@ -2486,6 +2660,14 @@
     {
         try
         {
+            if (k_Order.K_OrderPassports.Count() > 0 && k_Order.Gidul != K_OrderForAllEdit.Gidul && k_Order.Zan != K_OrderForAllEdit.Zan)
+            {
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא ניתן לשנות גידול ו/או זן לאחר שירדו כמויות!";
+                ErrorDialogIsVisible = true;
+
+                return 1;
+            }
 
             if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
             {
@@ -2496,22 +2678,25 @@
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
-                    ErrorDialogIsVisible = true;
                     ErrorModalHeaderContent = "שגיאה!";
                     ModalError = "גידול וזן לא קיימים!";
+                    ErrorDialogIsVisible = true;
+
                     return 1;
 
                 }
                 if (String.IsNullOrEmpty(k_Order.ItemCode))
                 {
-                    ErrorDialogIsVisible = true;
                     ErrorModalHeaderContent = "שגיאה!";
                     ModalError = "גידול וזן לא קיימים!";
+                    ErrorDialogIsVisible = true;
+
                     return 1;
                 }
 
             }
-
+            //if we edit the order after delivery bill was out
+            if(k_Order.IsDeliveryNote == true) { k_Order.IsWasChangedAfterDeliveryReport = true; }
             var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
@@ -2632,6 +2817,8 @@
 
     #endregion
 
+
+
     #region TOAST
     //TOAST
     public SfToast ToastObj;
@@ -2653,9 +2840,17 @@
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Order> args)
     {
-        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports)
+        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true)
         {
             args.Row.AddClass(new string[] { "is-attached-passports" });
+        }
+        if (args.Data.IsJobCancel == true)
+        {
+            args.Row.AddClass(new string[] { "is-job-cancel" });
+        }
+        if (args.Data.JobStatus == K_OrderPhase.Finish)
+        {
+            args.Row.AddClass(new string[] { "is-job-ready" });
         }
     }
     //IsPrinted TYPE STYLE
@@ -2666,7 +2861,7 @@
             try
             {
 
-                if (args.Data.IsPrinted == true)
+                if (args.Data.IsPrinted == true && args.Data.JobStatus != K_OrderPhase.Finish)
                 {
                     args.Cell.AddClass(new string[] { "is-printed" });
                 }
@@ -2683,6 +2878,14 @@
 }
 
 <style>
+    .is-job-ready {
+        background-color: mediumseagreen;
+    }
+
+    .is-job-cancel {
+        background-color: lightpink;
+    }
+
     .is-attached-passports {
         background-color: lightsteelblue;
     }
