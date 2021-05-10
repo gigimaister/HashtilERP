@@ -718,7 +718,7 @@
                         <button class="btn btn-success" @onclick="@(_ => { BtnSendNewJob(NewJobK_Order); })">שליחה</button>
                     </div>
                     <div class="col">
-                        <button class="btn btn-outline-info" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">שליחה +</button>
+                        <button class="btn btn-outline-info" @onclick="@(_ => { BtnAddAnotherJobToCx(); })">שליחה +</button>
                     </div>
                     <div class="col">
                         <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
@@ -1162,6 +1162,15 @@
 
 @code {
 
+    //Adding List of jobs to cx
+    #region Adding List of jobs to cx
+
+    List<K_Order> k_OrdersCxManyJobs { get; set; } = new List<K_Order>();
+    K_Order K_OrderCxManyJobs { get; set; }
+
+
+    #endregion
+
     //KOrder Cnacel Dialog
     #region KOrder Cnacel Dialog
     public bool CancelKorderShow { get; set; } = false;
@@ -1440,6 +1449,17 @@
     List<string> Giduls = new List<string>();
     List<string> Zans = new List<string>();
 
+    void BtnAddAnotherJobToCx()
+    {
+        K_OrderCxManyJobs = new K_Order();
+        K_OrderCxManyJobs = NewJobK_Order;
+        k_OrdersCxManyJobs.Add(K_OrderCxManyJobs);
+        NewJobK_Order = new K_Order();
+        NewJobK_Order.MarketingDate = K_OrderCxManyJobs.MarketingDate;
+        NewJobK_Order.CxName = K_OrderCxManyJobs.CxName;
+        NewJobK_Order.CardCode = K_OrderCxManyJobs.CardCode;
+        K_OrderCxManyJobs = new K_Order();
+    }
     //new job after button click
     async void BtnSendNewJob(K_Order k_Order)
     {
@@ -1465,8 +1485,75 @@
 
         NewJobFormIsVisible = false;
         LoadingSpinner = true;
-        await SendNewJob(k_Order);
+        if (k_OrdersCxManyJobs.Count() > 0)
+        {
+            await SendNewJobList(k_OrdersCxManyJobs);
+        }
+        else
+        {
+            await SendNewJob(k_Order);
+        }
         LoadingSpinner = false;
+    }
+
+    //New KOrder job List!
+    public async Task<int> SendNewJobList(List<K_Order> k_Orderlist)
+    {
+        foreach (var k_Order in k_Orderlist)
+        {
+            try
+            {
+                k_Order.KOrderEnteringDate = DateTime.Today;
+                k_Order.JobStatus = K_OrderPhase.StandBy;
+
+                if (!String.IsNullOrEmpty(k_Order.Gidul) && !String.IsNullOrEmpty(k_Order.Zan))
+                {
+                    try
+                    {
+                        k_Order.ItemCode = k_PassportsForJobs.Where(x => x.Gidul == k_Order.Gidul && x.Zan == k_Order.Zan).Select(x => x.ItemCode).Distinct().FirstOrDefault();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        ErrorDialogIsVisible = true;
+                        ErrorModalHeaderContent = "שגיאה!";
+                        ModalError = "גידול וזן לא קיימים!";
+                        return 1;
+                    }
+                    if (String.IsNullOrEmpty(k_Order.ItemCode))
+                    {
+                        ErrorModalHeaderContent = "שגיאה!";
+                        ModalError = "גידול וזן לא קיימים!";
+                        return 1;
+                    }
+                }
+
+
+                var rslt = await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderInsert", k_Order);
+                var content = await rslt.Content.ReadAsStringAsync();
+
+                //Http Response Failed On Insert
+                if (rslt.IsSuccessStatusCode)
+                {
+                    continue;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return 1;
+            }
+        }
+
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        await ShowToast();
+        NewJobK_Order = new K_Order();
+        AVGAutoCalc = "";
+        k_OrdersCxManyJobs.Clear();
+
+        return 0;
     }
 
     //New KOrder job
@@ -1902,6 +1989,13 @@
         {
             try
             {
+                if(order.JobPlantsNum == null || order.JobPlantsNum == 0)
+                {
+                    ErrorDialogIsVisible = true;
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = $"לא ניתן לחשב מגשים לעבודה {order.CxName+" "+ order.Gidul+" "+order.Zan}!";
+                    return 1;
+                }
                 KOrdersfunctions.SetAvgForKorder(Convert.ToDouble(MultiAVGInput), order);
                 order.JobPlansAvarage = MultiAVGInput;
                 var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
