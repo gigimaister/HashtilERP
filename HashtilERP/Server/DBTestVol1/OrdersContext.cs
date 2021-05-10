@@ -32,7 +32,7 @@ namespace HashtilERP.DBTestVol1
         public virtual DbSet<Passprod> Passprod { get; set; }
         public virtual DbSet<Rdr1> Rdr1 { get; set; }
         public virtual DbSet<UpdateKPassportAudit> UpdateKPassportAudit { get; set; }
-
+        public virtual DbSet<KOrderAuditTable> KOrderAuditTable { get; set; }
         public virtual DbSet<KOrderRemark> KOrderRemarks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -93,6 +93,14 @@ namespace HashtilERP.DBTestVol1
 
                 entity.Property(e => e.K_PassportId).HasColumnName("K_PassportId");
             });
+
+            modelBuilder.Entity<KOrderAuditTable>(entity =>
+            {
+                entity.HasKey(e => e.K_OrderAuditTableId);
+                entity.ToTable("K_OrderAuditTable");
+
+            });
+            
 
             modelBuilder.Entity<KOrderRemark>(entity =>
             {

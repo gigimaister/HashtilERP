@@ -51,5 +51,8 @@ namespace HashtilERP.DBTestVol1
 
         [ForeignKey("JobId")]
         public List<KOrderRemark> k_OrderRemarks { get; set; }
+
+        [ForeignKey("JobId")]
+        public List<KOrderAuditTable> k_OrderAuditTables { get; set; }
     }
 }

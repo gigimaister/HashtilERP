@@ -63,6 +63,10 @@ namespace HashtilERP.Data
 
         [ForeignKey("JobId")]
         public List<K_OrderRemark> k_OrderRemarks { get; set; }
+
+        [ForeignKey("JobId")]
+        public List<K_OrderAuditTable> k_OrderAuditTables { get; set; }
+
     }
 
     //GET BEGIN AND END PREPREPORT DATE RANGE

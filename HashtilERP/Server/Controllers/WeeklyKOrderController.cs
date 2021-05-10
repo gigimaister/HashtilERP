@@ -39,6 +39,7 @@ namespace HashtilERP.Server.Controllers
               .Include(x => x.K_OrderPassports)
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
+              .Include(x=>x.k_OrderAuditTables)
               .ToListAsync();
             }
           catch(Exception e) { Console.WriteLine(e.Message); }
