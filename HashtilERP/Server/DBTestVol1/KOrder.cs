@@ -25,7 +25,7 @@ namespace HashtilERP.DBTestVol1
         public int? JobNumOfMagash { get; set; }
         public int? JobPlansAvarage { get; set; }
         public int? NumOfCarton { get; set; }
-        public bool? IsCageSmall { get; set; }
+        public bool? IsCageSmall { get; set; } 
         public bool? IsCxComeToPickUp { get; set; }
         public bool? IsPrinted { get; set; }
         public bool? IsNeedToConfirmJob { get; set; }

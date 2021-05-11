@@ -167,6 +167,10 @@ namespace HashtilERP.Server.Controllers
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             k_Order.UserName = screenName;
+            if(k_Order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && k_Order.KOrderEnteringDate == null)
+            {
+                k_Order.KOrderEnteringDate = DateTime.Today;
+            }
 
             if (id != k_Order.JobId)
             {

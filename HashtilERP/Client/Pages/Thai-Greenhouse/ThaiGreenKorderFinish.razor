@@ -59,8 +59,23 @@
 <br />
 <br />
 @*spinner*@
-<SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+<div class="spin-row">
+    <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+</div>
+    
+@*Modal dialog for duplicate or not found passport*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header> ผิดพลาด! </Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="OK" IsPrimary="true" OnClick="@CloseDialog" />
 
+    </DialogButtons>
+</SfDialog>
 
 @*Toast Component*@
 <SfToast @ref="ToastObj" Title="" Timeout=3000 Icon="e-meeting" Content="@ToastContent">
@@ -68,9 +83,16 @@
 </SfToast>
 
 @code {
+
+
     //Thai strings
     private static string ThaiSaved = "บันทึกแล้ว!";
     string ThaiNoJobId = "ไม่ได้ป้อนรหัสงาน!";
+    string ThaiNoResultsFound = "ไม่พบผลลัพธ์!";
+    string ThaiJobAlreadyFinished = "งานเสร็จแล้ว!";
+
+    //'problem with this job! please contact manager for details.'
+    string ThaiError = "ปัญหากับงานนี้! โปรดติดต่อผู้จัดการเพื่อขอรายละเอียด";
 
 
     //Hub
@@ -92,11 +114,6 @@
     //JobId
     public string JobId { get; set; } = "";
 
-    #region Error Modal
-    private bool IsVisible { get; set; } = false;
-    private string ModalError { get; set; } = "";
-
-
     //INIT
     protected override async Task OnInitializedAsync()
     {
@@ -114,6 +131,11 @@
     }
 
 
+
+    #region Error Modal
+    private bool IsVisible { get; set; } = false;
+    private string ModalError { get; set; } = "";
+
     private void OpenDialog()
     {
         this.IsVisible = true;
@@ -128,6 +150,8 @@
         this.IsVisible = false;
     }
     #endregion
+
+
     async void KOrderFinish()
     {
         if (String.IsNullOrEmpty(JobId))
@@ -136,34 +160,68 @@
             OpenDialog();
             return;
         }
+
         AfterActionSpinner = true;
+
         await SendKOrderJobFinish();
         AfterActionSpinner = false;
 
+        if (IsConnected) await SendMessage();
+        StateHasChanged();
     }
 
     //DB Action
     public async Task<int> SendKOrderJobFinish()
     {
+        var kord = new K_Order();
+
         try
         {
-            var kord = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{JobId}");
-            kord.JobStatus = K_OrderPhase.Finish;
-            var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{JobId}", kord);
-            if (rslt.IsSuccessStatusCode)
-            {
-                if (IsConnected) await SendMessage();
-                ToastContent = ThaiSaved;
-                JobId = "";
-                StateHasChanged();
-                await ShowToast();
-            }
+            kord = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{JobId}");
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
             return 1;
         }
+        if (kord.JobStatus == K_OrderPhase.Finish)
+        {
+            ModalError = ThaiJobAlreadyFinished;
+            OpenDialog();
+            return 1;
+        }
+        else if (kord.JobStatus != K_OrderPhase.InProgress)
+        {
+            ModalError = ThaiError;
+            OpenDialog();
+            if (IsConnected) await SendMessage();
+
+            return 1;
+        }
+        else
+        {
+            foreach (var pass in kord.K_OrderPassports)
+            {
+                pass.K_Passport.IsNeedToBeChecked = true;
+                await Http.PutAsJsonAsync($"api/KPassports/SetKPassportNeedToCheckON/{pass.K_PassportId}", pass.K_Passport);
+
+            }
+        }
+
+        kord.JobStatus = K_OrderPhase.Finish;
+
+        var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
+        if (rslt.IsSuccessStatusCode)
+        {
+            if (IsConnected) await SendMessage();
+            ToastContent = ThaiSaved;
+            JobId = "";
+            StateHasChanged();
+            await ShowToast();
+        }
+
+
+
 
         return 0;
     }

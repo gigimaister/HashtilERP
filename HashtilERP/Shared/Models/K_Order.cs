@@ -25,14 +25,14 @@ namespace HashtilERP.Shared.Models
         public int? JobNumOfMagash { get; set; }
         public int? JobPlansAvarage { get; set; }
         public int? NumOfCarton { get; set; }
-        public bool? IsCageSmall { get; set; }
-        public bool? IsCxComeToPickUp { get; set; }
-        public bool? IsPrinted { get; set; }
-        public bool? IsNeedToConfirmJob { get; set; }
-        public bool? IsTakeoutJobTomorrow { get; set; }
-        public bool? IsDeliveryNote { get; set; }
-        public bool? IsJobCancel { get; set; }
-        public bool? IsWasChangedAfterDeliveryReport { get; set; }
+        public bool? IsCageSmall { get; set; } = false;
+        public bool? IsCxComeToPickUp { get; set; } = false;
+        public bool? IsPrinted { get; set; } = false;
+        public bool? IsNeedToConfirmJob { get; set; } = false;
+        public bool? IsTakeoutJobTomorrow { get; set; } = false;
+        public bool? IsDeliveryNote { get; set; } = false;
+        public bool? IsJobCancel { get; set; } = false;
+        public bool? IsWasChangedAfterDeliveryReport { get; set; } = false;
         public int? NumOfCages { get; set; }
         public string HamamaRemarks { get; set; }
         public string DeliveryRemarks { get; set; }

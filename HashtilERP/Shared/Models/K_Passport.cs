@@ -30,7 +30,7 @@ namespace HashtilERP.Shared.Models
         public int? OriginalMagashAmount { get; set; }
         public int? PlantsAmount { get; set; }
         public bool? IsNeedToBeAudit { get; set; }
-        public bool? IsNeedToBeChecked { get; set; }
+        public bool? IsNeedToBeChecked { get; set; } = false;
         public bool? IsSavedForCx { get; set; }
         public bool? IsLowAVG { get; set; }
         public bool? IsNeedToCut { get; set; }
@@ -44,6 +44,7 @@ namespace HashtilERP.Shared.Models
         public DateTime? GrowingRoomExitDay { get; set; }
         public int CelsTray { get; set; }
         public string SaveForCxRemarks { get; set; }
+        public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAVG, PassportStartingAVG, MagashAmount);
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }

@@ -420,14 +420,7 @@ namespace HashtilERP.Server
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kPassport.UserName = screenName;
-            if (kPassport.PassportAvg == -1)
-            {
-                kPassport.PlantsAmount = (kPassport.MagashAmount * kPassport.PassportStartingAVG);
-            }
-            else
-            {
-                kPassport.PlantsAmount = (kPassport.MagashAmount * kPassport.PassportAvg);
-            }
+           
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -440,6 +433,41 @@ namespace HashtilERP.Server
                 await _context.SaveChangesAsync();
             }
             
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!KPassportExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpPut("SetKPassportNeedToCheckON/{id}")]
+        public async Task<IActionResult> SetKPassportNeedToCheckON(int id, K_Passport kPassport)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kPassport.UserName = screenName;
+            kPassport.K_PassportId = id;
+
+            if (id != kPassport.K_PassportId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(kPassport).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
             catch (DbUpdateConcurrencyException)
             {
                 if (!KPassportExists(id))

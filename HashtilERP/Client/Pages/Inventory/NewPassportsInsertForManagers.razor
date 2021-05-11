@@ -395,12 +395,15 @@
             AfterActionSpinner = true;
             await SendNewPassport();
             AfterActionSpinner = false;
+            if (IsConnected) await SendMessage();
+            StateHasChanged();
         }
 
     }
 
     protected async Task<int> SendNewPassport()
     {
+
         try
         {
             kobipassportModel = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
@@ -532,6 +535,7 @@
             await ShowToast();
 
         }
+
 
         return 0;
     }

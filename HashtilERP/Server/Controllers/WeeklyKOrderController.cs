@@ -32,15 +32,36 @@ namespace HashtilERP.Server.Controllers
             var k_Orders = new List<KOrder>();
             try
             {
-                k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today || x.MarketingDate == DateTime.Today.AddDays(1))
-                && (x.JobStatus == K_OrderPhase.StandBy || x.JobStatus == K_OrderPhase.AttachedPassports || x.JobStatus == K_OrderPhase.InProgress 
-                || x.JobStatus == K_OrderPhase.Finish))
-              .Include(x => x.Ocrd)
-              .Include(x => x.K_OrderPassports)
-              .ThenInclude(x => x.K_Passport)
-              .Include(x => x.k_OrderRemarks)
-              .Include(x=>x.k_OrderAuditTables)
-              .ToListAsync();
+                //IF we in thrsday or friday we want Sunday Jobs as well
+                if(DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday)
+                {
+                    //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled && jobs for Sunday
+                    k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today.AddDays(1))
+                    || (x.MarketingDate == DateTime.Today && x.KOrderEnteringDate == DateTime.Today) ||
+                    (x.MarketingDate == DateTime.Today && (x.JobStatus != K_OrderPhase.Finish || x.JobStatus != K_OrderPhase.Canceled))
+                    ||(x.MarketingDate == DateTime.Today.AddDays(3) || x.MarketingDate == DateTime.Today.AddDays(4))
+                    )
+                  .Include(x => x.Ocrd)
+                  .Include(x => x.K_OrderPassports)
+                  .ThenInclude(x => x.K_Passport)
+                  .Include(x => x.k_OrderRemarks)
+                  .Include(x => x.k_OrderAuditTables)
+                  .ToListAsync();
+                }
+                else
+                {
+                    //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
+                    k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today.AddDays(1))
+                    || (x.MarketingDate == DateTime.Today && x.KOrderEnteringDate == DateTime.Today) ||
+                    (x.MarketingDate == DateTime.Today && (x.JobStatus != K_OrderPhase.Finish || x.JobStatus != K_OrderPhase.Canceled)))
+                  .Include(x => x.Ocrd)
+                  .Include(x => x.K_OrderPassports)
+                  .ThenInclude(x => x.K_Passport)
+                  .Include(x => x.k_OrderRemarks)
+                  .Include(x => x.k_OrderAuditTables)
+                  .ToListAsync();
+                }
+              
             }
           catch(Exception e) { Console.WriteLine(e.Message); }
 
@@ -75,7 +96,10 @@ namespace HashtilERP.Server.Controllers
             var korder = new KOrder();
             try
             {
-                korder = await _context.KOrder.Where(x => x.JobId == id).FirstOrDefaultAsync();                
+                korder = await _context.KOrder.Where(x => x.JobId == id)
+                    .Include(x => x.K_OrderPassports)
+                    .ThenInclude(x => x.K_Passport)
+                    .FirstOrDefaultAsync();                
             }
             catch (Exception e)
             {
@@ -95,6 +119,7 @@ namespace HashtilERP.Server.Controllers
               .Include(x => x.K_OrderPassports)
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
+              .Include(x=>x.k_OrderAuditTables)
               .ToListAsync();
             return k_Orders;
         }
@@ -143,6 +168,7 @@ namespace HashtilERP.Server.Controllers
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kOrder.UserName = screenName;
+            kOrder.KOrderEnteringDate = DateTime.Today;
 
             _context.KOrder.Add(kOrder);
 
