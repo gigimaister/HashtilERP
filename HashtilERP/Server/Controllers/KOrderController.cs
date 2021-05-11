@@ -135,13 +135,10 @@ namespace HashtilERP.Server.Controllers
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             DateTime? beginDate = beginEnddate[0];
             DateTime? endDate = beginEnddate[1];
-            var kOrders = await _context.KOrder.Where(x=> x.FixedCoordinationRemark.Contains(K_OrderStatus.NeedToSchedule)  || x.FixedCoordinationRemark.Contains(K_OrderStatus.NotAnswering)
-            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsLess) || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsMore)
-            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WantsToPostponed) || x.FixedCoordinationRemark.Contains(K_OrderStatus.WillLetUsKnow)
-            || x.FixedCoordinationRemark.Contains(K_OrderStatus.WillTalkToOren)
-            || x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
-                .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
-                .ToListAsync();
+            var kOrders = await _context.KOrder.Where(x=>(x.MarketingDate >= beginDate && x.MarketingDate <= endDate && x.PrepReportEnteringDate != null)
+            ||(x.PrepReportEnteringDate != null && (x.FixedCoordinationRemark != K_OrderStatus.SchedualeWasOk || x.FixedCoordinationRemark != K_OrderStatus.WasCanceled) ) )
+            .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
+            .ToListAsync();
 
 
             return kOrders;
@@ -152,8 +149,10 @@ namespace HashtilERP.Server.Controllers
             
             DateTime beginDate = Convert.ToDateTime(dateTime1);
             DateTime endDate = Convert.ToDateTime(dateTime2);
-            var sapOrders = await _context.KOrder.Where(x => x.MarketingDate >= beginDate && x.MarketingDate <= endDate)
-                .Include(X => X.Ocrd).OrderBy(x => x.MarketingDate)
+            var sapOrders = await _context.KOrder.Where(x => x.MarketingDate >= beginDate && x.MarketingDate <= endDate && x.PrepReportEnteringDate != null)
+                .Include(X => X.Ocrd)
+                .Include(x => x.k_OrderAuditTables)
+                .OrderBy(x => x.MarketingDate)
                 .ToListAsync();
             return sapOrders;
         }
