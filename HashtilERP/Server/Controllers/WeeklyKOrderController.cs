@@ -25,6 +25,56 @@ namespace HashtilERP.Server.Controllers
         }
 
         #region GET REGION
+        //weekly orders
+        [HttpGet("GetWeeklyKOrders")]
+        public async Task<List<KOrder>> GetWeeklyKOrders()
+        {
+            var k_Orders = new List<KOrder>();
+            try
+            {
+                //IF we in thrsday or friday we want Sunday Jobs as well
+               
+                    //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
+                    k_Orders = await _context.KOrder.Where(x =>x.MarketingDate >= DateTime.Today)
+                  .Include(x => x.Ocrd)
+                  .Include(x => x.K_OrderPassports)
+                  .ThenInclude(x => x.K_Passport)
+                  .Include(x => x.k_OrderRemarks)
+                  .Include(x => x.k_OrderAuditTables)
+                  .ToListAsync();
+                
+
+            }
+            catch (Exception e) { Console.WriteLine(e.Message); }
+
+            return k_Orders;
+        }
+
+        //archive orders
+        [HttpGet("GetArchiveKOrders")]
+        public async Task<List<KOrder>> GetArchiveKOrders()
+        {
+            var k_Orders = new List<KOrder>();
+            try
+            {
+                //IF we in thrsday or friday we want Sunday Jobs as well
+
+                //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
+                k_Orders = await _context.KOrder.Where(x => x.MarketingDate <= DateTime.Today)
+              .Include(x => x.Ocrd)
+              .Include(x => x.K_OrderPassports)
+              .ThenInclude(x => x.K_Passport)
+              .Include(x => x.k_OrderRemarks)
+              .Include(x => x.k_OrderAuditTables)
+              .ToListAsync();
+
+
+            }
+            catch (Exception e) { Console.WriteLine(e.Message); }
+
+            return k_Orders;
+        }
+
         //Preperetion Report(MIRI)
         [HttpGet("GetKOrdersForTodayTomorrow")]
         public async Task<List<KOrder>> GetKOrdersForTodayTomorrow()
