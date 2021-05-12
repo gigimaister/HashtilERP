@@ -134,7 +134,7 @@
 }
 @*GRID SECTION START HERE*@
 <SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" EnableRtl="true" AllowSorting="true" AllowResizing="true">
-   
+
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridEvents QueryCellInfo="CustomizeCell" RowDataBound="RowBound" CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
@@ -308,24 +308,24 @@
                             </ChildContent>
                             <ContentTemplate>
                                 @{ var passport2 = (context as K_Passport);
-                                                                <div class="form-row" dir="rtl">
-                                                                    <div class="col-form-label">
-                                                                        @{ if (passport2.GrowingRoom == null)
-                                                                            {
-                                                                                <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
-                                                                            }
-                                                                            else
-                                                                            { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
-                                                                            }
-                                                                        }
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
-                                                                    </div>
-                                                                </div>
+                                    <div class="form-row" dir="rtl">
+                                        <div class="col-form-label">
+                                            @{ if (passport2.GrowingRoom == null)
+                                                {
+                                                    <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
+                                                }
+                                                else
+                                                { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
+                                        </div>
+                                    </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align: right; font-weight:500">ממוצע SAP התחלתי:</label>
@@ -548,26 +548,36 @@
     public K_Passport[] K_Passports;
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
     private HubConnection hubConnection;
+    public K_Passport KPassportForAllToEditCheck { get; set; } = new K_Passport();
     private static string HebSaved = "נשמר!";
 
 
     // Property to control the delete dialog.
     public bool DeleteRecordConfirmVisibility { get; set; } = false;
 
-    //WHEN UPDATE PASSPORT
+    //PUT K_Passport Green/Gamlon/Magash Amount
     public async Task<int> UpdatePassport(K_Passport context)
     {
-        if (InputHamama != null)
+        if (KPassportForAllToEditCheck.Hamama == context.Hamama && KPassportForAllToEditCheck.Gamlon == context.Gamlon && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
         {
-            if (InputGamlon != null)
+            ModalError = "לא בוצעו שינויים!";
+            IsVisible = true;
+            return 1;
+        }
+
+        if (InputHamama != "")
+        {
+            if (InputGamlon != "")
             {
                 if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama, InputGamlon))
                 {
+
                     context.Hamama = InputHamama;
                     context.Gamlon = InputGamlon;
                 }
                 else
                 {
+
                     ModalError = "יש להזין חממה וגמלון מתאימים";
                     IsVisible = true;
                     return 1;
@@ -582,33 +592,65 @@
                 }
                 else
                 {
+
                     ModalError = $"הערך {InputHamama} לא תקין";
                     IsVisible = true;
                     return 1;
                 }
             }
         }
+        if (InputHamama == "" && InputGamlon != "")
+        {
+            if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(context.Hamama.Trim(), InputGamlon))
+            {
+
+                InputHamama = context.Hamama.Trim();
+                context.Gamlon = InputGamlon;
+            }
+            else
+            {
+
+                ModalError = "יש להזין חממה וגמלון מתאימים";
+                IsVisible = true;
+                return 1;
+            }
+        }
+        if (context.MagashAmount < 0)
+        {
+            ModalError = "לא ניתן להזין מספר שלילי!";
+            IsVisible = true;
+            return 1;
+        }
+
         if (context.MagashAmount == 0)
         {
             context.IsNeedToBeChecked = true;
         }
         var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
-        //Http Response Failed On Insert
+        //Http Response Failed On Update
         if (!rslt.IsSuccessStatusCode)
         {
+
             ToastContent = rslt.StatusCode.ToString();
             StateHasChanged();
             await ShowToast();
+
         }
         else
         {
+
+
             if (IsConnected) await SendMessage();
             ToastContent = HebSaved;
             StateHasChanged();
             await ShowToast();
-            await this.SfGrid.CloseEdit();
+            CloseCustomEditDialog();
+            InputHamama = "";
+            InputGamlon = "";
+
 
         }
+
         return 0;
     }
     //Command Button Clicked In grid
@@ -635,7 +677,9 @@
         }
         if (args.CommandColumn.ButtonOption.Content == "עריכה")
         {
-
+            KPassportForAllToEditCheck.Hamama = args.RowData.Hamama;
+            KPassportForAllToEditCheck.Gamlon = args.RowData.Gamlon;
+            KPassportForAllToEditCheck.MagashAmount = args.RowData.MagashAmount;
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
             OpenCustomEditDialog();
         }
@@ -688,15 +732,12 @@
             await ShowToast();
         }
 
-
-
-
     }
     public async void SendMetzayEdit(K_Passport context)
     {
-
+        EditPassBool = true;
         await UpdatePassport(context);
-
+        EditPassBool = false;
     }
     //DIALOG Activ CANCEL
     public void ConfirmDestroyNo()
@@ -723,6 +764,7 @@
                 ToastContent = HebSaved;
                 StateHasChanged();
                 await ShowToast();
+                CloseCustomEditDialog();
                 PassportAuditForm = new PassportAuditForm();
             }
             SpinnerBool = false;

@@ -28,7 +28,7 @@
 </div>
 
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
-<AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+<AuthorizeView Roles="Administrator">
     <div class="row">
         <div class="col" style="text-align:right">
             <div class="alert alert-secondary" role="alert" style="width:300px">
@@ -54,7 +54,7 @@
 
 </AuthorizeView>
 @*Multi delivery note for rows Auth for Admin && Sales A, B*@
-<AuthorizeView Roles="Administrator,Sales-A, Sales-B">
+<AuthorizeView Roles="Administrator">
     <div class="row">
         <div class="col" style="text-align:right">
             <div class="row" style="text-align:right;width:400px;">
@@ -98,9 +98,7 @@
 @{
     var Tool = (new List<string>() { "Search" });
 }
-<div>
-    <button class="btn btn-primary" @onclick="BtnOpenNewJobForm">עבודה חדשה</button>
-</div>
+
 
 @*Clear search and filter Btns*@
 <div class="row">
@@ -194,7 +192,7 @@
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+        <AuthorizeView Roles="Administrator">
             <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="119px">
                 <GridCommandColumns>
                     <GridCommandColumn Type=CommandButtonType.None
@@ -222,15 +220,17 @@
                 <div class="col" style="text-align:left">
                     @{if (K_OrderForEdit.IsJobCancel == true)
                         {
-                            <AuthorizeView Roles="Administrator, Manager-GreenHouse">
-                                <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => {DeletePassAndCancelJob();})">מחיקה ואישור</button>
+                            <AuthorizeView Roles="Administrator">
+                                <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => { DeletePassAndCancelJob(); })">מחיקה ואישור</button>
                             </AuthorizeView>
-                            <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => {SetJobIsCancelFalse();})">יוצאת</button>
+                            <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
 
                         }
                         else
                         {
-                            <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                            <AuthorizeView Roles="Administrator">
+                                <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                            </AuthorizeView>
                         }
                     }
                 </div>
@@ -518,7 +518,7 @@
         </Content>
 
         <FooterTemplate>
-            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Sales-A,Sales-B">
+            <AuthorizeView Roles="Administrator">
                 <div class="row text-center">
                     <div class="col">
                         <button class="btn btn-success" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">אישור</button>
@@ -571,197 +571,7 @@
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
-<br />
-<div style="text-align:right" class="alert alert-danger" role="alert">
-    <h2 style="text-align:center">עבודות לוודא/להוציא מחר</h2>
-</div>
-@*GRID No. 2*@
-<SfGrid DataSource="@NeedToConfirmRecords" FrozenRows="0" Height="100" Width="100%" @ref="@SfGridNo2"
-        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
-    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-                RowDataBound="RowBound"></GridEvents>
-    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
-    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-    <GridAggregates>
-        <GridAggregate>
-            <GridAggregateColumns>
-                <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
 
-                            <b>ספירה: @aggregate.Count</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-                <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
-
-                            <b>@aggregate.Sum</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-                <GridAggregateColumn Field=@nameof(K_Order.JobPlantsNum) Type="AggregateType.Sum">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
-
-                            <b>@aggregate.Sum</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-            </GridAggregateColumns>
-        </GridAggregate>
-
-    </GridAggregates>
-    <GridColumns>
-        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כ.שתילים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobNumOfMagash) HeaderText="כ.מגשים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-    </GridColumns>
-</SfGrid>
-
-@*New Job Form Dialog*@
-<SfDialog Target="#target" EnableRtl="true"
-          Width="400px"
-          Height="700px"
-          @bind-Visible="@NewJobFormIsVisible" ShowCloseIcon="false" IsModal="true">
-
-    <DialogTemplates>
-        <Header>
-            <div class="alert alert-success" role="alert">
-                <h4 style="text-align:center">עבודה חדשה</h4>
-            </div>
-        </Header>
-        <Content>
-            <form>
-                <div class="form-group">
-                    <label>בחירת תאריך</label>
-                    <SfDatePicker TValue="DateTime?" EnableRtl="true" @bind-Value="@NewJobK_Order.MarketingDate" Placeholder='תאריך הוצאה'></SfDatePicker>
-                </div>
-                <div class="form-group">
-                    <label>בחירת לקוח</label>
-                    <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@NewJobK_Order.CxName" DataSource="@DropDownKOrderSapCxNames">
-                        <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
-                    </SfAutoComplete>
-                </div>
-                <div class="form-group">
-                    <label>בחירת גידול</label>
-                    <SfAutoComplete TValue="string" TItem="string" Placeholder="גידול" @onmousedown="@(e => GidulMouseClick(e))" @bind-Value="@NewJobK_Order.Gidul" DataSource="@Giduls">
-                    </SfAutoComplete>
-                </div>
-                <div class="form-group">
-                    <label>בחירת זן</label>
-                    <SfAutoComplete TValue="string" TItem="string" Placeholder="זן" @onmousedown="@(e => ZanMouseClick(e))" @bind-Value="@NewJobK_Order.Zan" DataSource="@Zans">
-                    </SfAutoComplete>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label>כ.שתילים</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobPlantsNum" class="form-control" placeholder="שתילים" />
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-group">
-                            <label>כ.מגשים</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label>ממוצע</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="999" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="row">
-                            <label>כ.שתילים: @AutoPlantsCalc</label>
-                        </div>
-                        <div class="row">
-                            <label>מגשים: @K_OrderForEdit.JobNumOfMagash</label>
-                        </div>
-                        <div class="row">
-                            <label>ממוצע לחישוב: @AVGAutoCalc</label>
-                        </div>
-                    </div>
-                </div>
-                @*<div class="form-group">
-                        <div class="alert alert-danger" role="alert">
-                            <label>כ.כלובים (רק אם רלוונטי!)</label>
-                            <input type="number" @bind-value="NewJobK_Order.NumOfCages" class="form-control" placeholder="כ.כלובים" />
-                        </div>
-                    </div>*@
-
-                @*check box*@
-                <div class="form-group">
-                    <div class="alert alert-warning" role="alert">
-                        <label>לסמן את הרלוונטי</label>
-                        <div class="row">
-                            <div class="col">
-                                <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsCageSmall" EnableRtl="true" Label="כלובים קטנים"></SfCheckBox>
-                                </div>
-                                <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsCxComeToPickUp" EnableRtl="true" Label="מגיע לקחת"></SfCheckBox>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsNeedToConfirmJob" EnableRtl="true" Label="לוודא הוצאה"></SfCheckBox>
-                                </div>
-                                <div>
-                                    <SfCheckBox @bind-Checked="@NewJobK_Order.IsTakeoutJobTomorrow" EnableRtl="true" Label="להוציא מחר"></SfCheckBox>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>הערות הובלה</label>
-                    <SfTextBox Multiline=true EnableRtl="true" Placeholder="הערות הובלה" @bind-value="NewJobK_Order.DeliveryRemarks"></SfTextBox>
-                </div>
-                <div class="form-group">
-                    <label>הערות לחממה</label>
-                    <div class="multiline">
-                        <SfTextBox Multiline=true EnableRtl="false" Placeholder="הערות למנהל עבודה" @bind-value="NewJobK_Order.HamamaRemarks"></SfTextBox>
-                    </div>
-                </div>
-
-            </form>
-        </Content>
-        <FooterTemplate>
-            <div class="row text-center">
-                <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-                    <div class="col">
-                        <button class="btn btn-success" @onclick="@(_ => { BtnSendNewJob(NewJobK_Order); })">שליחה</button>
-                    </div>
-                    <div class="col">
-                        <button class="btn btn-outline-info" @onclick="@(_ => { BtnAddAnotherJobToCx(); })">שליחה +</button>
-                    </div>
-                </AuthorizeView>
-                <div class="col">
-                    <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
-                </div>
-            </div>
-        </FooterTemplate>
-    </DialogTemplates>
-</SfDialog>
 
 @*Toast Component*@
 <SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
@@ -1446,10 +1256,7 @@
 
             //For Greed No.1
             GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
-            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
-
-            //For GRID No. 2
-            NeedToConfirmRecords = K_Orders.Where(x => x.IsNeedToConfirmJob == true || x.IsTakeoutJobTomorrow == true).ToList();
+            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();          
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
@@ -2720,19 +2527,7 @@
     }
     #endregion
 
-    //GRID 2 SETTING
-    #region GRID 2
-
-    //Grid Object for costum actions
-    SfGrid<K_Order> SfGridNo2;
-
-    //List KOrder for Multi AVG
-    List<K_Order> NeedToConfirmRecords = new List<K_Order>();
-
-
-
-    #endregion
-
+   
     //Grid Edit Modal
     #region Grid Edit Modal
 

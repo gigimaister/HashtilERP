@@ -240,7 +240,7 @@ namespace HashtilERP.Server
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
         {
             var ChosenList = new List<K_Passport>();
-            var user = await _userManager.GetUserAsync(User);
+            
 
             try
             {
@@ -324,6 +324,19 @@ namespace HashtilERP.Server
             return k_Passports;
         }
 
+        //KPassports For Korder By Gidul && Zan
+        [HttpGet("GetKPassportsForKOrderByGidulAndZan/{gidul}/{zan}")]
+        public async Task<List<K_Passport>> GetKPassportsForKOrderByGidulAndZan(string gidul, string zan)
+        {
+            var k_Passports = new List<K_Passport>();
+            k_Passports = await _context.KPassport.Where(x => x.Gidul.Contains(gidul) && x.Zan.Contains(zan))
+                .Include(e => e.Passport)
+                .ThenInclude(e => e.Passprods)
+                .Include(e => e.PassportAuditForms)
+                .Include(e => e.k_PassportAuditTblVer2s)
+                .ToListAsync();
+            return k_Passports;
+        }
         //KPassports For Korder By Gidul && Zan
         [HttpGet("GetKPassportsForKOrderByGidulZan/{gidul}/{zan}")]
         public async Task<List<K_Passport>> GetKPassportsForKOrderByGidulZan(string gidul, string zan)

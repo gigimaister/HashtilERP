@@ -32,9 +32,7 @@ namespace HashtilERP.Server.Controllers
             var k_Orders = new List<KOrder>();
             try
             {
-                //IF we in thrsday or friday we want Sunday Jobs as well
                
-                    //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
                     k_Orders = await _context.KOrder.Where(x =>x.MarketingDate >= DateTime.Today)
                   .Include(x => x.Ocrd)
                   .Include(x => x.K_OrderPassports)

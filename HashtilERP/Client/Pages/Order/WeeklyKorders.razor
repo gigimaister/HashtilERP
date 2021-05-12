@@ -134,7 +134,7 @@
 </SfDialog>
 
 @*Grid No.1*@
-<SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
+<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
@@ -230,7 +230,9 @@
                         }
                         else
                         {
-                            <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                            <AuthorizeView Roles="Administrator, Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B">
+                                <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                            </AuthorizeView>
                         }
                     }
                 </div>
@@ -571,68 +573,6 @@
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
-<br />
-<div style="text-align:right" class="alert alert-danger" role="alert">
-    <h2 style="text-align:center">עבודות לוודא/להוציא מחר</h2>
-</div>
-@*GRID No. 2*@
-<SfGrid DataSource="@NeedToConfirmRecords" FrozenRows="0" Height="100" Width="100%" @ref="@SfGridNo2"
-        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
-    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-                RowDataBound="RowBound"></GridEvents>
-    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
-    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-    <GridAggregates>
-        <GridAggregate>
-            <GridAggregateColumns>
-                <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
-
-                            <b>ספירה: @aggregate.Count</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-                <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
-
-                            <b>@aggregate.Sum</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-                <GridAggregateColumn Field=@nameof(K_Order.JobPlantsNum) Type="AggregateType.Sum">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
-
-                            <b>@aggregate.Sum</b>
-
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-            </GridAggregateColumns>
-        </GridAggregate>
-
-    </GridAggregates>
-    <GridColumns>
-        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כ.שתילים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobNumOfMagash) HeaderText="כ.מגשים" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-    </GridColumns>
-</SfGrid>
 
 @*New Job Form Dialog*@
 <SfDialog Target="#target" EnableRtl="true"
@@ -1441,15 +1381,11 @@
             K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetWeeklyKOrders");
             //GET CX FROM SAP
             DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
+
             //GET PASSPORTS
             k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
 
-            //For Greed No.1
-            GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
-            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
-
-            //For GRID No. 2
-            NeedToConfirmRecords = K_Orders.Where(x => x.IsNeedToConfirmJob == true || x.IsTakeoutJobTomorrow == true).ToList();
+                   
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();

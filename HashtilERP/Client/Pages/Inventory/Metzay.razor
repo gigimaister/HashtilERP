@@ -41,7 +41,7 @@
 <br />
 
 @{
-    var Tool = (new List<string>() { "Search" });
+    var Tool = (new List<string>() { "Search", "ExcelExport" });
 }
 
 <div class="row">
@@ -142,12 +142,12 @@
     </DialogTemplates>
 </SfDialog>
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" FrozenRows="0"  Height="800" Width="100%"  AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
+<SfGrid DataSource="@K_Passports" FrozenRows="0"  AllowExcelExport="true"   Height="800" Width="100%"  AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true" 
         
         AllowSorting="true" EnableRtl="true" AllowResizing="true">
     <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
                 DetailDataBound="DetailDataBound" DataBound="DataBound"
-                CommandClicked="OnCommandClicked" TValue="K_Passport"></GridEvents>
+                CommandClicked="OnCommandClicked" OnToolbarClick="ToolbarClickHandler" TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
     <GridPageSettings PageSize="40"></GridPageSettings>
 
@@ -371,7 +371,7 @@
     <GridAggregates>
         <GridAggregate>
             <GridAggregateColumns>
-                <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Count">
+                <GridAggregateColumn Field=@nameof(K_Passport.PassportNum) Type="AggregateType.Count">
                     <FooterTemplate>
                         @{
                             var aggregate = (context as AggregateTemplateContext);
@@ -381,10 +381,6 @@
                         }
                     </FooterTemplate>
                 </GridAggregateColumn>
-            </GridAggregateColumns>
-        </GridAggregate>
-        <GridAggregate>
-            <GridAggregateColumns>
                 <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Sum">
                     <FooterTemplate>
                         @{
@@ -396,7 +392,7 @@
                     </FooterTemplate>
                 </GridAggregateColumn>
             </GridAggregateColumns>
-        </GridAggregate>
+        </GridAggregate>     
     </GridAggregates>
 
     <GridColumns>
@@ -962,6 +958,14 @@
         K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
         PassportAuditForm.K_PassportId = K_Passport.K_PassportId;
         PassportAuditForm.CreateDate = DateTime.Now;
+    }
+
+    public async Task ToolbarClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Text == "Excel Export") 
+        {
+            await this.SfGrid.ExcelExport();
+        }
     }
 
     //Command Button Clicked In grid
