@@ -152,7 +152,7 @@
 
                             <b>ספירה: @aggregate.Count</b>
 
-                        }
+                            }
                     </FooterTemplate>
                 </GridAggregateColumn>
                 <GridAggregateColumn Field=@nameof(K_Order.JobNumOfMagash) Type="AggregateType.Sum">
@@ -160,7 +160,9 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>@aggregate.Sum</b>
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>@magashNum</b>
 
                         }
                     </FooterTemplate>
@@ -170,8 +172,9 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>@aggregate.Sum</b>
-
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var plantsNum = string.Format("{0:#,0}", num);
+                            <b>@plantsNum</b>
                         }
                     </FooterTemplate>
                 </GridAggregateColumn>
@@ -633,6 +636,7 @@
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
     </GridColumns>
 </SfGrid>
 

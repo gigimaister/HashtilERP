@@ -133,21 +133,26 @@ namespace HashtilERP.Shared.Models
             return false;
         }
 
-        public static string BoolRemarksToString(bool? isCagesmall, bool? isCometopickup)
+        //Get is small cage and cx pick up on fixed remark with check box
+        public static string BoolRemarksToString(bool? isCagesmall, bool? isCometopickup, bool? isneedtoConfirmJob)
         {
             string Text = "";
 
-            if(isCagesmall == true && isCometopickup == true) 
+            if(isCagesmall == true && isCometopickup == true && (isneedtoConfirmJob == null || isneedtoConfirmJob == false)) 
             {
                 Text =  "כלובים קטנים ומגיע לקחת"; 
             }
-            else if (isCagesmall == true && (isCometopickup == false || isCometopickup == null))
+            else if (isCagesmall == true && (isCometopickup == false || isCometopickup == null) && (isneedtoConfirmJob == null || isneedtoConfirmJob==false))
             {
                 Text = "כלובים קטנים";
             }
-            else if (isCometopickup == true && (isCagesmall == false  || isCagesmall == null) )
+            else if (isCometopickup == true && (isCagesmall == false  || isCagesmall == null) && (isneedtoConfirmJob == null || isneedtoConfirmJob == false))
             {
                 Text = "מגיע לקחת";
+            }
+            else if (isneedtoConfirmJob == true)
+            {
+                Text = "לוודא הוצאה";
             }
             else
             {
@@ -156,6 +161,7 @@ namespace HashtilERP.Shared.Models
             return Text;
         }
 
+        //set is delivery in fix remark  with check box
         public static string GetIsKorderDeliveryBillOut(bool? isDeliveryout)
         {
             string Text = "";
@@ -165,5 +171,6 @@ namespace HashtilERP.Shared.Models
             }
             return Text;
         }
+      
     }
 }

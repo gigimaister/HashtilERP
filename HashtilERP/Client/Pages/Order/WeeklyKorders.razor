@@ -160,7 +160,9 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>@aggregate.Sum</b>
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>@magashNum</b>
 
                         }
                     </FooterTemplate>
@@ -170,7 +172,9 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>@aggregate.Sum</b>
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var plantsNum = string.Format("{0:#,0}", num);
+                            <b>@plantsNum</b>
 
                         }
                     </FooterTemplate>

@@ -267,7 +267,10 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>ספירה: @aggregate.Count</b>
+
+                            var num = Convert.ToInt32(aggregate.Count);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>ספירה:@magashNum</b>
 
                         }
                     </FooterTemplate>
@@ -276,9 +279,9 @@
                     <FooterTemplate>
                         @{
                             var aggregate = (context as AggregateTemplateContext);
-                            <div>
-                                <b>סכום: @aggregate.Sum</b>
-                            </div>
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>@magashNum</b>
                         }
                     </FooterTemplate>
                 </GridAggregateColumn>

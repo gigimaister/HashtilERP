@@ -45,6 +45,8 @@ namespace HashtilERP.Shared.Models
         public int CelsTray { get; set; }
         public string SaveForCxRemarks { get; set; }
         public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAVG, PassportStartingAVG, MagashAmount);
+        public string AutoPassportAVG => K_PassportFunctions.GetKorderAvg(PassportAVG, PassportStartingAVG);
+
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }

@@ -653,6 +653,8 @@
 
         return 0;
     }
+
+
     //Command Button Clicked In grid
     public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
     {
@@ -789,6 +791,8 @@
     {
         PassportAuditForm = new PassportAuditForm();
         await FindResponsiveness();
+        InputHamama = "";
+        InputGamlon = "";
         await LoadData();
         hubConnection = new HubConnectionBuilder()
 .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))

@@ -56,10 +56,12 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("JobId")]
         public List<K_OrderAuditTable> k_OrderAuditTables { get; set; }
 
-        public string AnotherFixedRemarks => KOrdersfunctions.BoolRemarksToString(IsCageSmall, IsCxComeToPickUp);
+        public string AnotherFixedRemarks => KOrdersfunctions.BoolRemarksToString(IsCageSmall, IsCxComeToPickUp, IsNeedToConfirmJob);
 
         public string GetIsJobDeliveryOut => KOrdersfunctions.GetIsKorderDeliveryBillOut(IsDeliveryNote);
+
+
     }
 
-   
+
 }

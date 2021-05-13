@@ -135,8 +135,16 @@ namespace HashtilERP.Server.Controllers
             beginEnddate = KOrderAlgorithem.GetPrepReportWeekRange(DateTime.Today);
             DateTime? beginDate = beginEnddate[0];
             DateTime? endDate = beginEnddate[1];
-            var kOrders = await _context.KOrder.Where(x=>(x.MarketingDate >= beginDate && x.MarketingDate <= endDate && x.PrepReportEnteringDate != null)
-            ||(x.PrepReportEnteringDate != null && (x.FixedCoordinationRemark != K_OrderStatus.SchedualeWasOk || x.FixedCoordinationRemark != K_OrderStatus.WasCanceled) ) )
+            var kOrders = await _context.KOrder.Where(x=>
+            (x.MarketingDate >= beginDate && x.MarketingDate <= endDate && x.PrepReportEnteringDate != null)
+            ||(x.PrepReportEnteringDate != null && 
+            (x.FixedCoordinationRemark == K_OrderStatus.NeedToSchedule 
+            || x.FixedCoordinationRemark == K_OrderStatus.NotAnswering
+            || x.FixedCoordinationRemark == K_OrderStatus.WantsLess
+            || x.FixedCoordinationRemark == K_OrderStatus.WantsMore
+            || x.FixedCoordinationRemark == K_OrderStatus.WillLetUsKnow
+            || x.FixedCoordinationRemark == K_OrderStatus.WillTalkToOren)
+            ))
             .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
             .ToListAsync();
 

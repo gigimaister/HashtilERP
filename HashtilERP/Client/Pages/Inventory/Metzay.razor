@@ -376,7 +376,9 @@
                         @{
                             var aggregate = (context as AggregateTemplateContext);
 
-                            <b>ספירה: @aggregate.Count</b>
+                            var num = Convert.ToInt32(aggregate.Count);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>ספירה:@magashNum</b>
 
                         }
                     </FooterTemplate>
@@ -385,9 +387,9 @@
                     <FooterTemplate>
                         @{
                             var aggregate = (context as AggregateTemplateContext);
-                            <div>
-                                <b>סכום: @aggregate.Sum</b>
-                            </div>
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>@magashNum</b>
                         }
                     </FooterTemplate>
                 </GridAggregateColumn>
@@ -420,27 +422,19 @@
         <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
-            @*<Template>
-                    @{
-                        var value = (context as K_Passport);
-                        var Zan = value.Passport.UZanZl != null ? value.Passport.UZanZl : value.Passport.Oitm.UHebZan;
-                        <b>@Zan</b>
-                    }
-                </Template>*@
-        </GridColumn>
+        <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
-            <Template>
+        <GridColumn Field="@nameof(K_Passport.AutoPassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            @*<Template>
                 @{
                     var value = (context as K_Passport);
                     var AVG = value.PassportAVG == -1 ? "ללא" : Convert.ToString(value.PassportAVG);
                     <b>@AVG</b>
                 }
-            </Template>
+            </Template>*@
         </GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -962,9 +956,17 @@
 
     public async Task ToolbarClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
-        if (args.Item.Text == "Excel Export") 
+        if (args.Item.Text == "Excel Export")
         {
-            await this.SfGrid.ExcelExport();
+            var Now = DateTime.Now;
+            var stringNowDate = Now.ToShortDateString();
+            var stringNow = Now.ToShortTimeString();
+
+
+            ExcelExportProperties ExportProperties = new ExcelExportProperties();
+            
+            ExportProperties.FileName = $"מצאי חממות לתאריך-{stringNowDate + "-" + stringNow+"--"}.xlsx";
+            await this.SfGrid.ExcelExport(ExportProperties);
         }
     }
 

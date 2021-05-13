@@ -404,9 +404,9 @@
 
 @code {
 
-    //REGION EDIT DIALOG
-    #region Custom Edit Dialog
-    //Edit dialog spinner
+        //REGION EDIT DIALOG
+        #region Custom Edit Dialog
+        //Edit dialog spinner
     public bool EditPassBool { get; set; } = false;
     //edit dialog Visabillity
     private bool GridEditModalVisible { get; set; } = false;
@@ -438,7 +438,7 @@
     /// </summary>
     private bool IsVisible { get; set; } = false;
 
-    //BackTo Avtive Passport MODAL VISABILITY
+    //BackTo Active Passport MODAL VISABILITY
     private bool ActivVisability { get; set; } = false;
 
     //Confirm Passport MODAL VISABILITY
@@ -590,20 +590,13 @@
 
         if (args.CommandColumn.ButtonOption.Content == "פריסה מחדש")
         {
-            if (args.RowData.PassportStatus != Status.Destroyed)
-            {
-                ModalError = "פספורט כבר פרוס";
-                IsVisible = true;
-            }
-            else
-            {
-                K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
-                K_Passport.PassportStatus = Status.InGreenHouse;
-                K_Passport.IsNeedToBeChecked = false;
-                K_Passport.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
-                this.ActivVisability = true;
-            }
+            int yu = 0;
+            if (args.RowData.PassportStatus == Status.Finished) { yu++; }
 
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            K_Passport.PassportStatus = Status.InGreenHouse;
+            K_Passport.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+            this.ActivVisability = true;
         }
 
         if (args.CommandColumn.ButtonOption.Content == "עריכה")
@@ -651,7 +644,7 @@
     //INITIALIZED
     protected override async Task OnInitializedAsync()
     {
-        
+
         InputHamama = "";
         InputGamlon = "";
         await LoadData();
