@@ -12,6 +12,8 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @using Syncfusion.Blazor.Layouts
 @using Syncfusion.Blazor.Charts
+@using Syncfusion.Blazor.CircularGauge
+
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -19,19 +21,24 @@
 @attribute [Authorize(Roles = "Administrator")]
 
 
-<SfDashboardLayout CellSpacing="@(new double[]{10 ,10 })" Columns="5">
+<SfDashboardLayout CellSpacing="@(new double[]{10 ,10 })" Columns="5" EnableRtl="true">
     <DashboardLayoutPanels>
-        <DashboardLayoutPanel>
+        <DashboardLayoutPanel Column=4>
             <ContentTemplate>
-                <div>
-                0
-                </div>
+                <SfCircularGauge>
+                    <CircularGaugeAxes>
+                        <CircularGaugeAxis Radius="60%" StartAngle="270" EndAngle="90">
+                            <CircularGaugeAxisLineStyle Width="5">
+                            </CircularGaugeAxisLineStyle>
+                        </CircularGaugeAxis>
+                    </CircularGaugeAxes>
+                </SfCircularGauge>
             </ContentTemplate>
         </DashboardLayoutPanel>
         <DashboardLayoutPanel SizeX=2 Column=1>
             <ContentTemplate><div>1</div></ContentTemplate>
         </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeY=2 Column=3>
+        <DashboardLayoutPanel  Column=3>
             <ContentTemplate><div>2</div></ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -49,6 +56,13 @@
 
 @code{
     private HubConnection hubConnection;
+
+
+
+
+
+    //Init
+    #region Init
 
     //KOrders Objects
     K_Order[] k_Orders;
@@ -94,6 +108,9 @@
     }
 
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    #endregion
+
+
 
 }
 

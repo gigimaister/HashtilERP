@@ -964,7 +964,7 @@
 
 
             ExcelExportProperties ExportProperties = new ExcelExportProperties();
-            
+
             ExportProperties.FileName = $"מצאי חממות לתאריך-{stringNowDate} שעה: {stringNow}.xlsx";
             await this.SfGrid.ExcelExport(ExportProperties);
         }
@@ -1147,6 +1147,7 @@
     }
 
     //DIALOG AuditForm CONFIRMED
+    //DIALOG AuditForm CONFIRMED
     public async void ConfirmDeleteYes()
     {
 
@@ -1164,7 +1165,7 @@
             }
             K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
             await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
-            this.DeleteRecordConfirmVisibility = false;
+
             var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
             var content = await rslt.Content.ReadAsStringAsync();
             if (rslt.IsSuccessStatusCode)
@@ -1178,6 +1179,7 @@
             }
 
             SpinnerBool = false;
+            this.DeleteRecordConfirmVisibility = false;
         }
         catch (Exception e)
         {
@@ -1186,12 +1188,7 @@
 
             SpinnerBool = false;
         }
-
-
-
-
     }
-
     //CELL MAGASH TYPE STYLE
     public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
     {

@@ -223,6 +223,8 @@
     //INIT
     protected override async Task OnInitializedAsync()
     {
+        await FindResponsiveness();
+
         HamamaGamlonStorage = await localStorage.GetItemAsync<HamamaGamlonStorage>(localsrorage);
         GreenGamList = HamamotGamlonDict.HamamaGamlonDictInit();
 

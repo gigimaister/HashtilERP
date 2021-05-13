@@ -448,7 +448,7 @@
         if (args.CommandColumn.ButtonOption.Content == "ביקורת")
         {
             K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
-            PassportAuditForm.K_PassportId = Convert.ToInt32(passporrtId);
+            PassportAuditForm.K_PassportId = K_Passport.K_PassportId;
             PassportAuditForm.CreateDate = DateTime.Now;
             this.DeleteRecordConfirmVisibility = true;
         }
@@ -519,7 +519,7 @@
     }
     public void ClearGridfilter()
     {
-         this.SfGrid.ClearFiltering();
+        this.SfGrid.ClearFiltering();
     }
     //INITIALIZED
     protected override async Task OnInitializedAsync()
