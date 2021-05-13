@@ -34,6 +34,8 @@ namespace HashtilERP.Shared.Models
         public bool? IsJobCancel { get; set; } = false;
         public bool? IsWasChangedAfterDeliveryReport { get; set; } = false;
         public int? NumOfCages { get; set; } = 0;
+        public int? NumOfBarTenderStickers { get; set; } = 0;
+
         public string HamamaRemarks { get; set; }="";
         public string DeliveryRemarks { get; set; }="";
         public string JobStatus { get; set; }="";

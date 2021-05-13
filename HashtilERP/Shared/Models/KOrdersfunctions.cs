@@ -171,6 +171,81 @@ namespace HashtilERP.Shared.Models
             }
             return Text;
         }
-      
+
+        //Get Num Of Bartender Stickers to print
+        public static int? GetNumOfBarTenderStickers(K_Order order)
+        {
+            int? stickNum = 0;
+            var stickerforPassport = 1;
+            var jobnumMagash = order.JobNumOfMagash;
+            var orderPasslist = order.K_OrderPassports.Count();
+            var isSmallcage = order.IsCageSmall;
+            var isTreywide = K_PassportFunctions.IsTreyWide(order.K_OrderPassports.FirstOrDefault().K_Passport);
+
+            var MaxWideTreyInBigcage = 33;
+            var MaxWideTreyInSmallcage = 15;
+
+            var MaxNarrowTreyInBigcage = 44;
+            var MaxNarrowTreyInSmallcage = 20;
+
+            var numStickersPercage = 4;
+
+            var reminderNumofstickers = 0;
+            int? reminder, roundnumOfCages;
+
+            //Small cage
+            if (isSmallcage == true)
+            {
+                //if trey wide
+                if (isTreywide == true)
+                {
+                    roundnumOfCages = jobnumMagash / MaxWideTreyInSmallcage;
+
+                    reminder = jobnumMagash % MaxWideTreyInSmallcage;
+                }
+                //trey small
+                else
+                {
+                    roundnumOfCages = jobnumMagash / MaxNarrowTreyInSmallcage;
+
+                    reminder = jobnumMagash % MaxNarrowTreyInSmallcage;
+                }               
+            }
+            //if Big cage
+            else
+            {
+               
+                //if trey wide
+                if (isTreywide == true)
+                {
+                     roundnumOfCages = jobnumMagash / MaxWideTreyInBigcage;
+
+                     reminder = jobnumMagash % MaxWideTreyInBigcage;                 
+                }
+                //trey small
+                else
+                {
+                     roundnumOfCages = jobnumMagash / MaxNarrowTreyInBigcage;
+
+                     reminder = jobnumMagash % MaxNarrowTreyInBigcage;
+                }            
+            }
+            //if the reminder is less than 7 magash
+            if (reminder <= 7)
+            {
+                reminderNumofstickers += Convert.ToInt32(reminder);
+            }
+            //if bigger, we're gonna use 5 stickers
+            else
+            {
+                reminderNumofstickers += numStickersPercage;
+            }
+
+            var totalStickers = roundnumOfCages*numStickersPercage + reminderNumofstickers + stickerforPassport;
+            stickNum = totalStickers;
+            if(stickNum < 6) { stickNum = 5; }
+            return stickNum;
+        }
+
     }
 }

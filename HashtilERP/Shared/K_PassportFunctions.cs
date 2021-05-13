@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HashtilERP.Shared;
 
-namespace HashtilERP.Shared
+namespace HashtilERP.Shared.Models
 {
     public static class K_PassportFunctions
     {
@@ -37,6 +33,16 @@ namespace HashtilERP.Shared
                 Text = passportAvg.ToString();
             }
             return Text;
+        }
+
+        //check if Trey is wide or narrow 
+        public static bool IsTreyWide(K_Passport k_Passport)
+        {
+            if(k_Passport.CelsTray == 442 || k_Passport.CelsTray == 187 || k_Passport.CelsTray == 250)
+            {
+                return true;
+            }
+            return false;
         }
 
     }

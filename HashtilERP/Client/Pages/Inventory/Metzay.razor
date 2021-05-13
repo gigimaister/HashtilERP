@@ -965,7 +965,7 @@
 
             ExcelExportProperties ExportProperties = new ExcelExportProperties();
             
-            ExportProperties.FileName = $"מצאי חממות לתאריך-{stringNowDate + "-" + stringNow+"--"}.xlsx";
+            ExportProperties.FileName = $"מצאי חממות לתאריך-{stringNowDate} שעה: {stringNow}.xlsx";
             await this.SfGrid.ExcelExport(ExportProperties);
         }
     }

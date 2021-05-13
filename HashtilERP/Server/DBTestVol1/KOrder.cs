@@ -35,6 +35,8 @@ namespace HashtilERP.DBTestVol1
         public bool? IsWasChangedAfterDeliveryReport { get; set; }
 
         public int? NumOfCages { get; set; }
+        public int? NumOfBarTenderStickers { get; set; } = 0;
+
         public string HamamaRemarks { get; set; }
         public string DeliveryRemarks { get; set; }
         public string JobStatus { get; set; }
