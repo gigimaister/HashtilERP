@@ -23,7 +23,7 @@
 
 <SfDashboardLayout CellSpacing="@(new double[]{10 ,10 })" Columns="5" EnableRtl="true">
     <DashboardLayoutPanels>
-        <DashboardLayoutPanel Column=4>
+        <DashboardLayoutPanel>
             <ContentTemplate>
                 <SfCircularGauge>
                     <CircularGaugeAxes>
@@ -38,7 +38,7 @@
         <DashboardLayoutPanel SizeX=2 Column=1>
             <ContentTemplate><div>1</div></ContentTemplate>
         </DashboardLayoutPanel>
-        <DashboardLayoutPanel  Column=3>
+        <DashboardLayoutPanel Column=3>
             <ContentTemplate><div>2</div></ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -50,6 +50,9 @@
         </DashboardLayoutPanel>
         <DashboardLayoutPanel Row=1 Column=2>
             <ContentTemplate><div>5</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Row=1 Column=3>
+            <ContentTemplate><div>6</div></ContentTemplate>
         </DashboardLayoutPanel>
     </DashboardLayoutPanels>
 </SfDashboardLayout>

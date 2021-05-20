@@ -190,8 +190,28 @@ namespace HashtilERP.Server.Controllers
             return Ok();
         }
 
+        [HttpPut("UpdateKOrderPassport/{id}")]
+        public async Task<IActionResult> UpdateKOrderPassport(int id, KOrderPassports kOrderPassports)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+            kOrderPassports.UserName = screenName;
 
-        
+            _context.Entry(kOrderPassports).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok();
+        }
+
 
 
         #endregion

@@ -636,12 +636,14 @@
 
                                 @{ if (K_OrderForPickPassport.K_OrderPassports != null && K_OrderForPickPassport.K_OrderPassports.Count() > 0)
                                     {
-                                        <button class="btn btn-primary" @onclick="@(_ => {BtnSendKOrderPassportsToDB(1);})">עדכון</button>
-                                        <button class="btn btn-danger" @onclick="@(_ => {BtnSendKOrderPassportsToDB(4);})">מחיקה</button>
+                                       <AuthorizeView Roles="Administrator">
+                                          <button class="btn btn-primary" @onclick="@(_ => { BtnSendKOrderPassportsToDB(1); })">עדכון</button>
+                                       </AuthorizeView>
+                                        <button class="btn btn-danger" @onclick="@(_ => { BtnSendKOrderPassportsToDB(4); })">מחיקה</button>
                                     }
                                     else
                                     {
-                                        <button class="btn btn-success" @onclick="@(_ => {BtnSendKOrderPassportsToDB(3);})">שליחה</button>
+                                        <button class="btn btn-success" @onclick="@(_ => { BtnSendKOrderPassportsToDB(3); })">שליחה</button>
                                     }
                                 }
 

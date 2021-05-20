@@ -1,0 +1,50 @@
+﻿@page "/inventory/addmetzayfromexcel"
+@inject IJSRuntime jsRuntime
+
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@using Excel=Microsoft.Office.Interop.Excel;
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator")]
+<div style="text-align:right" class="alert alert-info" role="alert">
+    <h3 style="text-align:center">הוספת מצאי מקובץ אקסל</h3>
+</div>
+
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadData();
+
+    }
+
+
+    //Get list Of K_Passport Objects
+    protected async Task LoadData()
+    {
+        try
+        {
+            var t = await Http.GetFromJsonAsync<int>("api/Excell/GetExcell");
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        StateHasChanged();
+    }
+
+
+
+}

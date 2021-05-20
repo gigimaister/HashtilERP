@@ -329,7 +329,7 @@ namespace HashtilERP.Server
         public async Task<List<K_Passport>> GetKPassportsForKOrderByGidulAndZan(string gidul, string zan)
         {
             var k_Passports = new List<K_Passport>();
-            k_Passports = await _context.KPassport.Where(x => x.Gidul.Contains(gidul) && x.Zan.Contains(zan))
+            k_Passports = await _context.KPassport.Where(x => x.Gidul.Contains(gidul) && x.Zan.Contains(zan) && x.PassportStatus == Status.InGreenHouse)
                 .Include(e => e.Passport)
                 .ThenInclude(e => e.Passprods)
                 .Include(e => e.PassportAuditForms)
