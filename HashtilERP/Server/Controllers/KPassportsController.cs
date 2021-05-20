@@ -620,7 +620,7 @@ namespace HashtilERP.Server
             kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
             kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan ?? sapOitm.UHebGidul;
             kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
-            kPassport.Gidul = sapOitm.UHebGidul.Trim();
+            kPassport.Gidul = sapOitm.UHebGidul ?? sapOitm.ItemName.Split(new char[] { ' ' })[0];
             kPassport.IsSavedForCx = false;
             kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
             _context.KPassport.Add(kPassport);

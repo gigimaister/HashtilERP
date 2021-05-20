@@ -59,7 +59,7 @@ namespace HashtilERP.Server.Controllers
                             MarketingDate = passprod.UDateSupp,
                             SaleNum = passprod.USaleNum,
                             CxName = passprod.UCustName,
-                            Gidul = passport.Oitm.UHebGidul,
+                            Gidul = passport.Oitm.UHebGidul ?? passport.Oitm.ItemName.Split(new char[] { ' ' })[0],
                             Zan = passport.UZanZl ?? passport.Oitm.UHebZan ?? passport.Oitm.UHebGidul,
                             ItemCode = passport.UItemCode,
                             PassprodComments = passprod.UComments ?? "",
