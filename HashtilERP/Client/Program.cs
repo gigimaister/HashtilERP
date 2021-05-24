@@ -16,7 +16,7 @@ namespace HashtilERP.Client
     {
         public static async Task Main(string[] args)
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDQ1Mzg0QDMxMzkyZTMxMmUzMFpsS0FtVkxGK0tqWVF3K2hIa0Z4UmdVQm5mT1V4SkxrcmdEQVp0SUxqeFE9;Mzc1MDI2QDMxMzgyZTM0MmUzMG1Pci9nVlZUS2tBMENYM3hmS29xT1pSUmJyNDFSaGhGQXJWWXNMY21NTW89");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NDUwNDcwQDMxMzkyZTMxMmUzMFhubytMcW4zVkxGamJmNXlkV2R4SWFlK1JWOFJsbUFqTktTaDVRYnBqc3M9");
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 

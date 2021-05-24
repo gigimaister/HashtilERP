@@ -14,14 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.0.0" />
-    <PackageReference Include="Azure.Identity" Version="1.2.2" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.1" />
+    <PackageReference Include="Azure.Identity" Version="1.4.0" />
     <PackageReference Include="BlazingComponents.Authentication" Version="29062019.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.2" />
-    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.6" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.8.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.6" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="Syncfusion.Blazor" Version="19.1.0.54" />
   </ItemGroup>
@@ -32,12 +32,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.4">
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.ApiAuthorization.IdentityServer" Version="5.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

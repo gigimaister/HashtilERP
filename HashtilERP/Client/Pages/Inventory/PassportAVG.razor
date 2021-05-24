@@ -84,10 +84,12 @@
 }
 
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports"   @ref="@SfGrid" Toolbar=@Tool AllowFiltering="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" Toolbar=@Tool AllowFiltering="true" AllowPaging="true" AllowSorting="true" EnableRtl="true" AllowResizing="true">
 
     <GridEvents TValue="K_Passport"></GridEvents>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.CheckBox"></GridFilterSettings>
+    <GridPageSettings PageSize="10"></GridPageSettings>
+
     <GridTemplates>
 
         <DetailTemplate>
@@ -257,24 +259,24 @@
                             </ChildContent>
                             <ContentTemplate>
                                 @{ var passport2 = (context as K_Passport);
-                                                                <div class="form-row" dir="rtl">
-                                                                    <div class="col-form-label">
-                                                                        @{ if (passport2.GrowingRoom == null)
-                                                                            {
-                                                                                <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
-                                                                            }
-                                                                            else
-                                                                            { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
-                                                                            }
-                                                                        }
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
-                                                                    </div>
-                                                                    <div class="col-form-label">
-                                                                        <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
-                                                                    </div>
-                                                                </div>
+                                    <div class="form-row" dir="rtl">
+                                        <div class="col-form-label">
+                                            @{ if (passport2.GrowingRoom == null)
+                                                {
+                                                    <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס ישירות למצאי ע"י</label>
+                                                }
+                                                else
+                                                { <label class="form-check-label" style="text-align: right; font-weight:500">הוכנס לחדר הנבטה ע"י:</label>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.UserName</label>
+                                        </div>
+                                        <div class="col-form-label">
+                                            <label class="form-check-label" style="text-align:right;">@passport2.KPassportInsertAudit.Date</label>
+                                        </div>
+                                    </div>
                                     <div class="form-row" dir="rtl">
                                         <div class="col-form-label">
                                             <label class="form-check-label" style="text-align: right; font-weight:500">ממוצע SAP התחלתי:</label>
