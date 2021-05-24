@@ -1,13 +1,13 @@
 ﻿{
    "CodeGenerationMode": 0,
-   "ContextClassName": "DBTestVol1Context",
+   "ContextClassName": "TestContext",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "DBTestVol1",
+   "OutputPath": "TestContextApi",
    "ProceduresReturnList": false,
    "ProjectRootNamespace": "HashtilERP",
    "Schemas": null,
@@ -19,11 +19,31 @@
          "ObjectType": 0
       },
       {
+         "Name": "[db_datareader].[K_Order_For_Test]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[K_OrderAuditTable]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[db_datareader].[K_OrderPassports]",
          "ObjectType": 0
       },
       {
+         "Name": "[db_datareader].[K_OrderRemark]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[db_datareader].[K_Passport]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[K_Passport_Excel_Insert]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[K_Passport_For_Test]",
          "ObjectType": 0
       },
       {

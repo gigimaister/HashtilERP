@@ -1,0 +1,86 @@
+﻿@page "/admin/addmetzayfromexcel"
+@inject IJSRuntime jsRuntime
+
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator")]
+<div style="text-align:right" class="alert alert-info" role="alert">
+    <h3 style="text-align:center">הוספת מצאי מאקסל</h3>
+</div>
+
+<div>
+    <button class="btn btn-danger" @onclick="@InsertMetzayFromExcel">הכנסת מצאי חדש</button>
+</div>
+
+@*Alert/Error message Dialog*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorDialogIsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header>@ErrorModalHeaderContent</Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+
+@code {
+
+    async void InsertMetzayFromExcel()
+    {
+        try
+        {
+
+            var rslt = await Http.GetAsync($"api/KPassportForExcel/GetNewMetzayForProduction");
+            //Http Response Failed On Update
+            if (!rslt.IsSuccessStatusCode)
+            {
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = $"משהו השתבש! נא לבדוק {rslt.StatusCode}";
+                ErrorDialogIsVisible = true;
+            }
+            else
+            {
+                ErrorModalHeaderContent = "הצלחה!";
+                ModalError = "הכנסה בוצעה בהצלחה!";
+                ErrorDialogIsVisible = true;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+    //Error/Alert Modal
+    #region Error/Alert Dialog
+    //Main Message
+    private string ModalError { get; set; } = "";
+    private string ErrorModalHeaderContent { get; set; } = "";
+    private bool ErrorDialogIsVisible { get; set; } = false;
+
+    private void OnOverlayclick(Microsoft.AspNetCore.Components.Web.MouseEventArgs arg)
+    {
+        this.ErrorDialogIsVisible = false;
+    }
+
+    private void CloseDialog()
+    {
+        this.ErrorDialogIsVisible = false;
+    }
+
+    #endregion
+}

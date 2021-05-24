@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using HashtilERP.DBTestVol1;
+using HashtilERP.TestContextApi;
 
 namespace HashtilERP.Server
 {
@@ -47,6 +48,10 @@ namespace HashtilERP.Server
             services.AddDbContext<OrdersContext>(options =>
                options.UseSqlServer(
                    Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDbContext<TestContext>(options =>
+              options.UseSqlServer(
+                  Configuration.GetConnectionString("DefaultConnection")));
 
 
 

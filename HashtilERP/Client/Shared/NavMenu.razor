@@ -25,14 +25,7 @@
                                 <span class="oi oi-bolt" aria-hidden="true"></span>&nbsp הוצ' מבחן
                             </NavLink>
                         </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="inventory/addmetzayfromexcel" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-file" aria-hidden="true"></span>&nbsp מצאי מקובץ
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
+                    </AuthorizeView>                
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="order/ordersfortodaytomorrow" Match="NavLinkMatch.All" @onclick="Close">
@@ -72,6 +65,13 @@
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="pages/listroles" Match="NavLinkMatch.All" @onclick="Close">
                                 <span class="oi oi-home" aria-hidden="true"></span>&nbsp Admin
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="admin/addmetzayfromexcel" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-bolt" aria-hidden="true"></span>&nbsp מצאי מאקסל
                             </NavLink>
                         </li>
                     </AuthorizeView>
