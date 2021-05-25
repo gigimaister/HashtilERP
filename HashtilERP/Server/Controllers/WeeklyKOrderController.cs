@@ -190,8 +190,8 @@ namespace HashtilERP.Server.Controllers
             return Ok();
         }
 
-        [HttpPut("UpdateKOrderPassport/{id}")]
-        public async Task<IActionResult> UpdateKOrderPassport(int id, KOrderPassports kOrderPassports)
+        [HttpPut("UpdateKOrderPassport")]
+        public async Task<IActionResult> UpdateKOrderPassport(KOrderPassports kOrderPassports)
         {
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
@@ -283,12 +283,12 @@ namespace HashtilERP.Server.Controllers
 
             return 0;
         }
-            #endregion
+        #endregion
 
         #region DELETE
 
-            // DELETE: api/WeeklyKOrder/5
-            [HttpDelete("KOrderPassportsDelete/{id}")]
+        // DELETE: api/WeeklyKOrder/KOrderPassportsDelete/5
+        [HttpDelete("KOrderPassportsDelete/{id}")]
         public async Task<IActionResult> KOrderPassportsDelete(int id)
         {
             var kordpass = await _context.KOrderPassports.Where(x=>x.JobId == id).ToListAsync();
@@ -305,6 +305,22 @@ namespace HashtilERP.Server.Controllers
             return NoContent();
         }
 
+        // DELETE: api/WeeklyKOrder/KOrderPassportsDelete/5
+        [HttpDelete("KOrderPassportDelete/{id}")]
+        public async Task<IActionResult> KOrderPassportDelete(int id)
+        {
+            var kordpass = await _context.KOrderPassports.Where(x => x.PassportsToOrdersId == id).FirstOrDefaultAsync();
+            if (kordpass == null)
+            {
+                return NotFound();
+            }
+
+            _context.KOrderPassports.Remove(kordpass);
+            await _context.SaveChangesAsync();
+            
+
+            return Ok();
+        }
 
         #endregion
 

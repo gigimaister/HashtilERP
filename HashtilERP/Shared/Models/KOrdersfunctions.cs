@@ -247,5 +247,7 @@ namespace HashtilERP.Shared.Models
             return stickNum;
         }
 
+       
+
     }
 }

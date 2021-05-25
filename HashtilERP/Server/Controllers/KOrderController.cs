@@ -146,7 +146,9 @@ namespace HashtilERP.Server.Controllers
             || x.FixedCoordinationRemark == K_OrderStatus.WillLetUsKnow
             || x.FixedCoordinationRemark == K_OrderStatus.WillTalkToOren)
             ))
-            .Include(X=>X.Ocrd).OrderBy(x=>x.MarketingDate)
+            .Include(X=>X.Ocrd)
+            .Include(x => x.k_OrderAuditTables)
+            .OrderBy(x=>x.MarketingDate)
             .ToListAsync();
 
 
