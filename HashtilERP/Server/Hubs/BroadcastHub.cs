@@ -11,5 +11,10 @@ namespace HashtilERP.Server.Hubs
         {            
             await Clients.All.SendAsync("ReceiveMessage");
         }
+
+        public async Task SendMessageForPickPassport()
+        {
+            await Clients.All.SendAsync("PickPassport");
+        }
     }
 }

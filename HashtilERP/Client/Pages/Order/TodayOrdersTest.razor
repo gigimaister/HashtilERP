@@ -32,17 +32,24 @@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
     <div class="row">
         <div class="col" style="text-align:right">
-            <div class="alert alert-secondary" role="alert" style="width:300px">
-                <div class="row" style="text-align:right;width:400px;">
+            <div class="alert alert-secondary" role="alert">
+                <div class="row" style="text-align:right;">
                     <div class="col">
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                     </div>
                     <div class="col" style="text-align:right">
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
+                    <div class="col">
+                        <SfDatePicker TValue="DateTime?" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
+                    </div>
+                    <div class="col" style="text-align:right">
+                        <button class="btn btn-outline-warning">שליחה</button>
+                    </div>
                 </div>
             </div>
         </div>
+        
         <div class="col" style="text-align:left">
             <SfProgressButton Content="שליחה להדפסה" CssClass="e-outline e-success" @onclick="@(_ => {SentToBartenderPrint(0);})">
                 <ProgressButtonSpinSettings Position="SpinPosition.Right"></ProgressButtonSpinSettings>
@@ -890,9 +897,7 @@
                                             }
                                             else
                                             {
-                                                <h4 style="        text-align: right;
-        color: forestgreen
-">הפרש:   @string.Format("{0:#,0}", magash)</h4>
+                                                <h4 style="text-align:right;color:forestgreen">הפרש: @string.Format("{0:#,0}", magash)</h4>
                                             }
                                         }
                                     </div>
@@ -938,7 +943,7 @@
                             <br />
                             <div class="row">
                                 <div class="col">
-                                    <table class ="table table-striped table-hover" style="text-align:right;width:auto">
+                                    <table class="table table-striped table-hover" style="text-align:right;width:auto">
                                         <thead>
                                             <tr>
                                                 <th style="font-size:25px;font-weight:bold">
@@ -958,18 +963,18 @@
                                                 </th>
 
                                                 <th style="font-size:25px;font-weight:bold">
-                                                    
+
                                                 </th>
                                                 <th style="font-size:25px;font-weight:bold">
-                                                    
+
                                                 </th>
                                                 <th style="font-size:25px;font-weight:bold">
-                                                    
+
                                                 </th>
-                                            </tr>                                            
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                            @{ foreach (var passport in kOrderPassports) 
+                                            @{ foreach (var passport in kOrderPassports)
                                                 {
                                                     <tr>
                                                         <td style="font-size:25px;font-weight:bold">
@@ -985,7 +990,7 @@
                                                             @string.Format("{0:#,0}", passport.Platns)
                                                         </td>
                                                         <td style="font-size:25px;">
-                                                            <input type="number"  @bind-value=@KorderPassport style="width:100px"  placeholder="@passport.PassportMagashAmpunt"/>
+                                                            <input type="number" @bind-value=@KorderPassport style="width:100px" placeholder="@passport.PassportMagashAmpunt" />
                                                         </td>
                                                         @{if (K_OrderForPickPassport.K_OrderPassports.Contains(passport))
                                                             {
@@ -994,22 +999,23 @@
                                                                 </td>
                                                                 <td>
                                                                     <button class="btn btn-danger" @onclick="@(_ => { DeleteKorderPassport(passport); })">מחיקה</button>
-                                                                </td>     
+                                                                </td>
+
                                                             }
-                                                            else if(!K_OrderForPickPassport.K_OrderPassports.Contains(passport) && K_OrderForPickPassport.K_OrderPassports.Count() > 0)
+                                                            else if (!K_OrderForPickPassport.K_OrderPassports.Contains(passport) && K_OrderForPickPassport.K_OrderPassports.Count() > 0)
                                                             {
                                                                 <td>
                                                                     <button class="btn btn-success" @onclick="@(_ => { SendKorderPassport(passport); })">שליחה</button>
                                                                 </td>
                                                             }
-                                                          }
-                                                        
+                                                        }
+
                                                     </tr>
                                                 }
                                             }
                                         </tbody>
-                                        </table>
-</div>
+                                    </table>
+                                </div>
                                 <div class="col">
 
                                 </div>
@@ -1048,7 +1054,9 @@
                                                                             <th>
                                                                                 מגשים
                                                                             </th>
-
+                                                                            <th>
+                                                                                ת.הוצאה
+                                                                            </th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -1071,17 +1079,20 @@
                                                                             var display = string.Format("{0:#,0}", temp);
                                                                             var magashPercx = temp / startAvg;
                                                                             var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                                                            <tr>
-                                                                                <td>
-                                                                                    @cx.UCustName
-                                                                                </td>
-                                                                                <td>
-                                                                                    @display
-                                                                                </td>
-                                                                                <td>
-                                                                                    @magashPercxScreen
-                                                                                </td>
-                                                                            </tr>
+                                                                        <tr>
+                                                                            <td>
+                                                                                @cx.UCustName
+                                                                            </td>
+                                                                            <td>
+                                                                                @display
+                                                                            </td>
+                                                                            <td>
+                                                                                @magashPercxScreen
+                                                                            </td>
+                                                                            <td>
+                                                                                @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
+                                                                            </td>
+                                                                        </tr>
                                                                         }
                                                                     </tbody>
                                                                 </table>
@@ -1115,40 +1126,22 @@
 
                                                                         @foreach (var form in passport1.PassportAuditForms.OrderByDescending(x => x.CreateDate))
                                                                         {
-                                                                            if (passport1.PassportAuditForms.Count == 0)
-                                                                            {
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        אין
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        אין
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        אין
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        אין
-                                                                                    </td>
-                                                                                </tr>
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        @form.CreateDate
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        @form.UserName
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        @form.AuditStatus
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        @form.Remark
-                                                                                    </td>
-                                                                                </tr>
-                                                                            }
+                                                                           
+                                                                        <tr>
+                                                                            <td>
+                                                                                @form.CreateDate
+                                                                            </td>
+                                                                            <td>
+                                                                                @form.UserName
+                                                                            </td>
+                                                                            <td>
+                                                                                @form.AuditStatus
+                                                                            </td>
+                                                                            <td>
+                                                                                @form.Remark
+                                                                            </td>
+                                                                        </tr>
+                                                                            
                                                                         }
                                                                     </tbody>
                                                                 </table>
@@ -1276,6 +1269,7 @@
                                     <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"> </GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
                                     <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
@@ -1590,6 +1584,8 @@
     hubConnection.State == HubConnectionState.Connected;
 
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    Task SendMessageForPickPassport() => hubConnection.SendAsync("SendMessageForPickPassport");
+
 
     //getting week sun to sat dates
     string ReportBeginDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[0].ToShortDateString();
@@ -1619,10 +1615,27 @@
             Task.Run(async () => { await LoadData(); });
             StateHasChanged();
         });
+        hubConnection.On("PickPassport", () =>
+        {
+
+            Task.Run(async () => { await LoadPickPassportData(); });
+            StateHasChanged();
+        });
 
         await hubConnection.StartAsync();
     }
-
+    async Task LoadPickPassportData()
+    {
+        try
+        {
+            //GET PASSPORTS
+            k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
     //Get list Of KOrder Todat/Tomorrow Objects
     protected async Task LoadData()
     {
@@ -2004,7 +2017,8 @@
                 {
                     foreach (var kordpas in K_OrderForPickPassport.K_OrderPassports)
                     {
-                        kOrderPassports.Add(kordpas);
+                        await Task.Run(() => kOrderPassports.Add(kordpas));
+
                     }
                 }
                 LoadingSpinner = false;
@@ -2155,7 +2169,9 @@
     {
         if (selectedRows.Count() == 0)
         {
-
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
         }
         else if (MultiAVGInput == null || MultiAVGInput == 0)
         {
@@ -2228,12 +2244,12 @@
     }
 
     //On double click Open
-    public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
+    public async void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
     {
         K_OrderForEdit = args.RowData;
-        K_OrderForAllEdit.Gidul = args.RowData.Gidul;
-        K_OrderForAllEdit.Zan = args.RowData.Zan;
         RowEditDialogShow = true;
+        await Task.Run(() => K_OrderForAllEdit.Gidul = args.RowData.Gidul);
+        await Task.Run(() => K_OrderForAllEdit.Zan = args.RowData.Zan);
         AVGAutoCalc = "";
     }
 
@@ -2427,7 +2443,7 @@
         //If After update magash > Before update magash
         else
         {
-            if (kpassport.MagashAmount > (KorderPassport - k_OrderPassports.PassportMagashAmpunt))
+            if (kpassport.MagashAmount >= (KorderPassport - k_OrderPassports.PassportMagashAmpunt))
             {
                 kpassport.MagashAmount -= (KorderPassport - k_OrderPassports.PassportMagashAmpunt);
             }
@@ -2734,7 +2750,7 @@
 
                 //Adding korderpassport to list
                 kOrderPassports.Add(korderPassport);
-                if (IsConnected) await SendMessage();
+                if (IsConnected) await SendMessageForPickPassport();
                 StateHasChanged();
 
             }
@@ -2821,7 +2837,7 @@
 
                     //Adding korderpassport to list
                     kOrderPassports.Add(korderPassport);
-                    if (IsConnected) await SendMessage();
+                    if (IsConnected) await SendMessageForPickPassport();
                     StateHasChanged();
                 }
             }
@@ -2836,13 +2852,20 @@
     async void GetKpassportsByGidulAndZan()
     {
         LoadingSpinner = true;
-        kOrderPassports.Clear();
+        if (kOrderPassports.Count() > 0)
+        {
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "נא למחוק פספורטים משויכים כדי להפעיל חיפוש זה!";
+            LoadingSpinner = false;
+            return;
+        }
         await GetKpassportsForKorder(K_OrderForPickPassport, false, SearchByZan);
 
         LoadingSpinner = false;
 
         SfGridKpassport.Refresh();
-        if (IsConnected) await SendMessage();
+        if (IsConnected) await SendMessageForPickPassport();
         StateHasChanged();
     }
 
@@ -2866,7 +2889,7 @@
         }
 
 
-        if (IsConnected) await SendMessage();
+        if (IsConnected) await SendMessageForPickPassport();
         StateHasChanged();
 
         return 0;
@@ -3265,19 +3288,19 @@
     //Style GRID
     #region Grid Style Methods
     //ROW IsNeedToBeAudit STYLE
-    public void RowBound(RowDataBoundEventArgs<K_Order> args)
+    public async void RowBound(RowDataBoundEventArgs<K_Order> args)
     {
         if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true)
         {
-            args.Row.AddClass(new string[] { "is-attached-passports" });
+            await Task.Run(() => args.Row.AddClass(new string[] { "is-attached-passports" }));
         }
         if (args.Data.IsJobCancel == true)
         {
-            args.Row.AddClass(new string[] { "is-job-cancel" });
+            await Task.Run(() => args.Row.AddClass(new string[] { "is-job-cancel" }));
         }
         if (args.Data.JobStatus == K_OrderPhase.Finish)
         {
-            args.Row.AddClass(new string[] { "is-job-ready" });
+            await Task.Run(() => args.Row.AddClass(new string[] { "is-job-ready" }));
         }
     }
     //IsPrinted TYPE STYLE

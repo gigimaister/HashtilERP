@@ -178,7 +178,9 @@
                                                 <th>
                                                     מגשים
                                                 </th>
-
+                                                <th>
+                                                    ת.הוצאה
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -201,17 +203,20 @@
                                                 var display = string.Format("{0:#,0}", temp);
                                                 var magashPercx = temp / startAvg;
                                                 var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                                <tr>
-                                                    <td>
-                                                        @cx.UCustName
-                                                    </td>
-                                                    <td>
-                                                        @display
-                                                    </td>
-                                                    <td>
-                                                        @magashPercxScreen
-                                                    </td>
-                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    @cx.UCustName
+                                                </td>
+                                                <td>
+                                                    @display
+                                                </td>
+                                                <td>
+                                                    @magashPercxScreen
+                                                </td>
+                                                <td>
+                                                    @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
+                                                </td>
+                                            </tr>
                                             }
                                         </tbody>
                                     </table>
@@ -245,40 +250,23 @@
 
                                             @foreach (var form in passport1.PassportAuditForms.OrderByDescending(x => x.CreateDate))
                                             {
-                                                if (passport1.PassportAuditForms.Count == 0)
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                        <td>
-                                                            אין
-                                                        </td>
-                                                    </tr>
-                                                }
-                                                else
-                                                {
-                                                    <tr>
-                                                        <td>
-                                                            @form.CreateDate
-                                                        </td>
-                                                        <td>
-                                                            @form.UserName
-                                                        </td>
-                                                        <td>
-                                                            @form.AuditStatus
-                                                        </td>
-                                                        <td>
-                                                            @form.Remark
-                                                        </td>
-                                                    </tr>
-                                                }
+
+
+                                            <tr>
+                                                <td>
+                                                    @form.CreateDate
+                                                </td>
+                                                <td>
+                                                    @form.UserName
+                                                </td>
+                                                <td>
+                                                    @form.AuditStatus
+                                                </td>
+                                                <td>
+                                                    @form.Remark
+                                                </td>
+                                            </tr>
+
                                             }
                                         </tbody>
                                     </table>

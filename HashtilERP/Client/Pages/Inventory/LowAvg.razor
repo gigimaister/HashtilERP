@@ -76,7 +76,9 @@
                                                 <th>
                                                     מגשים
                                                 </th>
-
+                                                <th>
+                                                    ת.הוצאה
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -88,17 +90,20 @@
                                                 var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
                                                 var magashPercx = (cx.UQuantity * 1000) / startAvg;
                                                 var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                                <tr>
-                                                    <td>
-                                                        @cx.UCustName
-                                                    </td>
-                                                    <td>
-                                                        @display
-                                                    </td>
-                                                    <td>
-                                                        @magashPercxScreen
-                                                    </td>
-                                                </tr>
+                                            <tr>
+                                                <td>
+                                                    @cx.UCustName
+                                                </td>
+                                                <td>
+                                                    @display
+                                                </td>
+                                                <td>
+                                                    @magashPercxScreen
+                                                </td>
+                                                <td>
+                                                    @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
+                                                </td>
+                                            </tr>
                                             }
                                         </tbody>
                                     </table>
