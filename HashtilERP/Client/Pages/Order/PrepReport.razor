@@ -122,13 +122,14 @@
 @*grid*@
 <SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
-    <GridSelectionSettings CheckboxOnly="true"  Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+        AllowGrouping="false" AllowSorting="true" AllowPaging="true" AllowSelection="true">
+    <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 
     <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-        RowDeselected="RowDeSelected"   RowSelected="RowSelected" RowDataBound="RowBound"></GridEvents>
+                RowDeselected="RowDeSelected" RowSelected="RowSelected" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+    <GridPageSettings PageSize="50"></GridPageSettings>
     <GridAggregates>
         <GridAggregate>
             <GridAggregateColumns>

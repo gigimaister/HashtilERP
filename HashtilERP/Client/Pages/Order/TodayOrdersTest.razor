@@ -23,7 +23,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B")]
+@attribute [Authorize(Roles = "Administrator")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
     <h2 style="text-align:center">הוצאות ניסוי</h2>
 </div>
@@ -36,16 +36,15 @@
                 <div class="row" style="text-align:right;">
                     <div class="col">
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
-                    </div>
-                    <div class="col" style="text-align:right">
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-                    <div class="col">
-                        <SfDatePicker TValue="DateTime?" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
-                    </div>
                     <div class="col" style="text-align:right">
-                        <button class="btn btn-outline-warning">שליחה</button>
                     </div>
+                    <div class="col">
+                        <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
+                        <button class="btn btn-outline-warning"  @onclick="BtnSendMultiDate">שליחה</button>
+                    </div>
+                   
                 </div>
             </div>
         </div>
@@ -142,14 +141,15 @@
 </SfDialog>
 
 @*Grid No.1*@
-<SfGrid DataSource="@GridNo1List"  EnableVirtualization="true" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
+<SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true" AllowSelection="true">
+        AllowGrouping="false" AllowSorting="true" AllowSelection="true" AllowPaging="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
     <GridEvents QueryCellInfo="CustomizeCell" OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
                 CommandClicked="OnCommandClicked" RowSelected="RowSelected" RowDeselected="RowDeSelected" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+    <GridPageSettings PageSize="30"></GridPageSettings>
     <GridAggregates>
         <GridAggregate>
             <GridAggregateColumns>
@@ -248,7 +248,7 @@
                             <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
 
                         }
-                        else
+                        else if(K_OrderForEdit.JobStatus != K_OrderPhase.Canceled)
                         {
                             <AuthorizeView Roles="Administrator, Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B">
                                 <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
@@ -1477,6 +1477,7 @@
         LoadingSpinner = true;
         await SendKOrderPassportsToDB(4);
         K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+        K_OrderForEdit.IsJobCancel = false;
         var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
         if (!StandByrslt.IsSuccessStatusCode)
         {
@@ -1629,7 +1630,8 @@
         try
         {
             //GET PASSPORTS
-            k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+            //k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+            return;
         }
         catch (Exception e)
         {
@@ -2162,8 +2164,65 @@
         LoadingSpinner = false;
 
     }
+    //prop for multiDate
+    DateTime? MultiDate { get; set; }
+    //Multi Change Date
+    async void BtnSendMultiDate()
+    {
+        if (selectedRows.Count() == 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+            ErrorDialogIsVisible = true;
+        }
+        //if MarketDate < Today
+        var md = Convert.ToDateTime(MultiDate).Subtract(DateTime.Today).TotalDays;
+        if (md < 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "תאריך הוצאה חייב להיות עתידי!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+        LoadingSpinner = true;
+        await SendMultiDateRows();
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        LoadingSpinner = false;
+        await ShowToast();
+        MultiAVGInput = null;
+    }
+    //Multi Date Send to DB
+    async Task<int> SendMultiDateRows()
+    {
+        foreach (var order in selectedRows)
+        {
+            try
+            {
+                order.MarketingDate = MultiDate;
+                var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
 
-
+                if (rslt.IsSuccessStatusCode)
+                {
+                    continue;
+                }
+                else
+                {
+                    ToastContent = await rslt.Content.ReadAsStringAsync();
+                    StateHasChanged();
+                    await ShowToast();
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                ModalError = e.Message;
+                ErrorDialogIsVisible = true;
+            }
+        }
+        return 0;
+    }
     //MULTI AVG BTN CLICK
     async void BtnSendMultiAVG()
     {
@@ -2202,14 +2261,21 @@
         {
             try
             {
-                if (order.JobPlantsNum == null || order.JobPlantsNum == 0)
+                if ((order.JobPlantsNum == null || order.JobPlantsNum == 0) && order.JobNumOfMagash <= 0)
                 {
                     ErrorDialogIsVisible = true;
                     ErrorModalHeaderContent = "שגיאה!";
                     ModalError = $"לא ניתן לחשב מגשים לעבודה {order.CxName + " " + order.Gidul + " " + order.Zan}!";
                     return 1;
                 }
-                KOrdersfunctions.SetAvgForKorder(Convert.ToDouble(MultiAVGInput), order);
+                else if ((order.JobPlantsNum == null || order.JobPlantsNum == 0) && order.JobNumOfMagash > 0)
+                {
+                    order.JobPlantsNum = MultiAVGInput * order.JobNumOfMagash;
+                }
+                else
+                {
+                    KOrdersfunctions.SetAvgForKorder(Convert.ToDouble(MultiAVGInput), order);
+                }
                 order.JobPlansAvarage = MultiAVGInput;
                 var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
 
@@ -2536,7 +2602,7 @@
                 {
                     try
                     {
-                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
+                        await  Task.Run(()=> k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault()));
                     }
                     catch (Exception e)
                     {
@@ -2559,14 +2625,15 @@
                 var distictList2 = k_PassportsForKOrderPassportsUpdate.Distinct();
 
                 //UPDATE KPassport magash
-                foreach (var kpassport in distictList2)
+                foreach (var kpasport in distictList2)
                 {
                     PassportAuditForm passportAuditForm = new PassportAuditForm();
-                    passportAuditForm.K_PassportId = kpassport.K_PassportId;
+                    passportAuditForm.K_PassportId = kpasport.K_PassportId;
                     passportAuditForm.CreateDate = DateTime.Now;
                     passportAuditForm.AuditStatus = "הורדת כמות";
-                    passportAuditForm.Remark = $"לקוח: {K_OrderForPickPassport.CxName}.";
-                    await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
+                    passportAuditForm.Remark = $"לקוח: {K_OrderForPickPassport.CxName}. כ.מגש כוללת: {K_OrderForPickPassport.JobNumOfMagash} " ;
+
+                    await Http.PutAsJsonAsync($"api/KPassports/{kpasport.K_PassportId}", kpasport);
                     await Http.PostAsJsonAsync("api/PassportAuditForm", passportAuditForm);
                 }
                 break;
@@ -2622,7 +2689,7 @@
     }
 
     //KorderPassport grid events
-    public async void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
+    public  void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
     {
         if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
         {
@@ -3288,19 +3355,19 @@
     //Style GRID
     #region Grid Style Methods
     //ROW IsNeedToBeAudit STYLE
-    public async void RowBound(RowDataBoundEventArgs<K_Order> args)
+    public void RowBound(RowDataBoundEventArgs<K_Order> args)
     {
         if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true)
         {
-            await Task.Run(() => args.Row.AddClass(new string[] { "is-attached-passports" }));
+            args.Row.AddClass(new string[] { "is-attached-passports" });
         }
         if (args.Data.IsJobCancel == true)
         {
-            await Task.Run(() => args.Row.AddClass(new string[] { "is-job-cancel" }));
+            args.Row.AddClass(new string[] { "is-job-cancel" });
         }
         if (args.Data.JobStatus == K_OrderPhase.Finish)
         {
-            await Task.Run(() => args.Row.AddClass(new string[] { "is-job-ready" }));
+            args.Row.AddClass(new string[] { "is-job-ready" });
         }
     }
     //IsPrinted TYPE STYLE
@@ -3459,8 +3526,9 @@
     .is-need-to-show-kpassport-pick-selection {
         background-color: lightgoldenrodyellow;
     }
-   
+
 
     .e-plus-icon::before {
         content: '\e823';
+    }
 </style>

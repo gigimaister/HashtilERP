@@ -89,13 +89,14 @@ namespace HashtilERP.Server.Controllers
                 k_Orders = await _context.KOrder.Where(x => 
                 (x.MarketingDate == DateTime.Today.AddDays(1))
                 || (x.MarketingDate == DateTime.Today && x.KOrderEnteringDate == DateTime.Today)
-                || (x.MarketingDate <= DateTime.Today && (x.JobStatus == K_OrderPhase.StandBy || x.JobStatus == K_OrderPhase.AttachedPassports))
+                || (x.MarketingDate <= DateTime.Today && (x.JobStatus == K_OrderPhase.StandBy || x.JobStatus == K_OrderPhase.AttachedPassports || x.JobStatus == K_OrderPhase.InProgress ))
                 )
               .Include(x => x.Ocrd)
               .Include(x => x.K_OrderPassports)
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
               .Include(x => x.k_OrderAuditTables)
+              .OrderBy(x=>x.CxName)
               .ToListAsync();
             }
             catch (Exception e) { Console.WriteLine(e.Message); }
