@@ -128,6 +128,23 @@ namespace HashtilERP.Server.Controllers
             return 0;
         }
 
+        //PrepReport Archive
+        [HttpGet("GetKOrdersArchive")]
+        public async Task<List<KOrder>> GetKOrdersArchive()
+        {
+          
+            var kOrders = await _context.KOrder.Where(x =>(x.MarketingDate <= DateTime.Today)
+            ||(x.FixedCoordinationRemark == K_OrderStatus.WasCanceled || x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk)
+            )           
+            .Include(X => X.Ocrd)
+            .Include(x => x.k_OrderAuditTables)
+            .OrderByDescending(x => x.MarketingDate)
+            .ToListAsync();
+
+
+            return kOrders;
+        }
+
         //Get SAP orders for 1 week(Sun - Sat)
         [HttpGet("GetKOrders")]
         public async Task<List<KOrder>> GetKOrders()
@@ -154,6 +171,7 @@ namespace HashtilERP.Server.Controllers
 
             return kOrders;
         }
+
         [HttpGet("GetKOrdersByDateRange/{dateTime1?}/{dateTime2?}")]
         public async Task<List<KOrder>> GetKOrdersDateRange(string dateTime1, string dateTime2)
         {

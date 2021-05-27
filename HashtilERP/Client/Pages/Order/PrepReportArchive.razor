@@ -1,4 +1,4 @@
-﻿@page "/order/prepreport"
+﻿@page "/order/prepreportarchive"
 @inject IJSRuntime jsRuntime
 
 @using System.Security.Claims;
@@ -23,35 +23,15 @@
 @inject HttpClient Http
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B")]
-<div style="text-align:right" class="alert alert-primary" role="alert">
-    <h2 style="text-align:center">דוח תיאום הוצאות</h2>
+<div style="text-align:right" class="alert alert-dark" role="alert">
+    <h2 style="text-align:center">ארכיון תיאום הוצאות</h2>
 </div>
-@{ if (ShowCorrectDate == false)
-    {
-        <div style="text-align:right" class="alert alert-warning" role="alert">
-            <h3 style="text-align:center">מציג תוצאות בין התאריכים:@ReportBeginDate - @ReportEndDate</h3>
-        </div>
-    }
-    else
-    {
-        <div style="text-align:right" class="alert alert-warning" role="alert">
-            <h3 style="text-align:center">מציג תוצאות בין התאריכים:@startDate - @endDate</h3>
-        </div>
-    }
-}
-<AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-    <div style="text-align:left">
-        <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
-    </div>
-</AuthorizeView>
-@*<div class="alert alert-secondary" style="width:300px" role="alert">
-    <h6>בחירת טווח שונה להצגה</h6>
-    <div>
-        <SfDateRangePicker TValue="DateTime" EnableRtl="true" Width="200px" @bind-StartDate="@StartValue" @bind-EndDate="@EndValue" Placeholder="בחירת טווח"></SfDateRangePicker>
-    </div>
-    <br />
-    <button type="button" class="btn btn-outline-secondary" @onclick="@(_ => {  GetKOrdersFromKOrderTable();})">ייבוא נתונים</button>
-</div>*@
+
+<div style="text-align:right" class="alert alert-warning" role="alert">
+    <h3 style="text-align:center">מציג תוצאות בין התאריכים:@ReportBeginDate - @ReportEndDate</h3>
+</div>
+      
+
 @if (K_Orders == null)
 {
     <div class="col-sm">
@@ -62,24 +42,17 @@
 }
 
 
-
-@*Multi AVG for rows*@
-<div class="row">
-    <div class="col">
-        <div class="row">
-            <div class="col alert alert-success" role="alert">
-                <SfDropDownList TValue="string" Width="200px" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@FixedRemarkForMultiEdit" Placeholder=""></SfDropDownList>
-                <button class="btn btn-outline-secondary" @onclick="SendMultiEdit" style="margin-right:10px">שליחה</button>
-                <button class="btn btn-outline-danger" style="margin-right:120px"  @onclick="SendMultiCancel">ביטול עבודות כללי</button>
-            </div>
-            <div class="col">
-            </div>
-        </div>       
-    </div>
-    <div class="col">
+@*Multi PrepReport status for rows*@
+<div class="alert alert-success" role="alert" style="width:300px">
+    <div class="row" style="text-align:right;width:400px;">
+        <div class="col">
+            <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@FixedRemarkForMultiEdit" Placeholder=""></SfDropDownList>
+        </div>
+        <div class="col" style="text-align:right">
+            <button class="btn btn-outline-danger" @onclick="SendMultiEdit">שליחה</button>
+        </div>
     </div>
 </div>
-
 
 @*Toast Component*@
 <SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
@@ -249,16 +222,16 @@
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td style="font-size:17px">
+                                                    <td>
                                                         @K_OrderForEdit.Ocrd.CardName
                                                     </td>
-                                                    <td style="font-size:17px">
+                                                    <td>
                                                         @K_OrderForEdit.Ocrd.Phone1
                                                     </td>
-                                                    <td style="font-size:17px">
+                                                    <td>
                                                         @K_OrderForEdit.Ocrd.Phone2
                                                     </td>
-                                                    <td style="font-size:17px">
+                                                    <td>
                                                         @K_OrderForEdit.Ocrd.UStatus
                                                     </td>
                                                 </tr>
@@ -392,55 +365,6 @@
     //List KOrder for Multi AVG
     List<K_Order> selectedRows = new List<K_Order>();
 
-    //Cancel Multi Jobs
-    async void SendMultiCancel()
-    {
-        if (selectedRows.Count() == 0)
-        {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא נבחרו עבודות!";
-            ErrorDialogIsVisible = true;
-            return;
-        }
-        LoadingSpinner = true;
-        await SendMultiCancelRows();
-        if (IsConnected) await SendMessage();
-        ToastContent = "נשמר!";
-        StateHasChanged();
-        LoadingSpinner = false;
-        await ShowToast();
-    }
-    //DB Cancel Multi rows
-    async Task<int> SendMultiCancelRows()
-    {
-        foreach (var order in selectedRows)
-        {
-            try
-            {
-                if(order.FixedCoordinationRemark == K_OrderStatus.WasCanceled) { continue; }
-                order.FixedCoordinationRemark = K_OrderStatus.WasCanceled;
-                var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
-
-                if (rslt.IsSuccessStatusCode)
-                {
-                    continue;
-                }
-                else
-                {
-                    ToastContent = await rslt.Content.ReadAsStringAsync();
-                    StateHasChanged();
-                    await ShowToast();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                ModalError = e.Message;
-                ErrorDialogIsVisible = true;
-            }
-        }
-        return 0;
-    }
     //Edit Multiple rows at the same time
     public async void SendMultiEdit()
     {
@@ -486,7 +410,7 @@
             try
             {
                 order.FixedCoordinationRemark = FixedRemarkForMultiEdit;
-                if(order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk) { order.JobStatus = K_OrderPhase.StandBy; }
+                if (order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk) { order.JobStatus = K_OrderPhase.StandBy; }
                 var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{order.JobId}", order);
 
                 if (rslt.IsSuccessStatusCode)
@@ -665,7 +589,7 @@
         try
         {
             ShowCorrectDate = false;
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetKOrders");
+            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetKOrdersArchive");
             StateHasChanged();
         }
         catch (Exception e) { Console.WriteLine(e.Message); }
@@ -681,33 +605,7 @@
         LoadingSpinner = false;
     }
 
-    //GET Jobs from KOrder Table
-    protected async void GetKOrdersFromKOrderTable()
-    {
-        try
-        {
-            LoadingSpinner = true;
-
-            startDate = StartValue.ToShortDateString();
-            endDate = EndValue.ToShortDateString();
-
-            ShowCorrectDate = true;
-
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>($"api/KOrder/GetKOrdersByDateRange/{startDate}/{endDate}");
-
-            LoadingSpinner = false;
-
-
-            StateHasChanged();
-
-
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            LoadingSpinner = false;
-        }
-    }
+   
 
     //Style GRID
     #region Grid Style Methods
@@ -737,6 +635,7 @@
     .schedule-was-cancel {
         background-color: lightpink
     }
+
     .e-toast-container .e-toast .e-toast-message .e-toast-content {
         color: white;
         font-size: 18px;

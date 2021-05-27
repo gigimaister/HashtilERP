@@ -25,7 +25,7 @@
                                 <span class="oi oi-bolt" aria-hidden="true"></span>&nbsp הוצ' מבחן
                             </NavLink>
                         </li>
-                    </AuthorizeView>                
+                    </AuthorizeView>
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="order/ordersfortodaytomorrow" Match="NavLinkMatch.All" @onclick="Close">
@@ -37,6 +37,13 @@
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="order/weeklykorders" Match="NavLinkMatch.All" @onclick="Close">
                                 <span class="oi oi-clock" aria-hidden="true"></span>&nbsp הוצ' שבועי
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
                             </NavLink>
                         </li>
                     </AuthorizeView>
@@ -54,13 +61,14 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B">
                         <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
+                            <NavLink class="nav-link" href="order/prepreportarchive" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-document" aria-hidden="true"></span>&nbsp ארכיון ת.הוצ'
                             </NavLink>
                         </li>
                     </AuthorizeView>
+
                     <AuthorizeView Roles="Administrator">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="pages/listroles" Match="NavLinkMatch.All" @onclick="Close">
