@@ -1,0 +1,126 @@
+﻿@page "/order/dashboard"
+@inject IJSRuntime jsRuntime
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.DropDowns
+@using HashtilERP.Shared.Models
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Layouts
+@using Syncfusion.Blazor.Charts
+@using Syncfusion.Blazor.CircularGauge
+
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator")]
+
+
+<SfDashboardLayout CellSpacing="@(new double[]{10 ,10 })" Columns="5" EnableRtl="true">
+    <DashboardLayoutPanels>
+        <DashboardLayoutPanel>
+            <ContentTemplate>
+                <SfCircularGauge>
+                    <CircularGaugeAxes>
+                        <CircularGaugeAxis Radius="60%" StartAngle="270" EndAngle="90">
+                            <CircularGaugeAxisLineStyle Width="5">
+                            </CircularGaugeAxisLineStyle>
+                        </CircularGaugeAxis>
+                    </CircularGaugeAxes>
+                </SfCircularGauge>
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel SizeX=2 Column=1>
+            <ContentTemplate><div>1</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Column=3>
+            <ContentTemplate><div>2</div></ContentTemplate>
+        </DashboardLayoutPanel>
+
+        <DashboardLayoutPanel Row=1>
+            <ContentTemplate><div>3</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Row=1 Column=1>
+            <ContentTemplate><div>4</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Row=1 Column=2>
+            <ContentTemplate><div>5</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Row=1 Column=3>
+            <ContentTemplate><div>6</div></ContentTemplate>
+        </DashboardLayoutPanel>
+    </DashboardLayoutPanels>
+</SfDashboardLayout>
+
+@code{
+    private HubConnection hubConnection;
+
+
+
+
+
+    //Init
+    #region Init
+
+    //KOrders Objects
+    K_Order[] k_Orders;
+
+    //INITIALIZED
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+    .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+    .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+
+        await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        k_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow/");
+        StateHasChanged();
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    #endregion
+
+
+
+}
+
+
+<style>
+    .e-panel-content {
+        text-align: center;
+        margin-top: 10px;
+    }
+</style>
