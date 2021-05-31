@@ -24,7 +24,10 @@
 <div style="text-align:right" class="alert alert-primary" role="alert">
     <h2 style="text-align:center">הוצאות ניסוי</h2>
 </div>
-
+<AuthorizeView Roles="Administrator">
+    <button class="btn btn-success" @onclick="BtnSemdMultiJobIsDone">מוכנה</button>
+    <br/>
+</AuthorizeView>
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
     <div class="row">
@@ -959,15 +962,7 @@
                                                     עריכת מגשים
                                                 </th>
 
-                                                <th style="font-size:25px;font-weight:bold">
-
-                                                </th>
-                                                <th style="font-size:25px;font-weight:bold">
-
-                                                </th>
-                                                <th style="font-size:25px;font-weight:bold">
-
-                                                </th>
+                                               
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -987,7 +982,7 @@
                                                             @string.Format("{0:#,0}", passport.Platns)
                                                         </td>
                                                         <td style="font-size:25px;">
-                                                            <input type="number" @bind-value=@KorderPassport style="width:100px" placeholder="@passport.PassportMagashAmpunt" />
+                                                            <input type="number" @bind-value=@passport.MagashToCompare style="width:100px" placeholder="@passport.PassportMagashAmpunt" />
                                                         </td>
                                                         @{if (K_OrderForPickPassport.K_OrderPassports.Contains(passport))
                                                             {
@@ -1625,9 +1620,7 @@
     async Task LoadPickPassportData()
     {
         try
-        {
-            //GET PASSPORTS
-            //k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
+        {          
             return;
         }
         catch (Exception e)
@@ -1675,7 +1668,7 @@
     string AutoPlantsCalc, AutoMagashCalc;
 
     //Marketing Date Auto set on Today+1
-    public DateTime? DateValue { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1);
+    public DateTime? DateValue { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
 
     private bool NewJobFormIsVisible { get; set; } = false;
 
@@ -2163,6 +2156,74 @@
     }
     //prop for multiDate
     DateTime? MultiDate { get; set; }
+
+    //Multi Job Is done
+    async void BtnSemdMultiJobIsDone()
+    {
+        if (selectedRows.Count() == 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+
+        LoadingSpinner = true;
+        await SendMultiJobIsDone();
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        StateHasChanged();
+        LoadingSpinner = false;
+        await ShowToast();
+    }
+    //Multi Job Is done DB
+    async Task<int> SendMultiJobIsDone()
+    {
+        foreach (var order in selectedRows)
+        {
+            try
+            {
+                if (order.JobStatus == K_OrderPhase.Finish)
+                {
+                    continue;
+                }
+                else if (order.JobStatus != K_OrderPhase.InProgress)
+                {
+                    continue;
+                }
+                else
+                {
+                    foreach (var pass in order.K_OrderPassports)
+                    {
+                        pass.K_Passport.IsNeedToBeChecked = true;
+                        await Http.PutAsJsonAsync($"api/KPassports/SetKPassportNeedToCheckON/{pass.K_PassportId}", pass.K_Passport);
+
+                    }
+                }
+
+                order.JobStatus = K_OrderPhase.Finish;
+                var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+
+                if (rslt.IsSuccessStatusCode)
+                {
+                    continue;
+                }
+                else
+                {
+                    ToastContent = await rslt.Content.ReadAsStringAsync();
+                    StateHasChanged();
+                    await ShowToast();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                ModalError = e.Message;
+                ErrorDialogIsVisible = true;
+            }
+        }
+        return 0;
+    }
     //Multi Change Date
     async void BtnSendMultiDate()
     {
@@ -2393,8 +2454,17 @@
         try
         {
             await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderPassport", k_OrderPassports);
+            K_OrderForPickPassport = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{k_OrderPassports.JobId}");
+            kOrderPassports = new List<K_OrderPassports>();
+
+            foreach (var kordpas in K_OrderForPickPassport.K_OrderPassports)
+            {
+                await Task.Run(() => kOrderPassports.Add(kordpas));
+
+            }
             if (IsConnected) await SendMessage();
             ToastContent = "נשמר!";
+
             StateHasChanged();
             await ShowToast();
         }
@@ -2466,20 +2536,13 @@
     async void UpdateKorderPassport(K_OrderPassports k_OrderPassports)
     {
 
-        //if no changes was made
-        if (k_OrderPassports.PassportMagashAmpunt == KorderPassport || KorderPassport == null)
+        if (k_OrderPassports.MagashMiddle == 0 || k_OrderPassports.MagashMiddle < 0)
         {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא בוצעו שינויים!";
-            ErrorDialogIsVisible = true;
-            return;
-        }
-        //If update input == 0
-        else if (KorderPassport == 0 || KorderPassport < 0)
-        {
+
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "ערך לא חוקי!";
             ErrorDialogIsVisible = true;
+
             return;
         }
 
@@ -2497,18 +2560,18 @@
 
 
         //If After update magash < Before update magash
-        if (KorderPassport < k_OrderPassports.PassportMagashAmpunt)
+        if (k_OrderPassports.MagashMiddle < k_OrderPassports.PassportMagashAmpunt)
         {
-            kpassport.MagashAmount += (k_OrderPassports.PassportMagashAmpunt - KorderPassport);
+            kpassport.MagashAmount += (k_OrderPassports.PassportMagashAmpunt - k_OrderPassports.MagashMiddle);
 
             SfGridKpassport.Refresh();
         }
         //If After update magash > Before update magash
         else
         {
-            if (kpassport.MagashAmount >= (KorderPassport - k_OrderPassports.PassportMagashAmpunt))
+            if (kpassport.MagashAmount >= (k_OrderPassports.MagashMiddle - k_OrderPassports.PassportMagashAmpunt))
             {
-                kpassport.MagashAmount -= (KorderPassport - k_OrderPassports.PassportMagashAmpunt);
+                kpassport.MagashAmount -= (k_OrderPassports.MagashMiddle - k_OrderPassports.PassportMagashAmpunt);
             }
             //if not enough magash
             else
@@ -2523,7 +2586,7 @@
         try
         {
             await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
-            k_OrderPassports.PassportMagashAmpunt = KorderPassport;
+            k_OrderPassports.PassportMagashAmpunt = k_OrderPassports.MagashMiddle;
             await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateKOrderPassport", k_OrderPassports);
             SfGridKpassport.Refresh();
 
@@ -2556,9 +2619,11 @@
             case 3:
                 if (kOrderPassports.Count() == 0)
                 {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "לא נבחרו פספורטים!";
+                    ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
 
-                    await SendKOrderPassportsToDB(0);
                     return;
                 }
                 await SendKOrderPassportsToDB(3);
@@ -2576,8 +2641,6 @@
                 break;
         }
 
-
-        PickPassForKorderModalBool = false;
 
         if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
@@ -2599,13 +2662,12 @@
                 {
                     try
                     {
-                        await  Task.Run(()=> k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault()));
+                        k_PassportsForKOrderPassportsUpdate.Add(k_PassportsForKorder.Where(x => x.K_PassportId == korderpass.K_PassportId).FirstOrDefault());
                     }
                     catch (Exception e)
                     {
                         Console.WriteLine(e.Message);
                     }
-
                     await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderPassport", korderpass);
                 }
                 K_OrderForPickPassport.JobStatus = K_OrderPhase.AttachedPassports.Trim();
@@ -2618,7 +2680,14 @@
                     ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
                 }
+                K_OrderForPickPassport = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{K_OrderForPickPassport.JobId}");
+                kOrderPassports = new List<K_OrderPassports>();
 
+                foreach (var kordpas in K_OrderForPickPassport.K_OrderPassports)
+                {
+                    await Task.Run(() => kOrderPassports.Add(kordpas));
+
+                }
                 var distictList2 = k_PassportsForKOrderPassportsUpdate.Distinct();
 
                 //UPDATE KPassport magash
@@ -2770,7 +2839,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "")
         {
-            var chosenKPassport = await Task.Run(() => args.RowData);
+            var chosenKPassport = await Task.Run(()=>args.RowData);
             //if no avg,plants && magash set
             if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
             {
@@ -2803,11 +2872,13 @@
                     //update kpassport magash
                     chosenKPassport.MagashAmount -= K_OrderForPickPassport.JobNumOfMagash;
                     korderPassport.PassportMagashAmpunt = K_OrderForPickPassport.JobNumOfMagash;
+                    korderPassport.MagashToCompare = K_OrderForPickPassport.JobNumOfMagash;
                 }
                 //KPassport.Magash < WTM
                 else
                 {
-                    korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount; ;
+                    korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
+                    korderPassport.MagashToCompare = chosenKPassport.MagashAmount;
                     //then kpassport.magash = 0
                     chosenKPassport.MagashAmount = 0;
                 }
@@ -2815,8 +2886,7 @@
                 //Adding korderpassport to list
                 kOrderPassports.Add(korderPassport);
                 SfGridKpassport.Refresh();
-                //if (IsConnected) await SendMessageForPickPassport();
-                //StateHasChanged();
+                
 
             }
             //IF WE have EXISTING LIST
@@ -2840,12 +2910,15 @@
                         {
                             //Updating the obj in the list
                             kOrderPassports[index].PassportMagashAmpunt += korderMinusToalMagashList;
+                            kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
                             chosenKPassport.MagashAmount -= korderMinusToalMagashList;
                         }
                         //kpassport < RTM
                         else
                         {
                             kOrderPassports[index].PassportMagashAmpunt += chosenKPassport.MagashAmount;
+                            kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
+
                             //then kpassport.magash = 0
                             chosenKPassport.MagashAmount = 0;
                         }
@@ -2855,6 +2928,7 @@
                     {
                         //if we good with magash amount only add 1 at a time
                         kOrderPassports[index].PassportMagashAmpunt += 1;
+                        kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
                         chosenKPassport.MagashAmount -= 1;
 
                     }
@@ -2883,11 +2957,14 @@
                             //update kpassport magash
                             chosenKPassport.MagashAmount -= korderMinusToalMagashList;
                             korderPassport.PassportMagashAmpunt = korderMinusToalMagashList;
+                            korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
                         }
                         //kpassport.magash < RTM
                         else
                         {
                             korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
+                            korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
+
                             //then kpassport.magash = 0
                             chosenKPassport.MagashAmount = 0;
                         }
@@ -2897,22 +2974,19 @@
                     else
                     {
                         korderPassport.PassportMagashAmpunt = 1;
+                        korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
                         chosenKPassport.MagashAmount -= 1;
                     }
 
                     //Adding korderpassport to list
                     kOrderPassports.Add(korderPassport);
                     SfGridKpassport.Refresh();
-
-                    //if (IsConnected) await SendMessageForPickPassport();
-                    //StateHasChanged();
+                    
                 }
             }
 
             SfGridKpassport.Refresh();
-            //if (IsConnected) await SendMessage();
-            //StateHasChanged();
-
+          
         }
     }
 

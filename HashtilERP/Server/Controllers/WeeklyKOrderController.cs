@@ -69,6 +69,8 @@ namespace HashtilERP.Server.Controllers
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
               .Include(x => x.k_OrderAuditTables)
+              .OrderByDescending(x=>x.MarketingDate)
+              .Take(1000)
               .ToListAsync();
 
 
@@ -86,10 +88,10 @@ namespace HashtilERP.Server.Controllers
             try
             {
                 //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
-                k_Orders = await _context.KOrder.Where(x => 
-                (x.MarketingDate == DateTime.Today.AddDays(1))
-                || (x.MarketingDate == DateTime.Today && x.KOrderEnteringDate == DateTime.Today)
-                || (x.MarketingDate <= DateTime.Today && (x.JobStatus == K_OrderPhase.StandBy || x.JobStatus == K_OrderPhase.AttachedPassports || x.JobStatus == K_OrderPhase.InProgress ))
+                k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today || x.MarketingDate == DateTime.Today.AddDays(1))
+                && (x.KOrderEnteringDate == DateTime.Today)
+                || (x.MarketingDate <= DateTime.Today && x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.JobStatus != K_OrderPhase.Finish && x.JobStatus != K_OrderPhase.Canceled && x.JobStatus != K_OrderPhase.InProgress)
+                
                 )
               .Include(x => x.Ocrd)
               .Include(x => x.K_OrderPassports)
