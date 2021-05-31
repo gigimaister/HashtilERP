@@ -409,28 +409,41 @@
                                                 @foreach (var kpassport in K_OrderForEdit.K_OrderPassports)
                                                 {
                                                     <tr>
-                                                        <td>
+                                                        <td style="font-size:14px;font-weight:bold">
                                                             @kpassport.K_PassportNum
                                                         </td>
-                                                        <td>
+                                                        <td style="font-size:14px;font-weight:bold">
                                                             @kpassport.K_Passport.Hamama
                                                         </td>
-                                                        <td>
+                                                        <td style="font-size:14px;font-weight:bold">
                                                             @kpassport.K_Passport.Gamlon
                                                         </td>
-                                                        <td>
+                                                        <td style="font-size:14px;font-weight:bold">
                                                             @kpassport.PassportMagashAmpunt
                                                         </td>
                                                     </tr>
                                                 }
                                             </tbody>
                                         </table>
+                                        @{
+                                            var magashDelta = K_OrderForEdit.K_OrderPassports.Sum(x => x.PassportMagashAmpunt) - K_OrderForEdit.JobNumOfMagash;
+                                            if (magashDelta > 0)
+                                            {<div class="alert alert-success" style="text-align:right" role="alert">
+                                                    <h5>לתשומת לבך! יש עודף של @magashDelta מגשים</h5>
+                                                </div> }
+                                            if (magashDelta < 0)
+                                            {
+                                                magashDelta *= -1;
+                                                <div class="alert alert-danger" style="text-align:right" role="alert">
+                                                    <h5>לתשומת לבך! יש חוסר של @magashDelta מגשים</h5>
+                                                </div> }
+                                        }
                                     </div>
 
                                 }
                                 else
                                 {
-                                    <div style="text-align:right" class="alert alert-danger" role="alert">
+                                    <div style="text-align:right" class="alert alert-warning" role="alert">
                                         <h3>
                                             לא צוותו פספורטים
                                         </h3>
@@ -458,13 +471,13 @@
                                         {
 
                                             <tr>
-                                                <td>
+                                                <td style="font-size:14px;font-weight:bold">
                                                     @form.K_OrderRemarkStamp
                                                 </td>
-                                                <td>
+                                                <td style="font-size:14px;font-weight:bold">
                                                     @form.UserName
                                                 </td>
-                                                <td>
+                                                <td style="font-size:14px;font-weight:bold">
                                                     @form.Remark
                                                 </td>
                                             </tr>
