@@ -319,6 +319,7 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
+                           .OrderBy(x=>x.SowDate)
                 .ToListAsync();
 
             return k_Passports;
@@ -334,6 +335,7 @@ namespace HashtilERP.Server
                 .ThenInclude(e => e.Passprods)
                 .Include(e => e.PassportAuditForms)
                 .Include(e => e.k_PassportAuditTblVer2s)
+                .OrderBy(x => x.SowDate)
                 .ToListAsync();
             return k_Passports;
         }
@@ -343,7 +345,7 @@ namespace HashtilERP.Server
         {
             var k_Passports = new List<K_Passport>();
 
-            k_Passports = await _context.KPassport.Where(x => x.Gidul == gidul && x.Zan == zan).ToListAsync();
+            k_Passports = await _context.KPassport.Where(x => x.Gidul == gidul && x.Zan == zan).OrderBy(x => x.SowDate).ToListAsync();
 
             return k_Passports;
         }
