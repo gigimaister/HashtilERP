@@ -2097,21 +2097,10 @@
             //IF PRINT
             if (Isprint == 0)
             {
-                foreach (var kord in listKorder)
-                {
-                    if (kord.JobStatus == K_OrderPhase.StandBy)
-                    {
-                        var message = $"{kord.CxName + "\n" + kord.Gidul + "\n" + kord.Zan + "\n" + kord.JobNumOfMagash}!";
-                        ErrorDialogIsVisible = true;
-                        ErrorModalHeaderContent = "שגיאת עבודה!";
-                        ModalError = "לא ניתן להדפיס עבודה ללא פספורטים!" + "\n" + message;
-                        LoadingSpinner = false;
-                        return;
-                    }
 
-                }
                 foreach (var order in listKorder)
                 {
+                    if (order.JobStatus != K_OrderPhase.AttachedPassports) { continue; }
                     order.IsPrinted = true;
                     order.JobStatus = K_OrderPhase.InProgress;
                     order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
@@ -2124,12 +2113,11 @@
             {
                 foreach (var kord in listKorder)
                 {
-                    if (kord.JobStatus == K_OrderPhase.InProgress || kord.JobStatus == K_OrderPhase.Finish)
-                    {
-                        kord.IsPrinted = false;
-                        kord.JobStatus = K_OrderPhase.AttachedPassports;
-                        await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
-                    }
+                    if (kord.JobStatus != K_OrderPhase.InProgress) { continue; }
+
+                    kord.IsPrinted = false;
+                    kord.JobStatus = K_OrderPhase.AttachedPassports;
+                    await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
                 }
 
             }
