@@ -26,7 +26,7 @@
 </div>
 <AuthorizeView Roles="Administrator">
     <button class="btn btn-success" @onclick="BtnSemdMultiJobIsDone">מוכנה</button>
-    <br/>
+    <br />
 </AuthorizeView>
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
@@ -42,13 +42,13 @@
                     </div>
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
-                        <button class="btn btn-outline-warning"  @onclick="BtnSendMultiDate">שליחה</button>
+                        <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
                     </div>
-                   
+
                 </div>
             </div>
         </div>
-        
+
         <div class="col" style="text-align:left">
             <SfProgressButton Content="שליחה להדפסה" CssClass="e-outline e-success" @onclick="@(_ => {SentToBartenderPrint(0);})">
                 <ProgressButtonSpinSettings Position="SpinPosition.Right"></ProgressButtonSpinSettings>
@@ -248,7 +248,7 @@
                             <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
 
                         }
-                        else if(K_OrderForEdit.JobStatus != K_OrderPhase.Canceled)
+                        else if (K_OrderForEdit.JobStatus != K_OrderPhase.Canceled)
                         {
                             <AuthorizeView Roles="Administrator, Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B">
                                 <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
@@ -962,7 +962,7 @@
                                                     עריכת מגשים
                                                 </th>
 
-                                               
+
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -1071,20 +1071,20 @@
                                                                             var display = string.Format("{0:#,0}", temp);
                                                                             var magashPercx = temp / startAvg;
                                                                             var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                                                        <tr>
-                                                                            <td>
-                                                                                @cx.UCustName
-                                                                            </td>
-                                                                            <td>
-                                                                                @display
-                                                                            </td>
-                                                                            <td>
-                                                                                @magashPercxScreen
-                                                                            </td>
-                                                                            <td>
-                                                                                @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
-                                                                            </td>
-                                                                        </tr>
+                                                                            <tr>
+                                                                                <td>
+                                                                                    @cx.UCustName
+                                                                                </td>
+                                                                                <td>
+                                                                                    @display
+                                                                                </td>
+                                                                                <td>
+                                                                                    @magashPercxScreen
+                                                                                </td>
+                                                                                <td>
+                                                                                    @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
+                                                                                </td>
+                                                                            </tr>
                                                                         }
                                                                     </tbody>
                                                                 </table>
@@ -1118,22 +1118,22 @@
 
                                                                         @foreach (var form in passport1.PassportAuditForms.OrderByDescending(x => x.CreateDate))
                                                                         {
-                                                                           
-                                                                        <tr>
-                                                                            <td>
-                                                                                @form.CreateDate
-                                                                            </td>
-                                                                            <td>
-                                                                                @form.UserName
-                                                                            </td>
-                                                                            <td>
-                                                                                @form.AuditStatus
-                                                                            </td>
-                                                                            <td>
-                                                                                @form.Remark
-                                                                            </td>
-                                                                        </tr>
-                                                                            
+
+                                                                            <tr>
+                                                                                <td>
+                                                                                    @form.CreateDate
+                                                                                </td>
+                                                                                <td>
+                                                                                    @form.UserName
+                                                                                </td>
+                                                                                <td>
+                                                                                    @form.AuditStatus
+                                                                                </td>
+                                                                                <td>
+                                                                                    @form.Remark
+                                                                                </td>
+                                                                            </tr>
+
                                                                         }
                                                                     </tbody>
                                                                 </table>
@@ -1338,12 +1338,7 @@
 </SfDialog>
 
 @code {
-    //PUSH
-    #region Push
-   
 
-
-    #endregion
     //Adding List of jobs to cx
     #region Adding List of jobs to cx
 
@@ -1621,7 +1616,6 @@
         });
 
         await hubConnection.StartAsync();
-        
     }
     async Task LoadPickPassportData()
     {
@@ -1905,7 +1899,7 @@
         try
         {
             var numList = new List<string>
-    {
+{
                 "0","1","2","3","4","5","6","7","8","9"
             };
             if (numList.Contains(args.Key))
@@ -1985,6 +1979,11 @@
     //AVGInput For Multu AVG
     int? MultiAVGInput { get; set; }
 
+    //for preventing double send passport to db duplicate
+    int PreventDuplicate;
+    //for preventing double send passport to db duplicate on delete
+    int PreventDuplicateWhenDelete;
+
     //list to compare after select pass grid
     List<K_Passport> k_PassportsForPassTableSelct;
     List<K_OrderPassports> K_OrderPassportsEditTable;
@@ -1993,6 +1992,9 @@
     //Command Button Clicked In grid
     public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
     {
+        PreventDuplicate = 0;
+        PreventDuplicateWhenDelete = 0;
+
         if (args.CommandColumn.ButtonOption.Content == "בחירת פספורט")
         {
             if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
@@ -2107,7 +2109,7 @@
 
                 foreach (var order in listKorder)
                 {
-                    if(order.JobStatus != K_OrderPhase.AttachedPassports) { continue; }
+                    if (order.JobStatus != K_OrderPhase.AttachedPassports) { continue; }
                     order.IsPrinted = true;
                     order.JobStatus = K_OrderPhase.InProgress;
                     order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
@@ -2266,7 +2268,7 @@
                     await ShowToast();
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 ModalError = e.Message;
@@ -2477,13 +2479,16 @@
     async void DeleteKorderPassport(K_OrderPassports k_OrderPassports)
     {
         //if we have only 1 oblect in kOrderPassports list we have to delete via main btn to change job status
-        if(kOrderPassports.Count() == 1)
+        if (kOrderPassports.Count() == 1)
         {
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "נא להמחוק את העבודה דרך כפתור מחיקה ראשי";
             ErrorDialogIsVisible = true;
+            PreventDuplicateWhenDelete = 0;
+            PreventDuplicate = 0;
             return;
         }
+
         //if no find kpassport
         var kpassport = k_PassportsForKorder.Where(x => x.K_PassportId == k_OrderPassports.K_PassportId).FirstOrDefault();
         if (kpassport == null)
@@ -2589,7 +2594,7 @@
             StateHasChanged();
             await ShowToast();
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Console.WriteLine(e.Message);
             if (IsConnected) await SendMessage();
@@ -2605,12 +2610,21 @@
     //SEND TO DB BTN
     async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
+        PreventDuplicate++;
+        if (PreventDuplicate > 1)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+            ErrorDialogIsVisible = true;
+            return;
+        }
         LoadingSpinner = true;
 
         switch (dbAction)
         {
             //Btn Send
             case 3:
+                PreventDuplicate++;
                 if (kOrderPassports.Count() == 0)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
@@ -2618,6 +2632,13 @@
                     ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
 
+                    return;
+                }
+                if (PreventDuplicate > 1)
+                {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+                    ErrorDialogIsVisible = true;
                     return;
                 }
                 await SendKOrderPassportsToDB(3);
@@ -2691,7 +2712,7 @@
                     passportAuditForm.K_PassportId = kpasport.K_PassportId;
                     passportAuditForm.CreateDate = DateTime.Now;
                     passportAuditForm.AuditStatus = "הורדת כמות";
-                    passportAuditForm.Remark = $"לקוח: {K_OrderForPickPassport.CxName}. כ.מגש כוללת: {K_OrderForPickPassport.JobNumOfMagash} " ;
+                    passportAuditForm.Remark = $"לקוח: {K_OrderForPickPassport.CxName}. כ.מגש כוללת: {K_OrderForPickPassport.JobNumOfMagash} ";
 
                     await Http.PutAsJsonAsync($"api/KPassports/{kpasport.K_PassportId}", kpasport);
                     await Http.PostAsJsonAsync("api/PassportAuditForm", passportAuditForm);
@@ -2749,7 +2770,7 @@
     }
 
     //KorderPassport grid events
-    public  void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
+    public void ActionCompletedHandler(ActionEventArgs<K_OrderPassports> args)
     {
         if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
         {
@@ -2833,7 +2854,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "")
         {
-            var chosenKPassport = await Task.Run(()=>args.RowData);
+            var chosenKPassport = await Task.Run(() => args.RowData);
             //if no avg,plants && magash set
             if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
             {
@@ -3048,7 +3069,7 @@
         {
             args.Row.AddClass(new string[] { "is-need-to-be-saved" });
         }
-        foreach(var kordPass in kOrderPassports)
+        foreach (var kordPass in kOrderPassports)
         {
             if (args.Data.PassportNum == kordPass.K_PassportNum && args.Data.IsSavedForCx != true && args.Data.IsNeedToBeAudit != true)
             {
@@ -3161,7 +3182,14 @@
     //DIALOG Cut CONFIRMED
     public async void ConfirmCutYes(int selection = 0)
     {
-
+        PreventDuplicateWhenDelete++;
+        if (PreventDuplicateWhenDelete > 1)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+            ErrorDialogIsVisible = true;
+            return;
+        }
         try
         {
             LoadingSpinner = true;
@@ -3591,6 +3619,7 @@
     .is-printed {
         background-color: yellow;
     }
+
     .is-need-to-show-kpassport-pick-selection {
         background-color: lightgoldenrodyellow;
     }

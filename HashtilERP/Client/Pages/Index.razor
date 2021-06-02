@@ -1337,7 +1337,12 @@
 </SfDialog>
 
 @code {
+    //PUSH
+    #region Push
 
+
+
+    #endregion
     //Adding List of jobs to cx
     #region Adding List of jobs to cx
 
@@ -1615,6 +1620,7 @@
         });
 
         await hubConnection.StartAsync();
+
     }
     async Task LoadPickPassportData()
     {
@@ -1970,8 +1976,10 @@
     //LoadData objects for greed
     List<K_Order> GridNo1List = new List<K_Order>();
 
-
-
+    //for preventing double send passport to db duplicate
+    int PreventDuplicate;
+    //for preventing double send passport to db duplicate on delete
+    int PreventDuplicateWhenDelete;
     //List KOrder for Multi AVG
     List<K_Order> selectedRows = new List<K_Order>();
 
@@ -1986,6 +1994,8 @@
     //Command Button Clicked In grid
     public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
     {
+        PreventDuplicate = 0;
+        PreventDuplicateWhenDelete = 0;
         if (args.CommandColumn.ButtonOption.Content == "בחירת פספורט")
         {
             if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
@@ -2097,21 +2107,10 @@
             //IF PRINT
             if (Isprint == 0)
             {
-                foreach (var kord in listKorder)
-                {
-                    if (kord.JobStatus == K_OrderPhase.StandBy)
-                    {
-                        var message = $"{kord.CxName + "\n" + kord.Gidul + "\n" + kord.Zan + "\n" + kord.JobNumOfMagash}!";
-                        ErrorDialogIsVisible = true;
-                        ErrorModalHeaderContent = "שגיאת עבודה!";
-                        ModalError = "לא ניתן להדפיס עבודה ללא פספורטים!" + "\n" + message;
-                        LoadingSpinner = false;
-                        return;
-                    }
 
-                }
                 foreach (var order in listKorder)
                 {
+                    if (order.JobStatus != K_OrderPhase.AttachedPassports) { continue; }
                     order.IsPrinted = true;
                     order.JobStatus = K_OrderPhase.InProgress;
                     order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
@@ -2124,12 +2123,11 @@
             {
                 foreach (var kord in listKorder)
                 {
-                    if (kord.JobStatus == K_OrderPhase.InProgress || kord.JobStatus == K_OrderPhase.Finish)
-                    {
-                        kord.IsPrinted = false;
-                        kord.JobStatus = K_OrderPhase.AttachedPassports;
-                        await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
-                    }
+                    if (kord.JobStatus != K_OrderPhase.InProgress) { continue; }
+
+                    kord.IsPrinted = false;
+                    kord.JobStatus = K_OrderPhase.AttachedPassports;
+                    await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
                 }
 
             }
@@ -2485,8 +2483,10 @@
         if (kOrderPassports.Count() == 1)
         {
             ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "נא להמחוק את העבודה דרך כפתור מחיקה ראשי";
+            ModalError = "נא למחוק את העבודה דרך כפתור מחיקה ראשי";
             ErrorDialogIsVisible = true;
+            PreventDuplicateWhenDelete = 0;
+            PreventDuplicate = 0;
             return;
         }
         //if no find kpassport
@@ -2610,12 +2610,15 @@
     //SEND TO DB BTN
     async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
+
         LoadingSpinner = true;
 
         switch (dbAction)
         {
             //Btn Send
             case 3:
+                PreventDuplicate++;
+
                 if (kOrderPassports.Count() == 0)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
@@ -2625,13 +2628,19 @@
 
                     return;
                 }
+                if (PreventDuplicate > 1)
+                {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+                    ErrorDialogIsVisible = true;
+                    return;
+                }
                 await SendKOrderPassportsToDB(3);
 
                 break;
             //Btn Delete
             case 4:
                 LoadingSpinner = false;
-
                 ActionDialogHeader = "אזהרת מחיקה!";
                 ActionDialogText = "האם למחוק את כל הפספורטים המצוותים לעבודה זו?";
                 DialogVisability = true;
@@ -3166,7 +3175,14 @@
     //DIALOG Cut CONFIRMED
     public async void ConfirmCutYes(int selection = 0)
     {
-
+        PreventDuplicateWhenDelete++;
+        if (PreventDuplicateWhenDelete > 1)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+            ErrorDialogIsVisible = true;
+            return;
+        }
         try
         {
             LoadingSpinner = true;

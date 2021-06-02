@@ -1923,7 +1923,10 @@
     //list to compare after select pass grid
     List<K_Passport> k_PassportsForPassTableSelct;
     List<K_OrderPassports> K_OrderPassportsEditTable;
-
+    //for preventing double send passport to db duplicate
+    int PreventDuplicate;
+    //for preventing double send passport to db duplicate on delete
+    int PreventDuplicateWhenDelete;
 
     //Command Button Clicked In grid
     public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
@@ -2429,6 +2432,7 @@
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "נא להמחוק את העבודה דרך כפתור מחיקה ראשי";
             ErrorDialogIsVisible = true;
+            PreventDuplicateWhenDelete = 0;
             return;
         }
         //if no find kpassport
@@ -2552,12 +2556,22 @@
     //SEND TO DB BTN
     async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
+        PreventDuplicate++;
+        if (PreventDuplicate > 1)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+            ErrorDialogIsVisible = true;
+            return;
+        }
         LoadingSpinner = true;
 
         switch (dbAction)
         {
             //Btn Send
             case 3:
+                PreventDuplicate++;
+
                 if (kOrderPassports.Count() == 0)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
@@ -2565,6 +2579,13 @@
                     ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
 
+                    return;
+                }
+                if (PreventDuplicate > 1)
+                {
+                    ErrorModalHeaderContent = "שגיאה!";
+                    ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+                    ErrorDialogIsVisible = true;
                     return;
                 }
                 await SendKOrderPassportsToDB(3);
@@ -3109,6 +3130,14 @@
     public async void ConfirmCutYes(int selection = 0)
     {
 
+        PreventDuplicateWhenDelete++;
+        if (PreventDuplicateWhenDelete > 1)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
+            ErrorDialogIsVisible = true;
+            return;
+        }
         try
         {
             LoadingSpinner = true;
