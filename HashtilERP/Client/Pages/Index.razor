@@ -1996,6 +1996,7 @@
     {
         PreventDuplicate = 0;
         PreventDuplicateWhenDelete = 0;
+
         if (args.CommandColumn.ButtonOption.Content == "בחירת פספורט")
         {
             if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
@@ -2617,8 +2618,6 @@
         {
             //Btn Send
             case 3:
-                PreventDuplicate++;
-
                 if (kOrderPassports.Count() == 0)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
@@ -2628,6 +2627,7 @@
 
                     return;
                 }
+                PreventDuplicate++;
                 if (PreventDuplicate > 1)
                 {
                     ErrorModalHeaderContent = "שגיאה!";

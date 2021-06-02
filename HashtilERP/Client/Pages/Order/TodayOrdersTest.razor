@@ -2624,7 +2624,6 @@
         {
             //Btn Send
             case 3:
-                PreventDuplicate++;
                 if (kOrderPassports.Count() == 0)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
@@ -2634,6 +2633,8 @@
 
                     return;
                 }
+                PreventDuplicate++;
+
                 if (PreventDuplicate > 1)
                 {
                     ErrorModalHeaderContent = "שגיאה!";
