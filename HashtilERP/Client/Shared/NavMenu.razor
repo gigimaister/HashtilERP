@@ -1,8 +1,10 @@
 ﻿@page "/sidebar/sidebar-list"
 @using Syncfusion.Blazor.Navigations
+
 @using Newtonsoft.Json
 @using Syncfusion.Blazor.Lists
 @inherits LayoutComponentBase
+@inject IJSRuntime jsRuntime
 
 
 <div id="wrapper" style="text-align:right">
@@ -11,7 +13,7 @@
             <div class="text"></div>
             <span id="hamburger" @onclick="@Show" class="e-icons menu"></span>
             <div class="header">השתיל בע"מ</div>
-           
+
 
         </div>
         <!-- sidebar element declaration -->
@@ -23,6 +25,13 @@
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="order/todayorderstest" Match="NavLinkMatch.All" @onclick="Close">
                                 <span class="oi oi-bolt" aria-hidden="true"></span>&nbsp הוצ' מבחן
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="order/dashboard" Match="NavLinkMatch.All" @onclick="Close">
+                                <span class="oi oi-dashboard" aria-hidden="true"></span>&nbsp סיכום
                             </NavLink>
                         </li>
                     </AuthorizeView>
@@ -227,6 +236,8 @@
 {
         {"class", "sidebar-list" }
     };
+
+    
 }
 <style>
     .content {

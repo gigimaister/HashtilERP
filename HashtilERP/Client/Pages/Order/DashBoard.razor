@@ -24,19 +24,67 @@
 <SfDashboardLayout CellSpacing="@(new double[]{10 ,10 })" Columns="5" EnableRtl="true">
     <DashboardLayoutPanels>
         <DashboardLayoutPanel>
-            <ContentTemplate>
-                <SfCircularGauge>
-                    <CircularGaugeAxes>
-                        <CircularGaugeAxis Radius="60%" StartAngle="270" EndAngle="90">
-                            <CircularGaugeAxisLineStyle Width="5">
-                            </CircularGaugeAxisLineStyle>
-                        </CircularGaugeAxis>
-                    </CircularGaugeAxes>
-                </SfCircularGauge>
+            <ContentTemplate>              
+                    <div>
+                        <SfCircularGauge Width="100%" Height="370px" Title="סהכ עבודות">
+                            <CircularGaugeTitleStyle Color="black" FontWeight="bold" Size="20"></CircularGaugeTitleStyle>
+                            <CircularGaugeAxes>
+                                <CircularGaugeAxis Minimum="0" Maximum="200">
+                                    <CircularGaugePointers>
+                                        <CircularGaugePointer Value="@NumOfTotalJobs">
+                                        </CircularGaugePointer>
+                                    </CircularGaugePointers>
+                                    <CircularGaugeAxisMajorTicks Color="red"
+                                                                 Height="10" Width="3"
+                                                                 Position="Syncfusion.Blazor.CircularGauge.Position.Inside"
+                                                                 Offset="5">
+                                    </CircularGaugeAxisMajorTicks>
+                                    <CircularGaugeAxisMinorTicks Color="green"
+                                                                 Height="5" Width="2"
+                                                                 Position="Syncfusion.Blazor.CircularGauge.Position.Inside"
+                                                                 Offset="5">
+                                    </CircularGaugeAxisMinorTicks>
+                                    <CircularGaugeAnnotations>
+                                        <CircularGaugeAnnotation Angle="192"
+                                                                 Radius="110%" ZIndex="2">
+                                            <ContentTemplate>
+                                                <div class="custom-annotation">@NumOfTotalJobs</div>
+                                            </ContentTemplate>
+                                        </CircularGaugeAnnotation>
+
+
+                                    </CircularGaugeAnnotations>
+                                    <CircularGaugeRanges>
+                                        <CircularGaugeRange Start="60"
+                                                            End="200"
+                                                            Color="red"
+                                                            Opacity="0.2"
+                                                            StartWidth="2"
+                                                            EndWidth="20">
+                                        </CircularGaugeRange>
+                                    </CircularGaugeRanges>
+                                </CircularGaugeAxis>
+                            </CircularGaugeAxes>
+                        </SfCircularGauge>
+                    </div>                                       
             </ContentTemplate>
         </DashboardLayoutPanel>
         <DashboardLayoutPanel SizeX=2 Column=1>
-            <ContentTemplate><div>1</div></ContentTemplate>
+            <ContentTemplate>
+                <div>
+                    <SfChart Palettes="@MaxTemp" Title="מגשים בחממות"  EnableRtl="true">
+
+                        <ChartPrimaryXAxis Title="חממות" LabelPlacement="LabelPlacement.BetweenTicks" ValueType="Syncfusion.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+                        <ChartPrimaryYAxis Title="מגשים">              
+                        </ChartPrimaryYAxis>
+                        <ChartSeriesCollection>
+                            <ChartSeries DataSource="@greenHousesChartDatas" XName="GreenHouse" YName="Magash" Type="ChartSeriesType.Column">
+                                <ChartMarker Visible="true" Height="10" Width="10" />
+                            </ChartSeries>
+                        </ChartSeriesCollection>
+                    </SfChart>
+                </div>
+            </ContentTemplate>
         </DashboardLayoutPanel>
         <DashboardLayoutPanel Column=3>
             <ContentTemplate><div>2</div></ContentTemplate>
@@ -60,6 +108,7 @@
 @code{
     private HubConnection hubConnection;
 
+    int NumOfTotalJobs;
 
 
 
@@ -69,6 +118,19 @@
 
     //KOrders Objects
     K_Order[] k_Orders;
+    K_Passport[] k_Passports;
+
+    #region Green Houses Bar Chart
+    public class GreenHousesChartData
+    {
+        public string GreenHouse { get; set; }
+        public int? Magash { get; set; }
+    }
+
+    public List<GreenHousesChartData> greenHousesChartDatas { get; set; }
+
+    #endregion
+
 
     //INITIALIZED
     protected override async Task OnInitializedAsync()
@@ -99,6 +161,17 @@
     protected async Task LoadData()
     {
         k_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow/");
+        k_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/3");
+        NumOfTotalJobs = k_Orders.Count();
+        greenHousesChartDatas = new List<GreenHousesChartData>();
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "1", Magash = k_Passports.Where(x => x.Hamama == "1").Sum(x => x.MagashAmount)});
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "2", Magash = k_Passports.Where(x => x.Hamama == "2").Sum(x => x.MagashAmount) });
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "3", Magash = k_Passports.Where(x => x.Hamama == "3").Sum(x => x.MagashAmount) });
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "4", Magash = k_Passports.Where(x => x.Hamama == "4").Sum(x => x.MagashAmount) });
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "5", Magash = k_Passports.Where(x => x.Hamama == "5").Sum(x => x.MagashAmount) });
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "6", Magash = k_Passports.Where(x => x.Hamama == "6").Sum(x => x.MagashAmount) });
+        greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "7", Magash = k_Passports.Where(x => x.Hamama == "7").Sum(x => x.MagashAmount) });
+
         StateHasChanged();
     }
 
@@ -113,7 +186,8 @@
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     #endregion
 
-
+    public String[] MinTemp = new String[] { "#E84855" };
+    public String[] MaxTemp = new String[] { "#24ae24" };
 
 }
 
@@ -122,5 +196,32 @@
     .e-panel-content {
         text-align: center;
         margin-top: 10px;
+    }
+    .light_green {
+        background-color: #B2D8B2;
+    }
+
+    .light_red {
+        background-color: #FFB2B2;
+    }
+
+    .custom-annotation {
+        color: white;
+        background-color: orange;
+        height: 30px;
+        width: 70px;
+        border-radius: 15px;
+        padding: 4px 0 0 6px;
+        font-weight: bold;
+    }
+
+    .wind-annotation {
+        color: white;
+        background-color: cornflowerblue;
+        height: 30px;
+        width: 75px;
+        border-radius: 15px;
+        padding: 4px 0 0 6px;
+        font-weight: bold;
     }
 </style>

@@ -118,9 +118,9 @@ namespace HashtilERP.Server.ControllersTest
         [HttpGet("GetNewMetzayForProduction")]
         public async Task<IActionResult> GetNewMetzayForProduction()
         {
-            var kPassports = await _Context.KPassport.ToListAsync();
-            if (kPassports.Count() > 0)
-                return BadRequest();
+            //var kPassports = await _Context.KPassport.ToListAsync();
+            //if (kPassports.Count() > 0)
+            //    return BadRequest();
             try
             {
                 var limitKpassport = await _context.KPassportExcelInsert.ToListAsync();

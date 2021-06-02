@@ -65,6 +65,7 @@ namespace HashtilERP.Server.Controllers
                             PassprodComments = passprod.UComments ?? "",
                             FixedCoordinationRemark = K_OrderStatus.NeedToSchedule.Trim(),
                             JobStatus = K_OrderPhase.StandBy,
+                            UserName = "בוט תיאום הוצאות"
 
                         };
 

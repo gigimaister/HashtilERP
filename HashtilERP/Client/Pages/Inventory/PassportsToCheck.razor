@@ -165,7 +165,7 @@
                                                 <th>
                                                     מגשים
                                                 </th>
-                                                 <th>
+                                                <th>
                                                     ת.הוצאה
                                                 </th>
                                             </tr>
@@ -179,20 +179,20 @@
                                                 var startAvg = Convert.ToInt32((passport.Passport.UQuanOrdP * 1000) / passport.Passport.UTraySow);
                                                 var magashPercx = (cx.UQuantity * 1000) / startAvg;
                                                 var magashPercxScreen = string.Format("{0:#,0}", magashPercx);
-                                            <tr>
-                                                <td>
-                                                    @cx.UCustName
-                                                </td>
-                                                <td>
-                                                    @display
-                                                </td>
-                                                <td>
-                                                    @magashPercxScreen
-                                                </td>
-                                                <td>
-                                                    @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <td>
+                                                        @cx.UCustName
+                                                    </td>
+                                                    <td>
+                                                        @display
+                                                    </td>
+                                                    <td>
+                                                        @magashPercxScreen
+                                                    </td>
+                                                    <td>
+                                                        @Convert.ToDateTime(cx.UDateSupp).ToShortDateString()
+                                                    </td>
+                                                </tr>
                                             }
                                         </tbody>
                                     </table>
@@ -349,6 +349,34 @@
         </DetailTemplate>
 
     </GridTemplates>
+    <GridAggregates>
+        <GridAggregate>
+            <GridAggregateColumns>
+                <GridAggregateColumn Field=@nameof(K_Passport.PassportNum) Type="AggregateType.Count">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+
+                            var num = Convert.ToInt32(aggregate.Count);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>ספירה:@magashNum</b>
+
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+                <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Sum">
+                    <FooterTemplate>
+                        @{
+                            var aggregate = (context as AggregateTemplateContext);
+                            var num = Convert.ToInt32(aggregate.Sum);
+                            var magashNum = string.Format("{0:#,0}", num);
+                            <b>@magashNum</b>
+                        }
+                    </FooterTemplate>
+                </GridAggregateColumn>
+            </GridAggregateColumns>
+        </GridAggregate>
+    </GridAggregates>
     <GridColumns>
 
 

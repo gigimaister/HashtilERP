@@ -1338,7 +1338,12 @@
 </SfDialog>
 
 @code {
+    //PUSH
+    #region Push
+   
 
+
+    #endregion
     //Adding List of jobs to cx
     #region Adding List of jobs to cx
 
@@ -1616,6 +1621,7 @@
         });
 
         await hubConnection.StartAsync();
+        
     }
     async Task LoadPickPassportData()
     {
