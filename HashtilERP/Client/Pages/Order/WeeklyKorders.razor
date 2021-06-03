@@ -233,7 +233,7 @@
                     <button class="btn btn-warning" @onclick="@ShowKorderRemark">הערה</button>
                 </div>
                 <div class="col">
-                    <AuthorizeView Roles="Administrator, Manager-GreenHouse">
+                    <AuthorizeView Roles="Administrator">
                         @{if (K_OrderForEdit.JobStatus == K_OrderPhase.Finish)
                             {
                                 <button class="btn btn-outline-primary" @onclick="@ShowKorderReturn">החזרה</button>
@@ -1408,9 +1408,10 @@
     {
         RowEditDialogShow = false;
         LoadingSpinner = true;
-        await SendKOrderPassportsToDB(4);
         K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+        await SendKOrderPassportsToDB(4);
         K_OrderForEdit.IsJobCancel = false;
+        K_OrderForEdit.IsPrinted = false;
         var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
         if (!StandByrslt.IsSuccessStatusCode)
         {
@@ -2556,14 +2557,7 @@
     //SEND TO DB BTN
     async void BtnSendKOrderPassportsToDB(int dbAction = 0)
     {
-        PreventDuplicate++;
-        if (PreventDuplicate > 1)
-        {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "הוראה נשלחה. נא להמתין בסבלנות";
-            ErrorDialogIsVisible = true;
-            return;
-        }
+
         LoadingSpinner = true;
 
         switch (dbAction)

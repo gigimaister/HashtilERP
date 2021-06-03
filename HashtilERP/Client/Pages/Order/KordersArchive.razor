@@ -227,8 +227,8 @@
                         {
                             <AuthorizeView Roles="Administrator">
                                 <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => { DeletePassAndCancelJob(); })">מחיקה ואישור</button>
-                            </AuthorizeView>
-                            <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
+                                <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
+                            </AuthorizeView>              
 
                         }
                         else
