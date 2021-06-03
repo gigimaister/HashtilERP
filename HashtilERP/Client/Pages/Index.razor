@@ -1473,7 +1473,6 @@
         LoadingSpinner = true;
         K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
         await SendKOrderPassportsToDB(4);
-        K_OrderForEdit.IsJobCancel = false;
         K_OrderForEdit.IsPrinted = false;
         var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
         if (!StandByrslt.IsSuccessStatusCode)
