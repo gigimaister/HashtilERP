@@ -1402,10 +1402,10 @@
             K_OrderRemark.JobId = K_OrderForEdit.JobId;
             K_OrderRemark.Remark = $"ביטול עבודה-מי ביטל: {WhoCancel} סיבת ביטול:{TboxCancel}";
             if (K_OrderForEdit.IsDeliveryNote == true) { K_OrderForEdit.IsWasChangedAfterDeliveryReport = true; }
-
             if (K_OrderForEdit.K_OrderPassports.Count() > 0)
             {
                 K_OrderForEdit.IsJobCancel = true;
+                K_OrderForEdit.IsPrinted = false;
             }
             else
             {
@@ -1447,6 +1447,8 @@
         RowEditDialogShow = false;
         LoadingSpinner = true;
         K_OrderForEdit.IsJobCancel = false;
+        if (K_OrderForEdit.JobStatus == K_OrderPhase.Canceled) { K_OrderForEdit.JobStatus = K_OrderPhase.StandBy; }
+        if (K_OrderForEdit.JobStatus == K_OrderPhase.InProgress) { K_OrderForEdit.IsPrinted = true; }
         var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
         if (!StandByrslt.IsSuccessStatusCode)
         {
