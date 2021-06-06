@@ -15,35 +15,35 @@ namespace HashtilERP.DBTestVol1
         public DateTime? KOrderEnteringDate { get; set; }
         public DateTime? CreationDate { get; set; }
         public DateTime? MarketingDate { get; set; }
-        public string SaleNum { get; set; }
-        public string CxName { get; set; }
-        public string CardCode { get; set; }
-        public string Gidul { get; set; }
-        public string Zan { get; set; }
-        public string ItemCode { get; set; }
-        public int? JobPlantsNum { get; set; }
-        public int? JobNumOfMagash { get; set; }
-        public int? JobPlansAvarage { get; set; }
-        public int? NumOfCarton { get; set; }
-        public bool? IsCageSmall { get; set; } 
-        public bool? IsCxComeToPickUp { get; set; }
-        public bool? IsPrinted { get; set; }
-        public bool? IsNeedToConfirmJob { get; set; }
-        public bool? IsTakeoutJobTomorrow { get; set; }
-        public bool? IsDeliveryNote { get; set; }
-        public bool? IsJobCancel { get; set; }
-        public bool? IsWasChangedAfterDeliveryReport { get; set; }
+        public string SaleNum { get; set; } = "";
+        public string CxName { get; set; } = "";
+        public string CardCode { get; set; } = "";
+        public string Gidul { get; set; } = "";
+        public string Zan { get; set; } = "";
+        public string ItemCode { get; set; } = "";
+        public int? JobPlantsNum { get; set; } = 0;
+        public int? JobNumOfMagash { get; set; } = 0;
+        public int? JobPlansAvarage { get; set; } = 0;
+        public int? NumOfCarton { get; set; } = 0;
+        public bool? IsCageSmall { get; set; } = false;
+        public bool? IsCxComeToPickUp { get; set; }= false;
+        public bool? IsPrinted { get; set; }= false;
+        public bool? IsNeedToConfirmJob { get; set; } =false;
+        public bool? IsTakeoutJobTomorrow { get; set; } = false;
+        public bool? IsDeliveryNote { get; set; } = false;
+        public bool? IsJobCancel { get; set; } = false;
+        public bool? IsWasChangedAfterDeliveryReport { get; set; } = false;
 
-        public int? NumOfCages { get; set; }
+        public int? NumOfCages { get; set; } = 0;
         public int? NumOfBarTenderStickers { get; set; } = 0;
 
-        public string HamamaRemarks { get; set; }
-        public string DeliveryRemarks { get; set; }
-        public string JobStatus { get; set; }
-        public string FixedCoordinationRemark { get; set; }
-        public string OpenCoordinationRemark { get; set; }
-        public string UserName { get; set; }
-        public string PassprodComments { get; set; }
+        public string HamamaRemarks { get; set; } = "";
+        public string DeliveryRemarks { get; set; } = "";
+        public string JobStatus { get; set; } = "";
+        public string FixedCoordinationRemark { get; set; } = "";
+        public string OpenCoordinationRemark { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string PassprodComments { get; set; } = "";
 
         [ForeignKey("JobId")]
         public virtual List<KOrderPassports> K_OrderPassports { get; set; }
