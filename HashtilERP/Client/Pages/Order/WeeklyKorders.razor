@@ -1934,6 +1934,9 @@
     //Command Button Clicked In grid
     public async void OnCommandClicked(CommandClickEventArgs<K_Order> args)
     {
+        PreventDuplicate = 0;
+        PreventDuplicateWhenDelete = 0;
+
         if (args.CommandColumn.ButtonOption.Content == "בחירת פספורט")
         {
             if (!KOrdersfunctions.IsKOrderPickPassGidulZanSet(args.RowData))
