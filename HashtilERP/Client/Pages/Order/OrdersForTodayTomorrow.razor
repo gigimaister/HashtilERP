@@ -713,7 +713,7 @@
             <form>
                 <div class="form-group">
                     <label>בחירת תאריך</label>
-                    <SfDatePicker TValue="DateTime?" Value='@DateValue' EnableRtl="true" Placeholder='תאריך הוצאה'></SfDatePicker>
+                    <SfDatePicker TValue="DateTime?" @bind-Value='@DateValue' EnableRtl="true" Placeholder='תאריך הוצאה'></SfDatePicker>
                 </div>
                 <div class="form-group">
                     <label>בחירת לקוח</label>
@@ -735,7 +735,8 @@
                     <div class="col">
                         <div class="form-group">
                             <label>כ.שתילים</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobPlantsNum" class="form-control" placeholder="שתילים" />
+                            <SfNumericTextBox TValue="int?" Step="100" @bind-Value="NewJobK_Order.JobPlantsNum" Format="n0" Placeholder="שתילים"></SfNumericTextBox>
+                            @*<input type="number" @bind-value="NewJobK_Order.JobPlantsNum" class="form-control" placeholder="שתילים" />*@
                         </div>
                     </div>
                     <div class="col">
@@ -1668,7 +1669,7 @@
     string AutoPlantsCalc, AutoMagashCalc;
 
     //Marketing Date Auto set on Today+1
-    public DateTime? DateValue { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+    public DateTime? DateValue { get; set; } = DateTime.Today.AddDays(1);
 
     private bool NewJobFormIsVisible { get; set; } = false;
 
@@ -1716,7 +1717,13 @@
             ErrorDialogIsVisible = true;
             return;
         }
-
+        if (md > 14)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "ניתן להכניס עבודה עד שבועיים מראש!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
 
         NewJobFormIsVisible = false;
         LoadingSpinner = true;
@@ -1787,6 +1794,7 @@
         StateHasChanged();
         await ShowToast();
         NewJobK_Order = new K_Order();
+        DateValue = DateTime.Today.AddDays(1);
         AVGAutoCalc = "";
         k_OrdersCxManyJobs.Clear();
 
