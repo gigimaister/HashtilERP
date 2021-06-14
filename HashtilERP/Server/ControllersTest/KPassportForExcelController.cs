@@ -146,7 +146,7 @@ namespace HashtilERP.Server.ControllersTest
                     //if no passport in SAP
                     catch (Exception)
                     {
-                        return StatusCode(500, "NOTFOUND");
+                        continue;
                     }
 
                     var screenName = "בוט השתיל";

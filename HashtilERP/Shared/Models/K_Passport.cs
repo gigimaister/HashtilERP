@@ -47,7 +47,6 @@ namespace HashtilERP.Shared.Models
         public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAVG, PassportStartingAVG, MagashAmount);
         public string AutoPassportAVG => K_PassportFunctions.GetKorderAvg(PassportAVG, PassportStartingAVG);
 
-
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
 
@@ -78,6 +77,8 @@ public class GrowingRoomNumber
              new GrowingRoomNumber(){ ID= "2", Text= "2"},
              new GrowingRoomNumber(){ ID= "3", Text= "3"},
              new GrowingRoomNumber(){ ID= "4", Text= "4"},
+             new GrowingRoomNumber(){ ID= "5", Text= "5"},
+             new GrowingRoomNumber(){ ID= "6", Text= "6"},
     };
 }
 public static class Status

@@ -1,4 +1,7 @@
 ﻿using HashtilERP.Shared;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HashtilERP.Shared.Models
 {
@@ -43,6 +46,42 @@ namespace HashtilERP.Shared.Models
                 return true;
             }
             return false;
+        }
+
+        public static List<decimal?> CxPlantsOrder(K_Passport k_Passport, string cxName)
+        {
+            var plantsMagash = new List<decimal?>();
+            try
+            {
+               
+
+                var cx = k_Passport.Passport.Passprods.Where(x => x.UCustName == cxName).FirstOrDefault();
+                decimal? temp;
+                int startAvg;
+                if (k_Passport.Passport.UQuanOrdP > 5555554)
+                {
+                    temp = k_Passport.Passport.UQuanProd * 1000;
+                    startAvg = Convert.ToInt32((k_Passport.Passport.UQuanProd * 1000) / k_Passport.Passport.UTraySow);
+                }
+                else
+                {
+                    temp = (cx.UQuantity * 1000);
+                    startAvg = Convert.ToInt32((k_Passport.Passport.UQuanOrdP * 1000) / k_Passport.Passport.UTraySow);
+                }
+
+                var magashPercx = temp / startAvg;
+                plantsMagash.Add(temp);
+                plantsMagash.Add(magashPercx);
+
+                
+            }
+           
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return plantsMagash;
         }
 
     }

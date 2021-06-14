@@ -111,19 +111,26 @@ namespace HashtilERP.Server.Controllers
         public async Task<List<KOrder>> GetSapCxList()
         {
             var k_Orders = new List<KOrder>();
-
-            var ocrd = await _context.Ocrd.Where(x => x.CardType == "C" && x.UBsyType == "2" && x.FrozenFor == "N").ToListAsync();
-            if(ocrd.Count() > 0)
+            try
             {
-                foreach(var ocr in ocrd)
+                var ocrd = await _context.Ocrd.Where(x => x.UIsKOrder == "1").ToListAsync();
+                if (ocrd.Count() > 0)
                 {
-                    var order = new KOrder();
-                    order.CardCode = ocr.CardCode;
-                    order.CxName = ocr.CardName;
-                    k_Orders.Add(order);
+                    foreach (var ocr in ocrd)
+                    {
+                        var order = new KOrder();
+                        order.CardCode = ocr.CardCode;
+                        order.CxName = ocr.CardName;
+                        k_Orders.Add(order);
+                    }
                 }
-            }
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
             return k_Orders;
         }
 

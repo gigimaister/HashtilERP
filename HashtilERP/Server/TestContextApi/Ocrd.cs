@@ -364,5 +364,7 @@ namespace HashtilERP.TestContextApi
         public string ULongname { get; set; }
         public string UHesMasEmail { get; set; }
         public string UHesOnlyEmail { get; set; }
+        public string UIsKOrder { get; set; }
+
     }
 }

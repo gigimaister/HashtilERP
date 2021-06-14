@@ -141,6 +141,18 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
+                    @{ if (isDevice == "Mobile" || 1==1)
+                        {
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/metzaybycx" Match="NavLinkMatch.All" @onclick="Close">
+
+                                        <span class="oi oi-grid-two-up" aria-hidden="true"></span>&nbsp מצאי לפי לקוח
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                        }
+                    }
                     <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/passportstofollowup" Match="NavLinkMatch.All" @onclick="Close">
@@ -221,6 +233,9 @@
 
     SfSidebar Sidebar;
     public SidebarType Type = SidebarType.Over;
+    //CAMERA SCANNER for search in datagrid
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
 
     public bool SidebarToggle = false;
 
@@ -237,8 +252,14 @@
 {
         {"class", "sidebar-list" }
     };
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
 
-    
+    }
+
 }
 <style>
     .content {

@@ -60,685 +60,688 @@
 
 @*Multi AVG for rows*@
 <div class="row">
-    <div class="col">
+    <div class="col alert alert-success" role="alert">
         <div class="row">
-            <div class="col alert alert-success" role="alert">
+            <div class="col">
                 <SfDropDownList TValue="string" Width="200px" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@FixedRemarkForMultiEdit" Placeholder=""></SfDropDownList>
                 <button class="btn btn-outline-secondary" @onclick="SendMultiEdit" style="margin-right:10px">שליחה</button>
-                <button class="btn btn-outline-danger" style="margin-right:120px"  @onclick="SendMultiCancel">ביטול עבודות כללי</button>
             </div>
             <div class="col">
+                <button class="btn btn-outline-danger" style="margin-right:120px" @onclick="SendMultiCancel">ביטול עבודות כללי</button>
             </div>
-        </div>       
+        </div>
     </div>
     <div class="col">
     </div>
-</div>
+</div>       
+        
+   
 
 
-@*Toast Component*@
-<SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
-    <ToastPosition X="Center"></ToastPosition>
-</SfToast>
+    @*Toast Component*@
+    <SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+        <ToastPosition X="Center"></ToastPosition>
+    </SfToast>
 
-@*Spinner*@
-<div class="col-sm">
-    <div class="spin-row">
-        <SfSpinner Size="40" Label="טוען..." Type="SpinnerType.Bootstrap4" Visible="@LoadingSpinner" CssClass="e-customClass"></SfSpinner>
+    @*Spinner*@
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="טוען..." Type="SpinnerType.Bootstrap4" Visible="@LoadingSpinner" CssClass="e-customClass"></SfSpinner>
+        </div>
     </div>
-</div>
-@{
-    var Tool = (new List<string>() { "Search" });
-}
+    @{
+        var Tool = (new List<string>() { "Search" });
+    }
 
-<div class="row">
-    <div class="col" style="text-align:left">
-        <button class="btn btn-info"
-                type="button"
-                @onclick="ClearGridfilter">
-            הסר מסנן
-        </button>
-        <button class="btn btn-warning"
-                type="button"
-                @onclick="ClearGridSearch">
-            ניקוי חיפוש
-        </button>
+    <div class="row">
+        <div class="col" style="text-align:left">
+            <button class="btn btn-info"
+                    type="button"
+                    @onclick="ClearGridfilter">
+                הסר מסנן
+            </button>
+            <button class="btn btn-warning"
+                    type="button"
+                    @onclick="ClearGridSearch">
+                ניקוי חיפוש
+            </button>
+        </div>
+
     </div>
+    @*Alert/Error message Dialog*@
+    <SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorDialogIsVisible" EnableRtl="true">
+        <DialogEvents OnOverlayClick="@OnOverlayclick">
+        </DialogEvents>
+        <DialogTemplates>
+            <Header>@ErrorModalHeaderContent</Header>
+            <Content> @ModalError </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
 
-</div>
-@*Alert/Error message Dialog*@
-<SfDialog Width="250px" IsModal="true" @bind-Visible="@ErrorDialogIsVisible" EnableRtl="true">
-    <DialogEvents OnOverlayClick="@OnOverlayclick">
-    </DialogEvents>
-    <DialogTemplates>
-        <Header>@ErrorModalHeaderContent</Header>
-        <Content> @ModalError </Content>
-    </DialogTemplates>
-    <DialogButtons>
-        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+        </DialogButtons>
+    </SfDialog>
 
-    </DialogButtons>
-</SfDialog>
+    @*grid*@
+    <SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
+            AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
+            AllowGrouping="false" AllowSorting="true" AllowPaging="true" AllowSelection="true">
+        <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
 
-@*grid*@
-<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="500" Width="100%" @ref="@SfGrid"
-        AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
-        AllowGrouping="false" AllowSorting="true" AllowPaging="true" AllowSelection="true">
-    <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
+        <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
+                    RowDeselected="RowDeSelected" RowSelected="RowSelected" RowDataBound="RowBound"></GridEvents>
+        <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Dialog"></GridEditSettings>
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+        <GridPageSettings PageSize="100"></GridPageSettings>
+        <GridAggregates>
+            <GridAggregate>
+                <GridAggregateColumns>
+                    <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
+                        <FooterTemplate>
+                            @{
+                                var aggregate = (context as AggregateTemplateContext);
 
-    <GridEvents OnRecordDoubleClick="RecordDoubleClickHandler" TValue="K_Order"
-                RowDeselected="RowDeSelected" RowSelected="RowSelected" RowDataBound="RowBound"></GridEvents>
-    <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="false" Mode="EditMode.Dialog"></GridEditSettings>
-    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-    <GridPageSettings PageSize="100"></GridPageSettings>
-    <GridAggregates>
-        <GridAggregate>
-            <GridAggregateColumns>
-                <GridAggregateColumn Field=@nameof(K_Order.CxName) Type="AggregateType.Count">
-                    <FooterTemplate>
-                        @{
-                            var aggregate = (context as AggregateTemplateContext);
+                                <b>ספירה: @aggregate.Count</b>
 
-                            <b>ספירה: @aggregate.Count</b>
+                            }
+                        </FooterTemplate>
+                    </GridAggregateColumn>
+                </GridAggregateColumns>
+            </GridAggregate>
 
-                        }
-                    </FooterTemplate>
-                </GridAggregateColumn>
-            </GridAggregateColumns>
-        </GridAggregate>
+        </GridAggregates>
+        <GridColumns>
+            <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.SaleNum) HeaderText="מספר הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.CardCode) HeaderText="מספר לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות למזרע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.FixedCoordinationRemark) HeaderText="מצב" EditType="EditType.DropDownEdit" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.OpenCoordinationRemark) HeaderText="הערות מתאמת דוח" EditorSettings="@CustomerEditParams" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
 
-    </GridAggregates>
-    <GridColumns>
-        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.SaleNum) HeaderText="מספר הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.CardCode) HeaderText="מספר לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות למזרע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.FixedCoordinationRemark) HeaderText="מצב" EditType="EditType.DropDownEdit" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.OpenCoordinationRemark) HeaderText="הערות מתאמת דוח" EditorSettings="@CustomerEditParams" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
 
-        </GridColumn>
-    </GridColumns>
-</SfGrid>
+    @*Row Edit Dialog*@
+    <SfDialog Target="#target" EnableRtl="true"
+              Width="550px"
+              Height="700px"
+              @bind-Visible="@RowEditDialogShow" ShowCloseIcon="true" IsModal="true">
 
-@*Row Edit Dialog*@
-<SfDialog Target="#target" EnableRtl="true"
-          Width="550px"
-          Height="700px"
-          @bind-Visible="@RowEditDialogShow" ShowCloseIcon="true" IsModal="true">
+        <DialogTemplates>
+            <Content>
+                <SfTab HeaderPlacement="HeaderPosition.Top">
+                    <TabItems>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="ראשי"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <br />
+                                <div class="container">
+                                    <div class="form-group">
+                                        <div style="text-align:right" class="alert alert-success" role="alert">
+                                            <div class="row">
+                                                <h5 style="text-align:center">לקוח: @K_OrderForEdit.CxName</h5>
+                                            </div>
+                                            <div class="row">
+                                                <h5>גידול: @K_OrderForEdit.Gidul</h5>
+                                            </div>
+                                            <div class="row">
+                                                <h5>זן: @K_OrderForEdit.Zan</h5>
+                                            </div>
+                                            <div class="row">
+                                                <h5>ת.הוצאה: @DateTimeToShortString(K_OrderForEdit.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForEdit.MarketingDate)</h5>
+                                            </div>
+                                        </div>
 
-    <DialogTemplates>
-        <Content>
-            <SfTab HeaderPlacement="HeaderPosition.Top">
-                <TabItems>
-                    <TabItem>
-                        <ChildContent>
-                            <TabHeader Text="ראשי"></TabHeader>
-                        </ChildContent>
-                        <ContentTemplate>
-                            <br />
-                            <div class="container">
-                                <div class="form-group">
-                                    <div style="text-align:right" class="alert alert-success" role="alert">
                                         <div class="row">
-                                            <h5 style="text-align:center">לקוח: @K_OrderForEdit.CxName</h5>
+                                            <div class="col">
+                                                <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
+                                                <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
+                                            </div>
+                                            <div class="col">
+                                                <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
+                                                <SfDatePicker TValue="DateTime?" @bind-Value="@K_OrderForEdit.MarketingDate"></SfDatePicker>
+                                            </div>
                                         </div>
+                                        <br />
                                         <div class="row">
-                                            <h5>גידול: @K_OrderForEdit.Gidul</h5>
-                                        </div>
-                                        <div class="row">
-                                            <h5>זן: @K_OrderForEdit.Zan</h5>
-                                        </div>
-                                        <div class="row">
-                                            <h5>ת.הוצאה: @DateTimeToShortString(K_OrderForEdit.MarketingDate),@KOrderAlgorithemShared.GetHebrewDayOfTheWeek(K_OrderForEdit.MarketingDate)</h5>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
-                                            <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
-                                        </div>
-                                        <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
-                                            <SfDatePicker TValue="DateTime?" @bind-Value="@K_OrderForEdit.MarketingDate"></SfDatePicker>
-                                        </div>
-                                    </div>
-                                    <br />
-                                    <div class="row">
-                                        <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">מצב הזמנה</label>
-                                            <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@K_OrderForEdit.FixedCoordinationRemark" Placeholder=""></SfDropDownList>
-                                        </div>
-                                        <div class="col">
-                                            <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
-                                            <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.PassprodComments"></SfTextBox>
+                                            <div class="col">
+                                                <label style="font-size:16px;font-weight:bold" for="plantsinput">מצב הזמנה</label>
+                                                <SfDropDownList TValue="string" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@K_OrderForEdit.FixedCoordinationRemark" Placeholder=""></SfDropDownList>
+                                            </div>
+                                            <div class="col">
+                                                <label style="font-size:16px;font-weight:bold" for="plantsinput">הערה מתאמת דוח</label>
+                                                <SfTextBox Multiline=true Placeholder='' @bind-Value="@K_OrderForEdit.PassprodComments"></SfTextBox>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            @{ if (RowEditDialogShow == true)
-                                {
-                                    <div class="table-responsive">
-                                        <table class="table table-striped" style="text-align:right;width:auto">
-                                            <thead>
-                                                <tr>
-                                                    <th>
-                                                        שם
-                                                    </th>
-                                                    <th>
-                                                        טלפון 1
-                                                    </th>
-                                                    <th>
-                                                        טלפון 2
-                                                    </th>
-                                                    <th>
-                                                        הערות
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td style="font-size:17px">
-                                                        @K_OrderForEdit.Ocrd.CardName
-                                                    </td>
-                                                    <td style="font-size:17px">
-                                                        @K_OrderForEdit.Ocrd.Phone1
-                                                    </td>
-                                                    <td style="font-size:17px">
-                                                        @K_OrderForEdit.Ocrd.Phone2
-                                                    </td>
-                                                    <td style="font-size:17px">
-                                                        @K_OrderForEdit.Ocrd.UStatus
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                @{ if (RowEditDialogShow == true)
+                                    {
+                                        <div class="table-responsive">
+                                            <table class="table table-striped" style="text-align:right;width:auto">
+                                                <thead>
+                                                    <tr>
+                                                        <th>
+                                                            שם
+                                                        </th>
+                                                        <th>
+                                                            טלפון 1
+                                                        </th>
+                                                        <th>
+                                                            טלפון 2
+                                                        </th>
+                                                        <th>
+                                                            הערות
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td style="font-size:17px">
+                                                            @K_OrderForEdit.Ocrd.CardName
+                                                        </td>
+                                                        <td style="font-size:17px">
+                                                            @K_OrderForEdit.Ocrd.Phone1
+                                                        </td>
+                                                        <td style="font-size:17px">
+                                                            @K_OrderForEdit.Ocrd.Phone2
+                                                        </td>
+                                                        <td style="font-size:17px">
+                                                            @K_OrderForEdit.Ocrd.UStatus
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
 
+                                    }
                                 }
-                            }
-                        </ContentTemplate>
-                    </TabItem>
+                            </ContentTemplate>
+                        </TabItem>
 
-                    <TabItem>
-                        <ChildContent>
-                            <TabHeader Text="היסטוריית עריכה"></TabHeader>
-                        </ChildContent>
-                        <ContentTemplate>
-                            @{
-                                <table class="table table-striped table-hover" style="text-align:right;width:auto">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                תאריך
-                                            </th>
-                                            <th>
-                                                נערכה ע"י
-                                            </th>
-                                            <th>
-                                                תיאור
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var updateAudit in K_OrderForEdit.k_OrderAuditTables.OrderByDescending(x => x.Date))
-                                        {
-
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="היסטוריית עריכה"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                @{
+                                    <table class="table table-striped table-hover" style="text-align:right;width:auto">
+                                        <thead>
                                             <tr>
-                                                <td>
-                                                    @updateAudit.Date
-                                                </td>
-                                                <td>
-                                                    @updateAudit.UserName
-                                                </td>
-                                                <td>
-                                                    @updateAudit.AuditString
-                                                </td>
+                                                <th>
+                                                    תאריך
+                                                </th>
+                                                <th>
+                                                    נערכה ע"י
+                                                </th>
+                                                <th>
+                                                    תיאור
+                                                </th>
                                             </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            }
-                        </ContentTemplate>
-                    </TabItem>
-                </TabItems>
-            </SfTab>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var updateAudit in K_OrderForEdit.k_OrderAuditTables.OrderByDescending(x => x.Date))
+                                            {
+
+                                                <tr>
+                                                    <td>
+                                                        @updateAudit.Date
+                                                    </td>
+                                                    <td>
+                                                        @updateAudit.UserName
+                                                    </td>
+                                                    <td>
+                                                        @updateAudit.AuditString
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                            </ContentTemplate>
+                        </TabItem>
+                    </TabItems>
+                </SfTab>
 
 
-        </Content>
+            </Content>
 
-        <FooterTemplate>
-            <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-                <div class="row text-center">
-                    <div class="col">
-                        <button class="btn btn-success" @onclick="@(_ => {  SendRowEdit(K_OrderForEdit);})">אישור</button>
+            <FooterTemplate>
+                <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+                    <div class="row text-center">
+                        <div class="col">
+                            <button class="btn btn-success" @onclick="@(_ => {  SendRowEdit(K_OrderForEdit);})">אישור</button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger" @onclick="@CancelRowEditDialogShow">ביטול</button>
+                        </div>
                     </div>
-                    <div class="col">
-                        <button class="btn btn-danger" @onclick="@CancelRowEditDialogShow">ביטול</button>
-                    </div>
-                </div>
-            </AuthorizeView>
-        </FooterTemplate>
-    </DialogTemplates>
-</SfDialog>
+                </AuthorizeView>
+            </FooterTemplate>
+        </DialogTemplates>
+    </SfDialog>
 
-@code {
-    //Grid Object for costum actions
-    SfGrid<K_Order> SfGrid;
+    @code {
+        //Grid Object for costum actions
+        SfGrid<K_Order> SfGrid;
 
-    //list of KOrder(Grid Rows)
-    K_Order[] K_Orders;
+        //list of KOrder(Grid Rows)
+        K_Order[] K_Orders;
 
-    List<K_Order> KOrderForMultiEditSelect = new List<K_Order>();
+        List<K_Order> KOrderForMultiEditSelect = new List<K_Order>();
 
-    string FixedRemarkForMultiEdit { get; set; }
+        string FixedRemarkForMultiEdit { get; set; }
 
-    //KOrder Object for Edit Data
-    K_Order K_OrderForEdit = new K_Order();
+        //KOrder Object for Edit Data
+        K_Order K_OrderForEdit = new K_Order();
 
-    //"מחפש בין התאריכים Show Counter"
-    bool ShowCorrectDate = false;
+        //"מחפש בין התאריכים Show Counter"
+        bool ShowCorrectDate = false;
 
-    //For short date string
-    string startDate, endDate;
+        //For short date string
+        string startDate, endDate;
 
-    // Hub
-    private HubConnection hubConnection;
-    public bool IsConnected =>
-    hubConnection.State == HubConnectionState.Connected;
+        // Hub
+        private HubConnection hubConnection;
+        public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
 
-    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+        Task SendMessage() => hubConnection.SendAsync("SendMessage");
 
-    //getting week sun to sat dates
-    string ReportBeginDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[0].ToShortDateString();
-    string ReportEndDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[1].ToShortDateString();
+        //getting week sun to sat dates
+        string ReportBeginDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[0].ToShortDateString();
+        string ReportEndDate = KOrderAlgorithemShared.GetPrepReportWeekRange(DateTime.Today)[1].ToShortDateString();
 
-    //Loading Spinner
-    bool LoadingSpinner { get; set; } = false;
+        //Loading Spinner
+        bool LoadingSpinner { get; set; } = false;
 
-    //Error/Alert Modal
-    #region Error/Alert Dialog
-    //Main Message
-    private string ModalError { get; set; } = "";
-    private string ErrorModalHeaderContent { get; set; } = "";
-    private bool ErrorDialogIsVisible { get; set; } = false;
+        //Error/Alert Modal
+        #region Error/Alert Dialog
+        //Main Message
+        private string ModalError { get; set; } = "";
+        private string ErrorModalHeaderContent { get; set; } = "";
+        private bool ErrorDialogIsVisible { get; set; } = false;
 
-    private void OnOverlayclick(Microsoft.AspNetCore.Components.Web.MouseEventArgs arg)
-    {
-        this.ErrorDialogIsVisible = false;
-    }
-
-    private void CloseDialog()
-    {
-        this.ErrorDialogIsVisible = false;
-    }
-
-    #endregion
-
-    //SfGrid Methods
-    #region SfGrid methods and settings
-
-    //List KOrder for Multi AVG
-    List<K_Order> selectedRows = new List<K_Order>();
-
-    //Cancel Multi Jobs
-    async void SendMultiCancel()
-    {
-        if (selectedRows.Count() == 0)
+        private void OnOverlayclick(Microsoft.AspNetCore.Components.Web.MouseEventArgs arg)
         {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא נבחרו עבודות!";
-            ErrorDialogIsVisible = true;
-            return;
+            this.ErrorDialogIsVisible = false;
         }
-        LoadingSpinner = true;
-        await SendMultiCancelRows();
-        if (IsConnected) await SendMessage();
-        ToastContent = "נשמר!";
-        StateHasChanged();
-        LoadingSpinner = false;
-        await ShowToast();
-    }
-    //DB Cancel Multi rows
-    async Task<int> SendMultiCancelRows()
-    {
-        foreach (var order in selectedRows)
-        {
-            try
-            {
-                if(order.FixedCoordinationRemark == K_OrderStatus.WasCanceled) { continue; }
-                order.FixedCoordinationRemark = K_OrderStatus.WasCanceled;
-                var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
 
-                if (rslt.IsSuccessStatusCode)
-                {
-                    continue;
-                }
-                else
-                {
-                    ToastContent = await rslt.Content.ReadAsStringAsync();
-                    StateHasChanged();
-                    await ShowToast();
-                }
-            }
-            catch (Exception e)
+        private void CloseDialog()
+        {
+            this.ErrorDialogIsVisible = false;
+        }
+
+        #endregion
+
+        //SfGrid Methods
+        #region SfGrid methods and settings
+
+        //List KOrder for Multi AVG
+        List<K_Order> selectedRows = new List<K_Order>();
+
+        //Cancel Multi Jobs
+        async void SendMultiCancel()
+        {
+            if (selectedRows.Count() == 0)
             {
-                Console.WriteLine(e.Message);
-                ModalError = e.Message;
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא נבחרו עבודות!";
                 ErrorDialogIsVisible = true;
+                return;
             }
-        }
-        return 0;
-    }
-    //Edit Multiple rows at the same time
-    public async void SendMultiEdit()
-    {
-
-        var numOfuniqueCardCode = selectedRows.Select(x => x.CardCode).Distinct().Count();
-
-        if (numOfuniqueCardCode == 0)
-        {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא נבחר לקוח!";
-            ErrorDialogIsVisible = true;
-            return;
-        }
-        else if (numOfuniqueCardCode > 1)
-        {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא ניתן לערוך במקביל יותר מלקוח אחד!";
-            ErrorDialogIsVisible = true;
-            return;
-        }
-        else if (FixedRemarkForMultiEdit is null)
-        {
-            ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "לא נבחר מצב!";
-            ErrorDialogIsVisible = true;
-            return;
-        }
-
-        else
-        {
             LoadingSpinner = true;
-            await SendMultiRowsForEdit();
+            await SendMultiCancelRows();
+            if (IsConnected) await SendMessage();
+            ToastContent = "נשמר!";
+            StateHasChanged();
             LoadingSpinner = false;
-
+            await ShowToast();
         }
-
-    }
-
-    public async Task<int> SendMultiRowsForEdit()
-    {
-        foreach (var order in selectedRows)
+        //DB Cancel Multi rows
+        async Task<int> SendMultiCancelRows()
         {
-            try
+            foreach (var order in selectedRows)
             {
-                order.FixedCoordinationRemark = FixedRemarkForMultiEdit;
-                if(order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk) { order.JobStatus = K_OrderPhase.StandBy; }
-                var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{order.JobId}", order);
-
-                if (rslt.IsSuccessStatusCode)
+                try
                 {
-                    continue;
+                    if (order.FixedCoordinationRemark == K_OrderStatus.WasCanceled) { continue; }
+                    order.FixedCoordinationRemark = K_OrderStatus.WasCanceled;
+                    var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+
+                    if (rslt.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ToastContent = await rslt.Content.ReadAsStringAsync();
+                        StateHasChanged();
+                        await ShowToast();
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    ToastContent = await rslt.Content.ReadAsStringAsync();
-                    StateHasChanged();
-                    await ShowToast();
+                    Console.WriteLine(e.Message);
+                    ModalError = e.Message;
+                    ErrorDialogIsVisible = true;
                 }
             }
-            catch (Exception e)
+            return 0;
+        }
+        //Edit Multiple rows at the same time
+        public async void SendMultiEdit()
+        {
+
+            var numOfuniqueCardCode = selectedRows.Select(x => x.CardCode).Distinct().Count();
+
+            if (numOfuniqueCardCode == 0)
             {
-                Console.WriteLine(e.Message);
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא נבחר לקוח!";
+                ErrorDialogIsVisible = true;
+                return;
             }
-        }
-        if (IsConnected) await SendMessage();
-        ToastContent = "נשמר!";
-        StateHasChanged();
-        await ShowToast();
-
-        return 0;
-    }
-
-    //Syncfusion RowSelect Way
-    public async Task RowSelected(RowSelectEventArgs<K_Order> args)
-    {
-        selectedRows = SfGrid.SelectedRecords;
-    }
-
-    //Syncfusion RowSelect Way
-    public async Task RowDeSelected(RowDeselectEventArgs<K_Order> args)
-    {
-        selectedRows = SfGrid.SelectedRecords;
-    }
-
-    public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
-    {
-        K_OrderForEdit = args.RowData;
-        RowEditDialogShow = true;
-    }
-
-    //Nullble DateTime To Short Date String
-    string DateTimeToShortString(DateTime? dateTime)
-    {
-        DateTime date = Convert.ToDateTime(dateTime);
-        var shortDate = date.ToShortDateString();
-        return shortDate;
-    }
-
-    //button clear filter
-    public async void ClearGridfilter()
-    {
-        await this.SfGrid.ClearFiltering();
-    }
-    //clear search box
-    public void ClearGridSearch()
-    {
-        try
-        {
-            this.SfGrid.Search("");
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
-
-    }
-
-    public IEditorSettings CustomerEditParams = new StringEditCellParams
-    {
-        Params = new TextBoxModel() { EnableRtl = true, ShowClearButton = false, Multiline = true }
-    };
-    #endregion
-
-    //Grid Edit Modal
-    #region Grid Edit Modal
-
-    //cx marketing date Min limit
-    public DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
-
-    //KOrder Job Status list
-    List<string> KOrderStatusList = K_OrderStatus.GetKOrderStatus();
-
-    // Property to control the row edit dialog.
-    public bool RowEditDialogShow { get; set; } = false;
-
-    //cancel Edit row Modal
-    public void CancelRowEditDialogShow()
-    {
-        RowEditDialogShow = false;
-    }
-
-    async void SendRowEdit(K_Order k_Order)
-    {
-        RowEditDialogShow = false;
-        LoadingSpinner = true;
-        await UpdateEditRow(k_Order);
-        LoadingSpinner = false;
-    }
-
-
-    public async Task<int> UpdateEditRow(K_Order k_Order)
-    {
-        try
-        {
-
-            var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{k_Order.JobId}", k_Order);
-
-            if (rslt.IsSuccessStatusCode)
+            else if (numOfuniqueCardCode > 1)
             {
-                if (IsConnected) await SendMessage();
-                ToastContent = "נשמר!";
-                StateHasChanged();
-                await ShowToast();
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא ניתן לערוך במקביל יותר מלקוח אחד!";
+                ErrorDialogIsVisible = true;
+                return;
             }
+            else if (FixedRemarkForMultiEdit is null)
+            {
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא נבחר מצב!";
+                ErrorDialogIsVisible = true;
+                return;
+            }
+
             else
             {
-                ToastContent = await rslt.Content.ReadAsStringAsync();
-                StateHasChanged();
-                await ShowToast();
+                LoadingSpinner = true;
+                await SendMultiRowsForEdit();
+                LoadingSpinner = false;
+
             }
+
         }
-        catch (Exception e)
+
+        public async Task<int> SendMultiRowsForEdit()
         {
-            Console.WriteLine(e.Message);
-        }
-        return 0;
-    }
-    #endregion
+            foreach (var order in selectedRows)
+            {
+                try
+                {
+                    order.FixedCoordinationRemark = FixedRemarkForMultiEdit;
+                    if (order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk) { order.JobStatus = K_OrderPhase.StandBy; }
+                    var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{order.JobId}", order);
 
-    #region TOAST
-    //TOAST
-    public SfToast ToastObj;
-    private string ToastContent { get; set; } = "";
-    private async Task ShowToast()
-    {
-        await this.ToastObj.Show();
-    }
-
-    private async Task HideToast()
-    {
-        await this.ToastObj.Hide("All");
-    }
-    #endregion
-
-    //Range Date Picker
-    #region RangeDate Picker
-
-    public DateTime StartValue { get; set; } = new DateTime();
-
-    public DateTime EndValue { get; set; } = new DateTime();
-    #endregion
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-        hubConnection = new HubConnectionBuilder()
-           .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-           .Build();
-
-        hubConnection.On("ReceiveMessage", () =>
-        {
-
-            Task.Run(async () => { await LoadData(); });
+                    if (rslt.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ToastContent = await rslt.Content.ReadAsStringAsync();
+                        StateHasChanged();
+                        await ShowToast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+            }
+            if (IsConnected) await SendMessage();
+            ToastContent = "נשמר!";
             StateHasChanged();
-        });
+            await ShowToast();
 
-        await hubConnection.StartAsync();
-    }
-    //Get list Of K_Passport Objects
-    protected async Task LoadData()
-    {
-        try
-        {
-            ShowCorrectDate = false;
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetKOrders");
-            StateHasChanged();
+            return 0;
         }
-        catch (Exception e) { Console.WriteLine(e.Message); }
-    }
 
-    //POST Jobs from Sap to KOrder Table
-    protected async void GetSapOrders()
-    {
-        LoadingSpinner = true;
-        var getWasOk = await Http.GetFromJsonAsync<int>("api/KOrder/PrepReport");
-        ShowCorrectDate = false;
-        await LoadData();
-        LoadingSpinner = false;
-    }
+        //Syncfusion RowSelect Way
+        public async Task RowSelected(RowSelectEventArgs<K_Order> args)
+        {
+            selectedRows = SfGrid.SelectedRecords;
+        }
 
-    //GET Jobs from KOrder Table
-    protected async void GetKOrdersFromKOrderTable()
-    {
-        try
+        //Syncfusion RowSelect Way
+        public async Task RowDeSelected(RowDeselectEventArgs<K_Order> args)
+        {
+            selectedRows = SfGrid.SelectedRecords;
+        }
+
+        public void RecordDoubleClickHandler(RecordDoubleClickEventArgs<K_Order> args)
+        {
+            K_OrderForEdit = args.RowData;
+            RowEditDialogShow = true;
+        }
+
+        //Nullble DateTime To Short Date String
+        string DateTimeToShortString(DateTime? dateTime)
+        {
+            DateTime date = Convert.ToDateTime(dateTime);
+            var shortDate = date.ToShortDateString();
+            return shortDate;
+        }
+
+        //button clear filter
+        public async void ClearGridfilter()
+        {
+            await this.SfGrid.ClearFiltering();
+        }
+        //clear search box
+        public void ClearGridSearch()
+        {
+            try
+            {
+                this.SfGrid.Search("");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+        }
+
+        public IEditorSettings CustomerEditParams = new StringEditCellParams
+        {
+            Params = new TextBoxModel() { EnableRtl = true, ShowClearButton = false, Multiline = true }
+        };
+        #endregion
+
+        //Grid Edit Modal
+        #region Grid Edit Modal
+
+        //cx marketing date Min limit
+        public DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+
+        //KOrder Job Status list
+        List<string> KOrderStatusList = K_OrderStatus.GetKOrderStatus();
+
+        // Property to control the row edit dialog.
+        public bool RowEditDialogShow { get; set; } = false;
+
+        //cancel Edit row Modal
+        public void CancelRowEditDialogShow()
+        {
+            RowEditDialogShow = false;
+        }
+
+        async void SendRowEdit(K_Order k_Order)
+        {
+            RowEditDialogShow = false;
+            LoadingSpinner = true;
+            await UpdateEditRow(k_Order);
+            LoadingSpinner = false;
+        }
+
+
+        public async Task<int> UpdateEditRow(K_Order k_Order)
+        {
+            try
+            {
+
+                var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{k_Order.JobId}", k_Order);
+
+                if (rslt.IsSuccessStatusCode)
+                {
+                    if (IsConnected) await SendMessage();
+                    ToastContent = "נשמר!";
+                    StateHasChanged();
+                    await ShowToast();
+                }
+                else
+                {
+                    ToastContent = await rslt.Content.ReadAsStringAsync();
+                    StateHasChanged();
+                    await ShowToast();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return 0;
+        }
+        #endregion
+
+        #region TOAST
+        //TOAST
+        public SfToast ToastObj;
+        private string ToastContent { get; set; } = "";
+        private async Task ShowToast()
+        {
+            await this.ToastObj.Show();
+        }
+
+        private async Task HideToast()
+        {
+            await this.ToastObj.Hide("All");
+        }
+        #endregion
+
+        //Range Date Picker
+        #region RangeDate Picker
+
+        public DateTime StartValue { get; set; } = new DateTime();
+
+        public DateTime EndValue { get; set; } = new DateTime();
+        #endregion
+
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadData();
+            hubConnection = new HubConnectionBuilder()
+               .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+               .Build();
+
+            hubConnection.On("ReceiveMessage", () =>
+            {
+
+                Task.Run(async () => { await LoadData(); });
+                StateHasChanged();
+            });
+
+            await hubConnection.StartAsync();
+        }
+        //Get list Of K_Passport Objects
+        protected async Task LoadData()
+        {
+            try
+            {
+                ShowCorrectDate = false;
+                K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetKOrders");
+                StateHasChanged();
+            }
+            catch (Exception e) { Console.WriteLine(e.Message); }
+        }
+
+        //POST Jobs from Sap to KOrder Table
+        protected async void GetSapOrders()
         {
             LoadingSpinner = true;
-
-            startDate = StartValue.ToShortDateString();
-            endDate = EndValue.ToShortDateString();
-
-            ShowCorrectDate = true;
-
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>($"api/KOrder/GetKOrdersByDateRange/{startDate}/{endDate}");
-
-            LoadingSpinner = false;
-
-
-            StateHasChanged();
-
-
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
+            var getWasOk = await Http.GetFromJsonAsync<int>("api/KOrder/PrepReport");
+            ShowCorrectDate = false;
+            await LoadData();
             LoadingSpinner = false;
         }
-    }
 
-    //Style GRID
-    #region Grid Style Methods
-    //ROW IsNeedToBeAudit STYLE
-    public void RowBound(RowDataBoundEventArgs<K_Order> args)
-    {
-        if (args.Data.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk)
+        //GET Jobs from KOrder Table
+        protected async void GetKOrdersFromKOrderTable()
         {
-            args.Row.AddClass(new string[] { "schedule-was-ok" });
+            try
+            {
+                LoadingSpinner = true;
+
+                startDate = StartValue.ToShortDateString();
+                endDate = EndValue.ToShortDateString();
+
+                ShowCorrectDate = true;
+
+                K_Orders = await Http.GetFromJsonAsync<K_Order[]>($"api/KOrder/GetKOrdersByDateRange/{startDate}/{endDate}");
+
+                LoadingSpinner = false;
+
+
+                StateHasChanged();
+
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                LoadingSpinner = false;
+            }
         }
-        if (args.Data.FixedCoordinationRemark == K_OrderStatus.WasCanceled)
+
+        //Style GRID
+        #region Grid Style Methods
+        //ROW IsNeedToBeAudit STYLE
+        public void RowBound(RowDataBoundEventArgs<K_Order> args)
         {
-            args.Row.AddClass(new string[] { "schedule-was-cancel" });
+            if (args.Data.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk)
+            {
+                args.Row.AddClass(new string[] { "schedule-was-ok" });
+            }
+            if (args.Data.FixedCoordinationRemark == K_OrderStatus.WasCanceled)
+            {
+                args.Row.AddClass(new string[] { "schedule-was-cancel" });
+            }
+
         }
 
+
+        #endregion
     }
 
+    <style>
+        .schedule-was-ok {
+            background-color: palegoldenrod
+        }
 
-    #endregion
-}
+        .schedule-was-cancel {
+            background-color: lightpink
+        }
 
-<style>
-    .schedule-was-ok {
-        background-color: palegoldenrod
-    }
+        .e-toast-container .e-toast .e-toast-message .e-toast-content {
+            color: white;
+            font-size: 18px;
+            font-weight: normal;
+        }
 
-    .schedule-was-cancel {
-        background-color: lightpink
-    }
-    .e-toast-container .e-toast .e-toast-message .e-toast-content {
-        color: white;
-        font-size: 18px;
-        font-weight: normal;
-    }
-
-    .e-toast-container .e-toast {
-        background-color: black;
-    }
-</style>
+        .e-toast-container .e-toast {
+            background-color: black;
+        }
+    </style>

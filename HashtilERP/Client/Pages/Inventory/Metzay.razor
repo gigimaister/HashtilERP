@@ -142,8 +142,7 @@
     </DialogTemplates>
 </SfDialog>
 @*GRID SECTION START HERE*@
-
-<div class="container">
+<div>
     <SfGrid DataSource="@K_Passports" FrozenRows="0" AllowExcelExport="true" Height="800" Width="100%" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true"
             AllowSorting="true" EnableRtl="true" AllowResizing="true">
         <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
@@ -749,7 +748,6 @@
 
         hubConnection.On("ReceiveMessage", () =>
         {
-
             Task.Run(async () => { await LoadData(); });
             StateHasChanged();
         });

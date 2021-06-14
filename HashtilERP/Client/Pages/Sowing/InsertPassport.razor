@@ -81,14 +81,15 @@
     <br />
     <br />
     @*GRID SECTION START HERE*@
-    <SfGrid DataSource="@kobiPassportModels" AllowGrouping="false" AllowSorting="true">
-        <GridColumns>
-            @*GrowingRoom*@
-            <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
-            @*PassportNumber*@
-            <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
-        </GridColumns>
-    </SfGrid>
+<SfGrid DataSource="@kobiPassportModels" AllowPaging="true" AllowGrouping="false" AllowSorting="true">
+    <GridPageSettings PageSize="5"></GridPageSettings>
+    <GridColumns>
+        @*GrowingRoom*@
+        <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="ห้องปลูก" Type="ColumnType.Date" TextAlign="TextAlign.Center" Width="35"></GridColumn>
+        @*PassportNumber*@
+        <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="หนังสือเดินทาง" TextAlign="TextAlign.Left" Width="35"></GridColumn>
+    </GridColumns>
+</SfGrid>
 
 
     @*Modal dialog for duplicate or not found passport*@

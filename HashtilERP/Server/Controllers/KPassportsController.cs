@@ -82,12 +82,7 @@ namespace HashtilERP.Server
                     //for AVG Counter
                     case "6":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse && x.PassportAvg != -1)
-                           .OrderByDescending(x =>x.AVGEnteringDate)
-                           .Include(e => e.KPassportInsertAudit)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                          
-                           .Include(e => e.PassportAuditForms)
-                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .OrderByDescending(x =>x.AVGEnteringDate)                          
                            .ToListAsync();
                         break;
                     //archive

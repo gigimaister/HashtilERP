@@ -37,8 +37,7 @@
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-                    <div class="col" style="text-align:right">
-                    </div>
+                    
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
@@ -140,7 +139,7 @@
 </SfDialog>
 
 @*Grid No.1*@
-<div class="container">
+<div>
     <SfGrid DataSource="@GridNo1List" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
             AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
             AllowGrouping="false" AllowSorting="true" AllowSelection="true" AllowPaging="true">
@@ -746,7 +745,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label>כ.מגשים</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />
+                            <input type="text" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />
                         </div>
                     </div>
                 </div>
@@ -754,7 +753,7 @@
                     <div class="col">
                         <div class="form-group">
                             <label>ממוצע</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="999" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />
+                            <input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="500" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />
                         </div>
                     </div>
                     <div class="col">
@@ -827,6 +826,7 @@
                     <button class="btn btn-danger" @onclick="@NewJobCloseForm">ביטול</button>
                 </div>
             </div>
+            
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
@@ -1340,6 +1340,8 @@
 </SfDialog>
 
 @code {
+
+
     //PUSH
     #region Push
 
@@ -3488,6 +3490,7 @@
     #endregion
 }
 
+
 <style>
     .is-job-ready {
         background-color: mediumseagreen;
@@ -3627,3 +3630,4 @@
         content: '\e823';
     }
 </style>
+

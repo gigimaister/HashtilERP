@@ -1271,6 +1271,12 @@ namespace HashtilERP.DBTestVol1
                     .HasMaxLength(30)
                     .HasColumnName("U_status");
 
+                entity.Property(e => e.UIsKOrder)
+                   .HasMaxLength(1)
+                   .IsUnicode(false)
+                   .IsFixedLength(true)
+                   .HasColumnName("U_IsKOrder");
+
                 entity.Property(e => e.UnpaidBoE).HasMaxLength(15);
 
                 entity.Property(e => e.UpdateDate).HasColumnType("datetime");
