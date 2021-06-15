@@ -320,7 +320,8 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>כ.שתילים</label>
-                                                <input type="number" @bind-value="K_OrderForEdit.JobPlantsNum" class="form-control" placeholder="שתילים" />
+                                                <SfNumericTextBox TValue="int?" Step="100" @bind-Value="K_OrderForEdit.JobPlantsNum" Format="n0" Placeholder="שתילים"></SfNumericTextBox>
+                                                @*<input type="number" @bind-value="K_OrderForEdit.JobPlantsNum" class="form-control" placeholder="שתילים" />*@
                                             </div>
                                         </div>
                                         <div class="col">
