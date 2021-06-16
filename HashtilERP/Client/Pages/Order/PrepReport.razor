@@ -34,11 +34,7 @@
         </div>
     }
 }
-<AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-    <div style="text-align:left">
-        <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
-    </div>
-</AuthorizeView>
+
 @*<div class="alert alert-secondary" style="width:300px" role="alert">
     <h6>בחירת טווח שונה להצגה</h6>
     <div>
@@ -59,21 +55,33 @@
 
 
 @*Multi AVG for rows*@
-<div class="row">
-    <div class="col alert alert-success" role="alert">
-        <div class="row">
-            <div class="col">
-                <SfDropDownList TValue="string" Width="200px" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@FixedRemarkForMultiEdit" Placeholder=""></SfDropDownList>
-                <button class="btn btn-outline-secondary" @onclick="SendMultiEdit" style="margin-right:10px">שליחה</button>
-            </div>
-            <div class="col">
-                <button class="btn btn-outline-danger" style="margin-right:120px" @onclick="SendMultiCancel">ביטול עבודות כללי</button>
-            </div>
+<div>
+    
+        <div class="col alert alert-success" role="alert">
+            <div class="row">
+                <div class="col">
+                    <SfDropDownList TValue="string" Width="200px" TItem="string" enab DataSource="@KOrderStatusList" @bind-Value="@FixedRemarkForMultiEdit" Placeholder=""></SfDropDownList>
+                    <button class="btn btn-outline-secondary" @onclick="SendMultiEdit" style="margin-right:10px">שליחה</button>
+                </div>
+                <div class="col">
+                    <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
+                    <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
+                </div>
+                <div class="col">
+                    <button class="btn btn-outline-danger" style="margin-right:120px" @onclick="SendMultiCancel">ביטול עבודות כללי</button>                 
+                </div>
+                <div class="col">
+                    <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+                        <div style="text-align:left">
+                            <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
+                        </div>
+                    </AuthorizeView>
+                </div>               
+            </div>           
         </div>
-    </div>
-    <div class="col">
-    </div>
-</div>       
+    
+</div>
+     
         
    
 
@@ -204,7 +212,8 @@
                                         <div class="row">
                                             <div class="col">
                                                 <label style="font-size:16px;font-weight:bold" for="plantsinput">כמות שתילים</label>
-                                                <input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">
+                                                <SfNumericTextBox TValue="int?" Step="100" @bind-Value="K_OrderForEdit.JobPlantsNum" Format="n0" Placeholder="שתילים"></SfNumericTextBox>
+                                                @*<input max="1000000" class="form-control" @bind-value="@K_OrderForEdit.JobPlantsNum" type="number">*@
                                             </div>
                                             <div class="col">
                                                 <label style="font-size:16px;font-weight:bold" for="plantsinput">ת.שיווק</label>
@@ -388,7 +397,65 @@
 
         //List KOrder for Multi AVG
         List<K_Order> selectedRows = new List<K_Order>();
+        //prop for multiDate
+        DateTime? MultiDate { get; set; }
+        //Multi Change Date
+        async void BtnSendMultiDate()
+        {
+            if (selectedRows.Count() == 0)
+            {
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "לא נבחרו עבודות!";
+                ErrorDialogIsVisible = true;
+            }
+            //if MarketDate < Today
+            var md = Convert.ToDateTime(MultiDate).Subtract(DateTime.Today).TotalDays;
+            if (md < 0)
+            {
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = "תאריך הוצאה חייב להיות עתידי!";
+                ErrorDialogIsVisible = true;
+                return;
+            }
+            LoadingSpinner = true;
+            await SendMultiDateRows();
+            if (IsConnected) await SendMessage();
+            ToastContent = "נשמר!";
+            StateHasChanged();
+            LoadingSpinner = false;
+            MultiDate = null;
+            await ShowToast();
+        }
+        //Multi Date Send to DB
+        async Task<int> SendMultiDateRows()
+        {
+            foreach (var order in selectedRows)
+            {
+                try
+                {
+                    order.MarketingDate = MultiDate;
+                    var rslt = await Http.PutAsJsonAsync($"api/KOrder/UpdatePrepReport/{order.JobId}", order);
 
+                    if (rslt.IsSuccessStatusCode)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        ToastContent = await rslt.Content.ReadAsStringAsync();
+                        StateHasChanged();
+                        await ShowToast();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    ModalError = e.Message;
+                    ErrorDialogIsVisible = true;
+                }
+            }
+            return 0;
+        }
         //Cancel Multi Jobs
         async void SendMultiCancel()
         {

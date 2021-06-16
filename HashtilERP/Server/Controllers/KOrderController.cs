@@ -199,6 +199,7 @@ namespace HashtilERP.Server.Controllers
             if(k_Order.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && k_Order.KOrderEnteringDate == null)
             {
                 k_Order.KOrderEnteringDate = DateTime.Today;
+                k_Order.MarketingDate = new DateTime(Math.Max(Convert.ToDateTime(k_Order.MarketingDate).Ticks, DateTime.Today.Ticks));
             }
 
             if (id != k_Order.JobId)
