@@ -30,9 +30,11 @@
 }
 
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@GrowPassports" FrozenRows="0" Height="500" Width="100%" AllowGrouping="false" AllowSorting="true" EnableRtl="true" AllowResizing="true" AllowFiltering="true">
+<SfGrid DataSource="@GrowPassports" FrozenRows="0" Height="700" Width="100%" AllowGrouping="false" AllowSorting="true" EnableRtl="true"
+        AllowResizing="true" AllowFiltering="true" AllowPaging="true">
     <GridEvents TValue="K_Passport" RowDataBound="RowBound"></GridEvents>
     <GridFilterSettings Type="FilterType.Excel"></GridFilterSettings>
+    <GridPageSettings PageSize="30"></GridPageSettings>
     <GridTemplates>
         <DetailTemplate>
             @{ var passport = (context as K_Passport);
