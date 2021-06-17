@@ -444,7 +444,7 @@
                     ModalError = ThaiNotFound;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    StateHasChanged();
 
                 }
                 else if (backcontent == "DUPLICATE")
@@ -452,14 +452,15 @@
                     ModalError = ThaiDuplicate;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    StateHasChanged();
                 }
 
             }
+
             else
             {
 
-                if (IsConnected) await SendMessage();
+                StateHasChanged();
                 ToastContent = "נשמר";
                 passportInput = "";
                 StateHasChanged();

@@ -109,6 +109,16 @@ namespace HashtilERP.Server
            
 
         }
+
+        //ForThai-Guy
+        [HttpGet("GetGrowingPassForSowing")]
+        public async Task<List<K_Passport>> GetGrowingPassForSowing() 
+        {
+            var passports = new List<K_Passport>();
+            passports = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom).ToListAsync();
+            return passports;
+        }
+
         //Metzay
         [HttpGet("ForKOrderJobs")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetPassportsForKOrderJobs()

@@ -357,7 +357,8 @@
                 Passportgidul = K_Passport.Zan;
                 OpenDialog();
                 SpinnerBool = false;
-                if (IsConnected) await SendMessage();
+                //if (IsConnected) await SendMessage();
+                StateHasChanged();
             }
             else
             {

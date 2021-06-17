@@ -196,7 +196,8 @@
             {
                 ModalError = MustEnterGrowingRoomNumber;
                 OpenDialog();
-                if (IsConnected) await SendMessage();
+                StateHasChanged();
+                //if (IsConnected) await SendMessage();
                 passportInput = "";
                 return;
             }
@@ -228,6 +229,7 @@
             await hubConnection.StartAsync();
 
             await LoadData();
+            StateHasChanged();
         }
 
         private void CallLoadData()
@@ -240,8 +242,8 @@
 
         protected async Task LoadData()
         {
-            kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
-            StateHasChanged();
+            kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/GetGrowingPassForSowing");
+
         }
 
         public bool IsConnected =>
@@ -261,7 +263,11 @@
             {
                 ModalError = NoEnteredPassport;
                 OpenDialog();
-                if (IsConnected) await SendMessage();               
+                AfterActionSpinner = false;
+
+                StateHasChanged();
+
+                //if (IsConnected) await SendMessage();
                 return;
             }
             try
@@ -274,7 +280,10 @@
                 ModalError = NotValidValue;
                 OpenDialog();
                 passportInput = "";
-                if (IsConnected) await SendMessage();
+                AfterActionSpinner = false;
+
+                StateHasChanged();
+                //if (IsConnected) await SendMessage();
             }
 
 
@@ -291,7 +300,11 @@
                     ModalError = ThaiNotFound;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    AfterActionSpinner = false;
+                    StateHasChanged();
+                    
+
+                    //if (IsConnected) await SendMessage();
 
                 }
                 else if (content == "DUPLICATE")
@@ -299,7 +312,10 @@
                     ModalError = ThaiDuplicate;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    AfterActionSpinner = false;
+                    StateHasChanged();
+
+                    //if (IsConnected) await SendMessage();
                 }
 
             }

@@ -2858,6 +2858,7 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "")
         {
+            LoadingSpinner = true;
             var chosenKPassport = await Task.Run(() => args.RowData);
             //if no avg,plants && magash set
             if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
@@ -2865,6 +2866,7 @@
                 ErrorDialogIsVisible = true;
                 ErrorModalHeaderContent = "שגיאה!";
                 ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
+                LoadingSpinner = false;
                 return;
             }
             //if 0 magas && trying to take
@@ -2873,9 +2875,10 @@
                 ErrorDialogIsVisible = true;
                 ErrorModalHeaderContent = "שגיאה!";
                 ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
+                LoadingSpinner = false;
                 return;
             }
-            int? kpassportAvarage = KOrdersfunctions.GetKpassportAvg(chosenKPassport);
+            int? kpassportAvarage = await Task.Run(() => KOrdersfunctions.GetKpassportAvg(chosenKPassport));
 
             //IF WE DO NOT have a Existing list
             if (kOrderPassports == null || kOrderPassports.Count == 0)
@@ -2883,7 +2886,7 @@
                 korderPassport.JobId = K_OrderForPickPassport.JobId;
                 korderPassport.K_PassportNum = chosenKPassport.PassportNum;
                 korderPassport.K_PassportId = chosenKPassport.K_PassportId;
-                korderPassport.SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage));
+                korderPassport.SelectedAVG = await Task.Run(() => Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage)));
 
                 //Check if KPassport.Magash > WorkTotalMagash(WTM)
                 if (chosenKPassport.MagashAmount > K_OrderForPickPassport.JobNumOfMagash)
@@ -2903,7 +2906,7 @@
                 }
 
                 //Adding korderpassport to list
-                kOrderPassports.Add(korderPassport);
+                await Task.Run(() => kOrderPassports.Add(korderPassport));
                 SfGridKpassport.Refresh();
 
 
@@ -3005,10 +3008,9 @@
             }
 
             SfGridKpassport.Refresh();
-
+            LoadingSpinner = false;
         }
     }
-
     async void GetKpassportsByGidulAndZan()
     {
         LoadingSpinner = true;
