@@ -88,10 +88,10 @@ namespace HashtilERP.Server.Controllers
             try
             {
                 //get M.Date for tomorrow or M.Date today && entered today or M.Date today but not finish or canceled
-                k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today || x.MarketingDate == DateTime.Today.AddDays(1))
-                && (x.KOrderEnteringDate == DateTime.Today)
+                k_Orders = await _context.KOrder.Where(x => (x.MarketingDate == DateTime.Today) && (x.KOrderEnteringDate == DateTime.Today)
                 || (x.MarketingDate <= DateTime.Today && x.PrepReportEnteringDate != null && x.FixedCoordinationRemark == K_OrderStatus.SchedualeWasOk && x.JobStatus != K_OrderPhase.Finish && x.JobStatus != K_OrderPhase.Canceled)
                 || (x.MarketingDate <= DateTime.Today && x.PrepReportEnteringDate == null && x.JobStatus != K_OrderPhase.Finish && x.JobStatus != K_OrderPhase.Canceled)
+                || (x.MarketingDate == DateTime.Today.AddDays(1))
                 )
               .Include(x => x.Ocrd)
               .Include(x => x.K_OrderPassports)
