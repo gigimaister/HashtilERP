@@ -1,3 +1,5 @@
+@inject NavigationManager Navigation
+
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true">
         <Found Context="routeData">
@@ -7,9 +9,17 @@
                     {
                         <RedirectToLogin />
                     }
-                    else
+                    else if (context.User.IsInRole("Thai-GreenHouse"))
                     {
-                        <p>You are not authorized to access this resource.</p>
+                        Navigation.NavigateTo("thai-greenhouse/newmovingpassports");
+                    }
+                    else if (context.User.IsInRole("Thai-Guy"))
+                    {
+                        Navigation.NavigateTo("sowing/insertpassport");
+                    }
+                    else if (context.User.IsInRole("AuditAvgCounter"))
+                    {
+                        Navigation.NavigateTo("inventory/passportavg");
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>

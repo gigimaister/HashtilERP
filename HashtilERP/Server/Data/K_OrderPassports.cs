@@ -16,7 +16,8 @@ namespace HashtilERP.Data
         public string UserName { get; set; }
         public int? SelectedAVG { get; set; }
         public int? K_PassportNum { get; set; }
-
+        public int KpassportHamama { get; set; }
+        public int KpassportGamlon { get; set; }
         public K_Passport K_Passport { get; set; }
     }
 }

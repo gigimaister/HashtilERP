@@ -1484,11 +1484,13 @@
             return;
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        if (IsConnected) await SendMessage();
+        StateHasChanged();
+
+
 
     }
 

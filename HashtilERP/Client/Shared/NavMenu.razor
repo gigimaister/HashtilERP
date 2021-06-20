@@ -246,6 +246,7 @@
     public void Close()
     {
         SidebarToggle = false;
+        StateHasChanged();
     }
 
     Dictionary<string, object> HtmlAttribute = new Dictionary<string, object>()
