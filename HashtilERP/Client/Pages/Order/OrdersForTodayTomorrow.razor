@@ -37,7 +37,7 @@
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-                    
+
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
@@ -147,7 +147,7 @@
                 CommandClicked="OnCommandClicked" RowSelected="RowSelected" RowDeselected="RowDeSelected" RowDataBound="RowBound"></GridEvents>
     <GridEditSettings AllowAdding="true" AllowEditing="false" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
-    <GridPageSettings PageSize="60"></GridPageSettings>
+    <GridPageSettings PageSize="30"></GridPageSettings>
     <GridAggregates>
         <GridAggregate>
             <GridAggregateColumns>
@@ -240,9 +240,12 @@
                 <div class="col" style="text-align:left">
                     @{if (K_OrderForEdit.IsJobCancel == true)
                         {
-                            <AuthorizeView Roles="Administrator, Manager-GreenHouse">
-                                <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => { DeletePassAndCancelJob(); })">מחיקה ואישור</button>
-                            </AuthorizeView>
+                            if (K_OrderForEdit.K_OrderPassports.Count() > 0)
+                            {
+                                <AuthorizeView Roles="Administrator, Manager-GreenHouse">
+                                    <button class="btn btn-primary" style="text-align:left" @onclick="@(_ => { DeletePassAndCancelJob(); })">מחיקה ואישור</button>
+                                </AuthorizeView>
+                            }
                             <button class="btn btn-outline-info" style="text-align:left" @onclick="@(_ => { SetJobIsCancelFalse(); })">יוצאת</button>
                         }
                         else if (K_OrderForEdit.JobStatus != K_OrderPhase.Canceled)
@@ -1382,12 +1385,11 @@
         RowEditDialogShow = false;
         LoadingSpinner = true;
         await SendJobCancelForm();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
-
+        //StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
     async Task<int> SendJobCancelForm()
     {
@@ -1400,14 +1402,13 @@
 
             if (K_OrderForEdit.K_OrderPassports.Count() > 0)
             {
-                K_OrderForEdit.IsJobCancel = true;
                 K_OrderForEdit.IsPrinted = false;
             }
             else
             {
                 K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
             }
-
+            K_OrderForEdit.IsJobCancel = true;
             await Http.PostAsJsonAsync(("api/WeeklyKOrder/NewKOrderRemark"), K_OrderRemark);
             await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
             K_OrderRemark = new K_OrderRemark();
@@ -1599,7 +1600,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await LoadDataOrder();
         hubConnection = new HubConnectionBuilder()
            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
            .Build();
@@ -1607,7 +1608,7 @@
         hubConnection.On("ReceiveMessage", () =>
         {
 
-            Task.Run(async () => { await LoadData(); });
+            Task.Run(async () => { await LoadDataOrder(); });
             StateHasChanged();
         });
         hubConnection.On("PickPassport", () =>
@@ -1631,27 +1632,25 @@
         }
     }
     //Get list Of KOrder Todat/Tomorrow Objects
-    protected async Task LoadData()
+    protected async Task LoadDataOrder()
     {
         try
         {
             ShowCorrectDate = false;
             K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow");
+            //For Greed No.1
+            GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
+            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
             //GET CX FROM SAP
             DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
             //GET PASSPORTS
             k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
-
-            //For Greed No.1
-            GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
-            || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
 
             //For GRID No. 2
             NeedToConfirmRecords = K_Orders.Where(x => x.IsNeedToConfirmJob == true || x.IsTakeoutJobTomorrow == true).ToList();
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
-
 
             StateHasChanged();
         }
@@ -1795,7 +1794,6 @@
         StateHasChanged();
         await ShowToast();
         NewJobK_Order = new K_Order();
-        DateValue = DateTime.Today.AddDays(1);
         AVGAutoCalc = "";
         k_OrdersCxManyJobs.Clear();
 
@@ -1853,6 +1851,7 @@
         }
 
         NewJobK_Order = new K_Order();
+        DateValue = DateTime.Today.AddDays(1);
         AVGAutoCalc = "";
         return 0;
     }
@@ -1977,7 +1976,7 @@
     //Grid Object for costum actions
     SfGrid<K_Order> SfGrid;
 
-    //LoadData objects for greed
+    //LoadDataOrder objects for greed
     List<K_Order> GridNo1List = new List<K_Order>();
 
 
@@ -2021,6 +2020,7 @@
                 LoadingSpinner = true;
 
                 await GetKpassportsForKorder(args.RowData);
+                StateHasChanged();
 
                 if (K_OrderForPickPassport.K_OrderPassports.Count() > 0)
                 {
@@ -2118,11 +2118,17 @@
 
                 foreach (var order in listKorder)
                 {
-                    if (order.JobStatus != K_OrderPhase.AttachedPassports) { continue; }
-                    order.IsPrinted = true;
-                    order.JobStatus = K_OrderPhase.InProgress;
-                    order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
-                    await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+                    if (order.JobStatus == K_OrderPhase.AttachedPassports || order.JobStatus == K_OrderPhase.Finish)
+                    {
+                        order.IsPrinted = true;
+                        order.JobStatus = K_OrderPhase.InProgress;
+                        order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
+                        await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
 
             }
@@ -2143,20 +2149,21 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
             MultiAVGInput = null;
             LoadingSpinner = false;
         }
 
-        if (IsConnected) await SendMessage();
+
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         MultiAVGInput = null;
         LoadingSpinner = false;
+        //StateHasChanged();
+        if (IsConnected) await SendMessage();
 
     }
     //prop for multiDate
@@ -2175,11 +2182,12 @@
 
         LoadingSpinner = true;
         await SendMultiJobIsDone();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
+
         LoadingSpinner = false;
         await ShowToast();
+        //StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
     //Multi Job Is done DB
     async Task<int> SendMultiJobIsDone()
@@ -2467,16 +2475,17 @@
                 await Task.Run(() => kOrderPassports.Add(kordpas));
 
             }
-            if (IsConnected) await SendMessage();
             ToastContent = "נשמר!";
 
-            StateHasChanged();
+
             await ShowToast();
+            //StateHasChanged();
+            if (IsConnected) await SendMessage();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
             StateHasChanged();
             await ShowToast();
@@ -2491,7 +2500,7 @@
         if (kOrderPassports.Count() == 1)
         {
             ErrorModalHeaderContent = "שגיאה!";
-            ModalError = "נא להמחוק את העבודה דרך כפתור מחיקה ראשי";
+            ModalError = "נא למחוק את העבודה דרך כפתור מחיקה ראשי";
             ErrorDialogIsVisible = true;
             PreventDuplicateWhenDelete = 0;
             PreventDuplicate = 0;
@@ -2598,18 +2607,20 @@
             await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateKOrderPassport", k_OrderPassports);
             SfGridKpassport.Refresh();
 
-            if (IsConnected) await SendMessage();
+
             ToastContent = "נשמר!";
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+            if (IsConnected) await SendMessage();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
         }
 
 
@@ -2660,11 +2671,12 @@
         }
 
 
-        if (IsConnected) await SendMessage();
+
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         LoadingSpinner = false;
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
 
     //DB SEND LOGIC
@@ -2697,6 +2709,7 @@
                     ModalError = rslt.ReasonPhrase; ;
                     ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
+                    StateHasChanged();
                 }
                 K_OrderForPickPassport = await Http.GetFromJsonAsync<K_Order>($"api/WeeklyKOrder/GetKOrder/Thai/{K_OrderForPickPassport.JobId}");
                 kOrderPassports = new List<K_OrderPassports>();
@@ -2766,6 +2779,7 @@
                     ModalError = StandByrslt.ReasonPhrase; ;
                     ErrorDialogIsVisible = true;
                     LoadingSpinner = false;
+                    StateHasChanged();
                 }
                 break;
         }
@@ -2859,6 +2873,7 @@
         if (args.CommandColumn.ButtonOption.Content == "")
         {
             LoadingSpinner = true;
+            StateHasChanged();
             var chosenKPassport = await Task.Run(() => args.RowData);
             //if no avg,plants && magash set
             if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
@@ -2867,6 +2882,7 @@
                 ErrorModalHeaderContent = "שגיאה!";
                 ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
                 LoadingSpinner = false;
+                StateHasChanged();
                 return;
             }
             //if 0 magas && trying to take
@@ -2876,6 +2892,7 @@
                 ErrorModalHeaderContent = "שגיאה!";
                 ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
                 LoadingSpinner = false;
+                StateHasChanged();
                 return;
             }
             int? kpassportAvarage = await Task.Run(() => KOrdersfunctions.GetKpassportAvg(chosenKPassport));
@@ -2886,8 +2903,9 @@
                 korderPassport.JobId = K_OrderForPickPassport.JobId;
                 korderPassport.K_PassportNum = chosenKPassport.PassportNum;
                 korderPassport.K_PassportId = chosenKPassport.K_PassportId;
+                korderPassport.KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama);
+                korderPassport.KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon);
                 korderPassport.SelectedAVG = await Task.Run(() => Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage)));
-
                 //Check if KPassport.Magash > WorkTotalMagash(WTM)
                 if (chosenKPassport.MagashAmount > K_OrderForPickPassport.JobNumOfMagash)
                 {
@@ -2918,7 +2936,7 @@
                 if (KOrdersfunctions.CheckIfKpassInsideKordPassports(kOrderPassports, chosenKPassport))
                 {
                     //WTM - RTM
-                    var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
+                    var korderMinusToalMagashList = await Task.Run(() => KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports));
                     //index for list obj edit
                     var index = kOrderPassports.FindIndex(x => x.K_PassportId == chosenKPassport.K_PassportId);
                     //korderpassport obj for logic
@@ -2954,7 +2972,7 @@
                         chosenKPassport.MagashAmount -= 1;
 
                     }
-
+                    SfGridKpassport.Refresh();
                 }
                 //NO PASSPORT IN THE EXISTING LIST
                 else
@@ -2967,6 +2985,8 @@
                         JobId = K_OrderForPickPassport.JobId,
                         K_PassportNum = chosenKPassport.PassportNum,
                         K_PassportId = chosenKPassport.K_PassportId,
+                        KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama),
+                        KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon),
                         SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage))
                     };
 
@@ -3003,14 +3023,17 @@
                     //Adding korderpassport to list
                     kOrderPassports.Add(korderPassport);
                     SfGridKpassport.Refresh();
+                    //StateHasChanged();
 
                 }
             }
 
-            SfGridKpassport.Refresh();
+            //SfGridKpassport.Refresh();
             LoadingSpinner = false;
+            StateHasChanged();
         }
     }
+
     async void GetKpassportsByGidulAndZan()
     {
         LoadingSpinner = true;
@@ -3051,8 +3074,8 @@
         }
 
 
-        if (IsConnected) await SendMessageForPickPassport();
-        StateHasChanged();
+        //if (IsConnected) await SendMessageForPickPassport();
+        //StateHasChanged();
 
         return 0;
     }

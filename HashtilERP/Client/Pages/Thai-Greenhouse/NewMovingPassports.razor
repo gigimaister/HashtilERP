@@ -230,7 +230,7 @@
             GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
         }
         else
-        {            
+        {
             Hamama = "1";
             GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
             Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
@@ -354,18 +354,20 @@
         {
             ModalError = NoEnteredPassport;
             OpenDialog();
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             passportInput = "";
             AfterActionSpinner = false;
+            StateHasChanged();
             return;
         }
         else if (Hamama == null || Gamlon == null)
         {
             ModalError = WrongGreenHouseValue;
             OpenDialog();
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             passportInput = "";
             AfterActionSpinner = false;
+            StateHasChanged();
             return;
         }
         else
@@ -376,12 +378,13 @@
             }
             catch (Exception)
             {
-                
+
                 ModalError = ThaiPassportNotExist;
                 OpenDialog();
-                if (IsConnected) await SendMessage();
+                //if (IsConnected) await SendMessage();
                 passportInput = "";
                 AfterActionSpinner = false;
+                StateHasChanged();
                 return;
             }
 
@@ -407,7 +410,9 @@
                     ModalError = ThaiNotFound;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    //if (IsConnected) await SendMessage();
+                    AfterActionSpinner = false;
+                    StateHasChanged();
 
                 }
                 else if (content == "DUPLICATE")
@@ -415,7 +420,9 @@
                     ModalError = ThaiDuplicate;
                     OpenDialog();
                     passportInput = "";
-                    if (IsConnected) await SendMessage();
+                    //if (IsConnected) await SendMessage();
+                    AfterActionSpinner = false;
+                    StateHasChanged();
                 }
 
 
@@ -428,7 +435,8 @@
 
                 await localStorage.SetItemAsync(localsrorage, HamamaGamlonStorage);
 
-                if (IsConnected) await SendMessage();
+                //if (IsConnected) await SendMessage();
+               
                 ToastContent = ThaiSaved;
                 passportInput = "";
                 StateHasChanged();
@@ -439,6 +447,7 @@
 
         }
         AfterActionSpinner = false;
+        StateHasChanged();
     }
 
 

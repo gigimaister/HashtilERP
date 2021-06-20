@@ -16,7 +16,9 @@ namespace HashtilERP.Shared.Models
         public int? SelectedAVG { get; set; }
         public int? K_PassportNum { get; set; }
         public int? Platns => PassportMagashAmpunt * SelectedAVG;
-
+        public int KpassportHamama { get; set; }
+        public int KpassportGamlon { get; set; }
+       
         //For edit passport for order amount
         public int? MagashToCompare {
             get {return PassportMagashAmpunt;  }

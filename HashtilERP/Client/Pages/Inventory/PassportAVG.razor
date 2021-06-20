@@ -342,7 +342,15 @@
     {
         try
         {
-
+            //If empty passport
+            if(String.IsNullOrEmpty(passportInput))
+            {
+                SpinnerBool = false;
+                ModalErrorContent = "לא הוזן פספורט!";
+                ErrorModalIsVisible = true;
+                StateHasChanged();
+                return;
+            }
             SpinnerBool = true;
             //GET PASSPORT OBJECT FROM SCAN
             K_Passport = await Http.GetFromJsonAsync<K_Passport>("api/KPassports/Thai/GreenHouse/" + passportInput);
@@ -365,7 +373,8 @@
                 SpinnerBool = false;
                 ModalErrorContent = "פספורט חייב להיות פרוס בחממות!";
                 ErrorModalIsVisible = true;
-                if (IsConnected) await SendMessage();
+                //if (IsConnected) await SendMessage();
+                StateHasChanged();
             }
 
         }
@@ -374,7 +383,8 @@
             SpinnerBool = false;
             ModalErrorContent = "לא נמצאו תוצאות";
             ErrorModalIsVisible = true;
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
+            StateHasChanged();
 
         }
 
@@ -383,6 +393,14 @@
     //EDIT PASSPORT AVG MODAL BUTTONS
     public async Task SendPassportAVG()
     {
+        //if empty AVG
+        if(String.IsNullOrEmpty(ediTedAVG))
+        {
+            ModalErrorContent = "לא הוכנס ממוצע!";
+            ErrorModalIsVisible = true;
+            ediTedAVG = "";
+            return;
+        }
         SpinnerBool = true;
         try
         {
@@ -407,8 +425,9 @@
         {
             ModalErrorContent = "ממוצע גבוה מסוג מגש";
             ErrorModalIsVisible = true;
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             SpinnerBool = false;
+            StateHasChanged();
         }
         else
         {
@@ -428,32 +447,36 @@
                     SpinnerBool = false;
                     ModalErrorContent = rslt.ReasonPhrase;
                     ErrorModalIsVisible = true;
-                    if (IsConnected) await SendMessage();
+                    //if (IsConnected) await SendMessage();
                     passportInput = "";
+                    StateHasChanged();
                 }
                 else
                 {
-                    if (IsConnected) await SendMessage();
+
                     SpinnerBool = false;
                     //OK
                     this.IsVisible = false;
                     ToastContent = "נשמר!";
                     ediTedAVG = "";
-                    StateHasChanged();
+
                     await ShowToast();
                     passportInput = "";
                     EditedAVG = 0;
 
+                    if (IsConnected) await SendMessage();
+                    //StateHasChanged();
                 }
             }
             catch (Exception e)
             {
                 SpinnerBool = false;
-                if (IsConnected) await SendMessage();
+                //if (IsConnected) await SendMessage();
                 this.IsVisible = false;
                 ToastContent = e.Message;
-                StateHasChanged();
+
                 await ShowToast();
+                StateHasChanged();
             }
         }
 

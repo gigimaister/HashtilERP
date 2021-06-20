@@ -90,7 +90,7 @@
     string ThaiNoJobId = "ไม่ได้ป้อนรหัสงาน!";
     string ThaiNoResultsFound = "ไม่พบผลลัพธ์!";
     string ThaiJobAlreadyFinished = "งานเสร็จแล้ว!";
-
+    string WrongValue = "ค่าผิด!";
     //'problem with this job! please contact manager for details.'
     string ThaiError = "ปัญหากับงานนี้! โปรดติดต่อผู้จัดการเพื่อขอรายละเอียด";
 
@@ -166,7 +166,7 @@
         await SendKOrderJobFinish();
         AfterActionSpinner = false;
 
-        if (IsConnected) await SendMessage();
+        //if (IsConnected) await SendMessage();
         StateHasChanged();
     }
 
@@ -181,21 +181,27 @@
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            ModalError = WrongValue;
+            OpenDialog();
+            JobId = "";
+            StateHasChanged();
             return 1;
         }
         if (kord.JobStatus == K_OrderPhase.Finish)
         {
             ModalError = ThaiJobAlreadyFinished;
             OpenDialog();
+            JobId = "";
+            StateHasChanged();
             return 1;
         }
         else if (kord.JobStatus != K_OrderPhase.InProgress)
         {
             ModalError = ThaiError;
             OpenDialog();
-            if (IsConnected) await SendMessage();
-
+            JobId = "";
+            //if (IsConnected) await SendMessage();
+            StateHasChanged();
             return 1;
         }
         else
@@ -209,6 +215,7 @@
         }
 
         kord.JobStatus = K_OrderPhase.Finish;
+        kord.IsPrinted = false;
 
         var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
         if (rslt.IsSuccessStatusCode)

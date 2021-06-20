@@ -1325,11 +1325,12 @@
         RowEditDialogShow = false;
         LoadingSpinner = true;
         await SendJobCancelForm();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
+        //StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        if (IsConnected) await SendMessage();
+
 
     }
     async Task<int> SendJobCancelForm()
@@ -1399,11 +1400,12 @@
             return;
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        StateHasChanged();
+
+        if (IsConnected) await SendMessage();
 
 
     }
@@ -1425,11 +1427,13 @@
             return;
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
+        ();
         LoadingSpinner = false;
         await ShowToast();
+        StateHasChanged
+        if (IsConnected) await SendMessage();
+
 
     }
 
@@ -1447,11 +1451,13 @@
         LoadingSpinner = true;
         await SendRemarkToDb();
         K_OrderRemark = new K_OrderRemark();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        StateHasChanged();
+
+        if (IsConnected) await SendMessage();
+
 
     }
     async Task<int> SendRemarkToDb()
@@ -1542,7 +1548,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await LoadDataOrder();
         hubConnection = new HubConnectionBuilder()
            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
            .Build();
@@ -1550,7 +1556,7 @@
         hubConnection.On("ReceiveMessage", () =>
         {
 
-            Task.Run(async () => { await LoadData(); });
+            Task.Run(async () => { await LoadDataOrder(); });
             StateHasChanged();
         });
         hubConnection.On("PickPassport", () =>
@@ -1576,7 +1582,7 @@
 
 
     //Get list Of KOrder week Objects
-    protected async Task LoadData()
+    protected async Task LoadDataOrder()
     {
         try
         {
@@ -1733,14 +1739,16 @@
             }
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         NewJobK_Order = new K_Order();
         DateValue = DateTime.Today.AddDays(1);
         AVGAutoCalc = "";
         k_OrdersCxManyJobs.Clear();
+        //if (IsConnected) await SendMessage();
+        StateHasChanged();
+
+
 
         return 0;
     }
@@ -1783,10 +1791,11 @@
             //Http Response Failed On Insert
             if (rslt.IsSuccessStatusCode)
             {
-                if (IsConnected) await SendMessage();
                 ToastContent = "נשמר!";
-                StateHasChanged();
                 await ShowToast();
+                StateHasChanged();
+                if (IsConnected) await SendMessage();
+
             }
         }
         catch (Exception e)
@@ -1962,6 +1971,7 @@
                 LoadingSpinner = true;
 
                 await GetKpassportsForKorder(args.RowData);
+                StateHasChanged();
 
                 if (K_OrderForPickPassport.K_OrderPassports.Count() > 0)
                 {
@@ -2020,20 +2030,23 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
             LoadingSpinner = false;
+            StateHasChanged();
+
 
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         MultiAVGInput = null;
         LoadingSpinner = false;
+        StateHasChanged();
+
+        if (IsConnected) await SendMessage();
+
 
     }
 
@@ -2056,25 +2069,19 @@
             //IF PRINT
             if (Isprint == 0)
             {
-                foreach (var kord in listKorder)
-                {
-                    if (kord.JobStatus == K_OrderPhase.StandBy)
-                    {
-                        var message = $"{kord.CxName + "\n" + kord.Gidul + "\n" + kord.Zan + "\n" + kord.JobNumOfMagash}!";
-                        ErrorDialogIsVisible = true;
-                        ErrorModalHeaderContent = "שגיאת עבודה!";
-                        ModalError = "לא ניתן להדפיס עבודה ללא פספורטים!" + "\n" + message;
-                        LoadingSpinner = false;
-                        return;
-                    }
-
-                }
                 foreach (var order in listKorder)
                 {
-                    order.IsPrinted = true;
-                    order.JobStatus = K_OrderPhase.InProgress;
-                    order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
-                    await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+                    if (order.JobStatus == K_OrderPhase.AttachedPassports || order.JobStatus == K_OrderPhase.Finish)
+                    {
+                        order.IsPrinted = true;
+                        order.JobStatus = K_OrderPhase.InProgress;
+                        order.NumOfBarTenderStickers = KOrdersfunctions.GetNumOfBarTenderStickers(order);
+                        await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
 
             }
@@ -2083,12 +2090,11 @@
             {
                 foreach (var kord in listKorder)
                 {
-                    if (kord.JobStatus == K_OrderPhase.InProgress || kord.JobStatus == K_OrderPhase.Finish)
-                    {
-                        kord.IsPrinted = false;
-                        kord.JobStatus = K_OrderPhase.AttachedPassports;
-                        await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
-                    }
+                    if (kord.JobStatus != K_OrderPhase.InProgress) { continue; }
+
+                    kord.IsPrinted = false;
+                    kord.JobStatus = K_OrderPhase.AttachedPassports;
+                    await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{kord.JobId}", kord);
                 }
 
             }
@@ -2096,20 +2102,22 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
             MultiAVGInput = null;
             LoadingSpinner = false;
+            StateHasChanged();
+
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         MultiAVGInput = null;
         LoadingSpinner = false;
+        //StateHasChanged();
+        if (IsConnected) await SendMessage();
+
 
     }
     //prop for multiDate
@@ -2128,11 +2136,12 @@
 
         LoadingSpinner = true;
         await SendMultiJobIsDone();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
+        //StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        if (IsConnected) await SendMessage();
+
     }
     //Multi Job Is done DB
     async Task<int> SendMultiJobIsDone()
@@ -2202,12 +2211,14 @@
         }
         LoadingSpinner = true;
         await SendMultiDateRows();
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
         MultiAVGInput = null;
+        StateHasChanged();
+
+        if (IsConnected) await SendMessage();
+
     }
     //Multi Date Send to DB
     async Task<int> SendMultiDateRows()
@@ -2316,11 +2327,12 @@
 
         }
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         MultiAVGInput = null;
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
+
 
         return 0;
     }
@@ -2429,10 +2441,11 @@
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
         }
 
         LoadingSpinner = false;
@@ -2473,20 +2486,23 @@
         {
             await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportDelete/{k_OrderPassports.PassportsToOrdersId}");
             await Http.PutAsJsonAsync($"api/KPassports/{kpassport.K_PassportId}", kpassport);
-            if (IsConnected) await SendMessage();
             ToastContent = "נשמר!";
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
+            if (IsConnected) await SendMessage();
+
         }
 
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
         }
         LoadingSpinner = false;
     }
@@ -2549,18 +2565,22 @@
             await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateKOrderPassport", k_OrderPassports);
             SfGridKpassport.Refresh();
 
-            if (IsConnected) await SendMessage();
             ToastContent = "נשמר!";
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
+            if (IsConnected) await SendMessage();
+
+
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            if (IsConnected) await SendMessage();
+            //if (IsConnected) await SendMessage();
             ToastContent = e.Message;
-            StateHasChanged();
             await ShowToast();
+            StateHasChanged();
+
         }
 
 
@@ -2612,11 +2632,12 @@
         }
 
 
-        if (IsConnected) await SendMessage();
         ToastContent = "נשמר!";
-        StateHasChanged();
         await ShowToast();
         LoadingSpinner = false;
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
+
     }
 
     //DB SEND LOGIC
@@ -3157,11 +3178,13 @@
                 LoadingSpinner = false;
                 return;
             }
-            if (IsConnected) await SendMessage();
             ToastContent = "נשמר!";
-            StateHasChanged();
             await ShowToast();
             LoadingSpinner = false;
+            StateHasChanged();
+
+            if (IsConnected) await SendMessage();
+
 
         }
         catch (Exception e)
@@ -3273,10 +3296,12 @@
 
             if (rslt.IsSuccessStatusCode)
             {
-                if (IsConnected) await SendMessage();
                 ToastContent = "נשמר!";
-                StateHasChanged();
                 await ShowToast();
+                StateHasChanged();
+
+                if (IsConnected) await SendMessage();
+
             }
             else
             {
