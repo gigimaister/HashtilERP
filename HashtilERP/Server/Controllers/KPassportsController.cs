@@ -355,6 +355,22 @@ namespace HashtilERP.Server
             return k_Passports;
         }
 
+        [HttpGet("AuditPassports")]
+        public async Task<List<K_Passport>> AuditPassports() 
+        {
+            var ChosenList = new List<K_Passport>();
+            try
+            {
+                ChosenList = await _context.KPassport.Where(x => (x.PassportStatus == Status.InGreenHouse) && (x.HasBeenAudited == false)).OrderBy(x=>x.SowDate).ToListAsync();
+
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return ChosenList;
+        }
+
         #endregion
 
         #region PUT

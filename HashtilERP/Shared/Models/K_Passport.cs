@@ -34,6 +34,7 @@ namespace HashtilERP.Shared.Models
         public bool? IsSavedForCx { get; set; }
         public bool? IsLowAVG { get; set; }
         public bool? IsNeedToCut { get; set; }
+        public bool? HasBeenAudited { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAVG { get; set; } = -1;
@@ -46,6 +47,7 @@ namespace HashtilERP.Shared.Models
         public string SaveForCxRemarks { get; set; }
         public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAVG, PassportStartingAVG, MagashAmount);
         public string AutoPassportAVG => K_PassportFunctions.GetKorderAvg(PassportAVG, PassportStartingAVG);
+        public double? AuditAge => (Convert.ToDouble(((TimeSpan)(DateTime.Now - SowDate)).Days) / Convert.ToDouble(GrowingDays));
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }

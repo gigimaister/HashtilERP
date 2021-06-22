@@ -26,6 +26,7 @@
 <div style="text-align:right" class="alert alert-success" role="alert">
     <h3 style="text-align:center">מצאי</h3>
 </div>
+
 @if (K_Passports == null)
 {
     <div class="col-sm">
@@ -798,13 +799,18 @@
     //PUT K_Passport Green/Gamlon/Magash Amount
     public async Task<int> UpdatePassport(K_Passport context)
     {
-        if (KPassportForAllToEditCheck.Hamama == context.Hamama && KPassportForAllToEditCheck.Gamlon == context.Gamlon && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
+        if (KPassportForAllToEditCheck.Hamama == InputHamama && KPassportForAllToEditCheck.Gamlon == InputGamlon && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
         {
             ModalError = "לא בוצעו שינויים!";
             IsVisible = true;
             return 1;
         }
-
+        if(String.IsNullOrEmpty(InputHamama) && String.IsNullOrEmpty(InputGamlon) && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
+        {
+            ModalError = "לא בוצעו שינויים!";
+            IsVisible = true;
+            return 1;
+        }
         if (InputHamama != "")
         {
             if (InputGamlon != "")

@@ -24,11 +24,12 @@ namespace HashtilERP.Data
         public string Gamlon { get; set; }
         public int? MagashAmount { get; set; }
         public decimal? PlantsAmount { get; set; }
-        public bool? IsNeedToBeAudit { get; set; }
-        public bool? IsNeedToBeChecked { get; set; }
-        public bool? IsSavedForCx { get; set; }
-        public bool? IsLowAVG { get; set; }
-        public bool? IsNeedToCut { get; set; }
+        public bool? IsNeedToBeAudit { get; set; } = false;
+        public bool? IsNeedToBeChecked { get; set; } = false;
+        public bool? IsSavedForCx { get; set; } = false;
+        public bool? IsLowAVG { get; set; } = false;
+        public bool? IsNeedToCut { get; set; } = false;
+        public bool? HasBeenAudited { get; set; } = false;
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; } = -1;
@@ -45,6 +46,8 @@ namespace HashtilERP.Data
         public DateTime? GrowingRoomExitDay { get; set; }
         public int CelsTray { get; set; }
         public string SaveForCxRemarks { get; set; }
+
+        public double? AuditAge => (Convert.ToDouble(((TimeSpan)(DateTime.Now - SowDate)).Days) / Convert.ToDouble(GrowingDays));
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }

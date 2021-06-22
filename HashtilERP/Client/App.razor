@@ -21,6 +21,10 @@
                     {
                         Navigation.NavigateTo("inventory/passportavg");
                     }
+                    else if (context.User.IsInRole("Manager-GreenHouse"))
+                    {
+                        Navigation.NavigateTo("inventory/WaitingForConfirmation");
+                    }
                 </NotAuthorized>
             </AuthorizeRouteView>
         </Found>
