@@ -30,7 +30,7 @@ namespace HashtilERP.Server
         {
             var ChosenList = new List<K_Passport>();
             var user = await _userManager.GetUserAsync(User);
-           
+
             try
             {
                 switch (status)
@@ -38,24 +38,24 @@ namespace HashtilERP.Server
                     //growing room
                     case "1":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom)
-                            .Include(e=>e.KPassportInsertAudit)
-                           .Include(e=>e.Passport)
-                           .ThenInclude(e=>e.Passprods)
-                           .OrderByDescending(x=>x.KPassportInsertAudit.Date)
+                            .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .OrderByDescending(x => x.KPassportInsertAudit.Date)
                             .ToListAsync();
                         break;
                     //waiting for confirmation
                     case "2":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)                          
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.WaitingForOK)
                            .ToListAsync();
                         break;
                     //inside green house
                     case "3":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatusCode==(int)PassportStatusCode.InsideGreenHouse)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatusCode == (int)PassportStatusCode.InsideGreenHouse)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                          
-                           .Include(e => e.PassportAuditForms)                          
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
@@ -64,7 +64,7 @@ namespace HashtilERP.Server
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse && x.IsNeedToBeAudit == true)
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                         
+                           .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
@@ -74,48 +74,48 @@ namespace HashtilERP.Server
                         ChosenList = await _context.KPassport.Where(x => x.IsNeedToBeChecked == true)
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                          
-                           .Include(e => e.PassportAuditForms)                          
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
                     //for AVG Counter
                     case "6":
                         ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.InGreenHouse && x.PassportAvg != -1)
-                           .OrderByDescending(x =>x.AVGEnteringDate)                          
+                           .OrderByDescending(x => x.AVGEnteringDate)
                            .ToListAsync();
                         break;
                     //archive
                     case "7":
-                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.Destroyed || x.PassportStatus.Trim() == Status.Finished && x.IsNeedToBeChecked==false)
+                        ChosenList = await _context.KPassport.Where(x => x.PassportStatus.Trim() == Status.Destroyed || x.PassportStatus.Trim() == Status.Finished && x.IsNeedToBeChecked == false)
                            .OrderByDescending(x => x.AVGEnteringDate)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                        
+                           .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
                         break;
-                   
+
 
                 }
                 return ChosenList;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-           
-           
+
+
 
         }
 
         //ForThai-Guy
         [HttpGet("GetGrowingPassForSowing")]
-        public async Task<List<K_Passport>> GetGrowingPassForSowing() 
+        public async Task<List<K_Passport>> GetGrowingPassForSowing()
         {
             var passports = new List<K_Passport>();
-            passports = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom).ToListAsync();
+            passports = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom).OrderByDescending(x=>x.PassportNum).ToListAsync();
             return passports;
         }
 
@@ -126,7 +126,7 @@ namespace HashtilERP.Server
             var passports = new List<K_Passport>();
             try
             {
-                 passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+                passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
             }
             catch (Exception e)
             {
@@ -141,14 +141,14 @@ namespace HashtilERP.Server
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetCurrentMetzay()
         {
             var metzay = new List<K_Passport>();
-            
+
 
             try
             {
                 metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
                            .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)                                                  
+                           .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
@@ -163,6 +163,21 @@ namespace HashtilERP.Server
 
         }
 
+        //Metzay Light
+        [HttpGet("metzayLight")]
+        public async Task<ActionResult<IEnumerable<K_Passport>>> GetCurrentMetzayLight()
+        {
+            var metzay = new List<K_Passport>();
+            try
+            {
+                metzay = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse).ToListAsync();
+                return metzay;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
         //Tomatos For cut
         [HttpGet("NeedToBeCut")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetNeedToBeCut()
@@ -245,12 +260,12 @@ namespace HashtilERP.Server
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetMetzayReportStatus(string date)
         {
             var ChosenList = new List<K_Passport>();
-            
+
 
             try
             {
                 ChosenList = await _context.KPassport.Where(x => x.MetzayEnteringDate < Convert.ToDateTime(date) && Convert.ToDateTime(date) < x.MetzayOutGoingDate)
-               
+
                             .Include(e => e.KPassportInsertAudit)
                            .Include(e => e.Passport)
                            .ThenInclude(e => e.Passprods)
@@ -258,7 +273,7 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Oitm)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.UpdateK_PassportAudit)
-                           .Include(e => e.k_PassportAuditTblVer2s)                          
+                           .Include(e => e.k_PassportAuditTblVer2s)
                            .ToListAsync();
 
                 return ChosenList;
@@ -274,23 +289,16 @@ namespace HashtilERP.Server
 
         //GET FOR OBJECT RETURN TO RAZOR PAGE
         [HttpGet("Thai/GreenHouse/{id}")]
-        public async Task<ActionResult<K_Passport>> GetThaiKPassport(int id)
+        public async Task<K_Passport> GetThaiKPassport(int id)
         {
-
-            var kPassport = await _context.KPassport.Where(x=>x.PassportNum==id)
-                           .Include(e => e.KPassportInsertAudit)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Passprods)
-                           .Include(e => e.Passport)
-                           .ThenInclude(e => e.Oitm)
-                           .Include(e => e.PassportAuditForms)
-                           .Include(e => e.UpdateK_PassportAudit)
-                           .Include(e => e.k_PassportAuditTblVer2s)
-                           .FirstOrDefaultAsync();
-
-            if (kPassport == null)
+            var kPassport = new K_Passport();
+            try
             {
-                return NotFound();
+                kPassport = await _context.KPassport.Where(x => x.PassportNum == id).FirstOrDefaultAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
             }
 
             return kPassport;
@@ -324,7 +332,7 @@ namespace HashtilERP.Server
                            .ThenInclude(e => e.Passprods)
                            .Include(e => e.PassportAuditForms)
                            .Include(e => e.k_PassportAuditTblVer2s)
-                           .OrderBy(x=>x.SowDate)
+                           .OrderBy(x => x.SowDate)
                 .ToListAsync();
 
             return k_Passports;
@@ -356,19 +364,94 @@ namespace HashtilERP.Server
         }
 
         [HttpGet("AuditPassports")]
-        public async Task<List<K_Passport>> AuditPassports() 
+        public async Task<List<K_Passport>> AuditPassports()
         {
             var ChosenList = new List<K_Passport>();
             try
             {
-                ChosenList = await _context.KPassport.Where(x => (x.PassportStatus == Status.InGreenHouse) && (x.HasBeenAudited == false)).OrderBy(x=>x.SowDate).ToListAsync();
+                ChosenList = await _context.KPassport.Where(x => (x.PassportStatus == Status.InGreenHouse) && (x.HasBeenAudited == false)).OrderBy(x => x.SowDate).ToListAsync();
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
             return ChosenList;
+        }
+
+
+        [HttpGet("GetInsertPassport/{passNum}/{growingRoom}")]
+        public async Task<ActionResult> GetInsertPassport(int? passNum,string growingRoom)
+        {
+            var kPassport = new K_Passport();
+            Passport sap;
+            Oitm sapOitm;
+            int? startingAvg;
+            try
+            {
+                sap = await _context.Passport.Where(X => X.DocNum == passNum).FirstAsync();
+                sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
+
+
+            }
+            //if no passport in SAP
+            catch (Exception)
+            {
+                return StatusCode(500, "NOTFOUND");
+            }
+
+
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+
+            var dup = await _context.KPassport.Where(X => X.PassportNum == passNum).FirstOrDefaultAsync();
+            //if duplicate in K_Passport
+            if (dup != null)
+            {
+                return StatusCode(500, "DUPLICATE");
+            }
+            DateTime passingDate;
+            kPassport.UserName = screenName.Trim();
+            kPassport.SowDate = sap.UDateSow;
+            passingDate = (DateTime)sap.UDateSow;
+            kPassport.DateEnd = sap.UDateEnd;
+            //if ZIREY LAKOACH
+            if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
+            kPassport.PassportStartingAVG = startingAvg; kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
+            kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
+            kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
+            kPassport.PlantsAmount = sap.UQuanProd * 1000;
+            kPassport.PassportStatus = Status.GrowingRoom.Trim();
+            kPassport.PassportStatusCode = (int)PassportStatusCode.Growingroom;
+            kPassport.ItemCode = sap.UItemCode.Trim();
+            kPassport.SapDocEntry = sap.DocEntry;
+            kPassport.PassportCondition = Status.NotChecked.Trim();
+            kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
+            kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan ?? sapOitm.UHebGidul;
+            kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
+            kPassport.Gidul = sapOitm.UHebGidul ?? sapOitm.ItemName.Split(new char[] { ' ' })[0];
+            kPassport.IsSavedForCx = false;
+            kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
+            kPassport.PassportNum = passNum;
+            kPassport.GrowingRoom = growingRoom;
+            _context.KPassport.Add(kPassport);
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                if (KPassportExists(kPassport.K_PassportId))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw new Exception(e.Message);
+                }
+            }
+
+            return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
         }
 
         #endregion
@@ -411,14 +494,14 @@ namespace HashtilERP.Server
         }
 
         // PUT: GREENHOUSE MANAGER STATUS TO CONFIRMED
-        
+
         [HttpPut("GreenManager/Passport/UpdateStatus/{id}")]
         public async Task<IActionResult> PutGreenManagerKPassportStatus(int id, K_Passport kPassport)
         {
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kPassport.UserName = screenName;
-            
+
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -456,7 +539,7 @@ namespace HashtilERP.Server
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;
             kPassport.UserName = screenName;
-           
+
             if (id != kPassport.K_PassportId)
             {
                 return BadRequest();
@@ -468,7 +551,7 @@ namespace HashtilERP.Server
             {
                 await _context.SaveChangesAsync();
             }
-            
+
             catch (DbUpdateConcurrencyException)
             {
                 if (!KPassportExists(id))
@@ -525,7 +608,7 @@ namespace HashtilERP.Server
         #region POST
         // POST: api/KPassports
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("SowInsert")]
         public async Task<ActionResult<K_Passport>> PostKPassport(K_Passport kPassport)
         {
             Passport sap;
@@ -533,8 +616,8 @@ namespace HashtilERP.Server
             int? startingAvg;
             try
             {
-                 sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
-                 sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
+                sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
+                sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
 
 
             }
@@ -561,10 +644,10 @@ namespace HashtilERP.Server
             kPassport.DateEnd = sap.UDateEnd;
             //if ZIREY LAKOACH
             if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
-            kPassport.PassportStartingAVG = startingAvg; kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days) ;
+            kPassport.PassportStartingAVG = startingAvg; kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
-            kPassport.PlantsAmount = sap.UQuanProd*1000;
+            kPassport.PlantsAmount = sap.UQuanProd * 1000;
             kPassport.PassportStatus = Status.GrowingRoom.Trim();
             kPassport.PassportStatusCode = (int)PassportStatusCode.Growingroom;
             kPassport.ItemCode = sap.UItemCode.Trim();
@@ -605,8 +688,6 @@ namespace HashtilERP.Server
             {
                 sap = await _context.Passport.Where(X => X.DocNum == kPassport.PassportNum).FirstAsync();
                 sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
-
-
             }
             //if no passport in SAP
             catch (Exception)
@@ -631,7 +712,7 @@ namespace HashtilERP.Server
             passingDate = (DateTime)sap.UDateSow;
             kPassport.DateEnd = sap.UDateEnd;
             //if ZIREY LAKOACH
-            if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000/sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000/ sap.UTraySow); }
+            if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
             kPassport.PassportStartingAVG = startingAvg;
             kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
@@ -666,6 +747,75 @@ namespace HashtilERP.Server
             }
 
             return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
+        }
+
+        [HttpPost("InsertUpdatePassport/{passportNum}/{growingRoom}")]
+        public async Task<int> InsertUpdatePassport(int? passportNum,string growingRoom)
+        {
+            Passport sap;
+            Oitm sapOitm;
+            try
+            {
+                sap = await _context.Passport.Where(X => X.DocNum == passportNum).FirstAsync();
+                sapOitm = await _context.Oitm.Where(X => X.ItemCode == sap.UItemCode).FirstAsync();
+                var user = await _userManager.GetUserAsync(User);
+                var screenName = user.ScreenName;
+                int? startingAvg;
+                var dup = await _context.KPassport.Where(X => X.PassportNum == passportNum).FirstOrDefaultAsync();
+                //if duplicate in K_Passport
+                if (dup != null)
+                {
+                    return 1;
+                }
+                var kPassport = new K_Passport();
+                DateTime passingDate;
+                kPassport.GrowingRoom = 
+                kPassport.UserName = screenName.Trim();
+                kPassport.SowDate = sap.UDateSow;
+                passingDate = (DateTime)sap.UDateSow;
+                kPassport.DateEnd = sap.UDateEnd;
+                //if ZIREY LAKOACH
+                if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
+                kPassport.PassportStartingAVG = startingAvg;
+                kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
+                kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
+                kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
+                kPassport.PlantsAmount = sap.UQuanProd * 1000;
+                kPassport.PassportStatus = Status.InGreenHouse.Trim();
+                kPassport.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+                kPassport.ItemCode = sap.UItemCode.Trim();
+                kPassport.SapDocEntry = sap.DocEntry;
+                kPassport.PassportCondition = Status.NotChecked.Trim();
+                kPassport.GrowingRoomExitDay = passingDate.AddDays(Convert.ToInt32(sap.UNights));
+                kPassport.Zan = sap.UZanZl ?? sapOitm.UHebZan ?? sapOitm.UHebGidul;
+                kPassport.CelsTray = Convert.ToInt32(sapOitm.UCelsTray * 1000);
+                kPassport.Gidul = sapOitm.UHebGidul ?? sapOitm.ItemName.Split(new char[] { ' ' })[0];
+                kPassport.IsSavedForCx = false;
+                kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
+                _context.KPassport.Add(kPassport);
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    if (KPassportExists(kPassport.K_PassportId))
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        throw new Exception(e.Message);
+                    }
+                }
+            }
+            //if no passport in SAP
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            
+            return 0;
         }
 
         #endregion

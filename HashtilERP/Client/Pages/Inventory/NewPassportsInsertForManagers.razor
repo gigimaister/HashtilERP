@@ -240,21 +240,6 @@
             GamlonListForButton = GreenGamList.Where(x => x.Key == Convert.ToInt32(Hamama)).Select(x => x.Value).ToList();
             Gamlon = GamlonListForButton.Min().FirstOrDefault().ToString();
         }
-
-
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
-            .Build();
-
-        hubConnection.On("ReceiveMessage", () =>
-        {
-
-            StateHasChanged();
-        });
-
-        await hubConnection.StartAsync();
-
-
     }
 
     #region Green/Gamlon Buttons
@@ -372,24 +357,22 @@
     //When insertPassport Button clicked!
     public async void InsertObject()
     {
-
-
-        if (passportInput == null || passportInput == "")
+        if (String.IsNullOrEmpty(passportInput))
         {
             ModalError = NoEnteredPassport;
             OpenDialog();
-            if (IsConnected) await SendMessage();
             passportInput = "";
             AfterActionSpinner = false;
+            StateHasChanged();
             return;
         }
         else if (Hamama == null || Gamlon == null)
         {
             ModalError = WrongGreenHouseValue;
             OpenDialog();
-            if (IsConnected) await SendMessage();
             passportInput = "";
             AfterActionSpinner = false;
+            StateHasChanged();
             return;
         }
         else
@@ -397,7 +380,6 @@
             AfterActionSpinner = true;
             await SendNewPassport();
             AfterActionSpinner = false;
-            if (IsConnected) await SendMessage();
             StateHasChanged();
         }
 
@@ -423,51 +405,64 @@
                 ModalError = "פספורט לא חוקי!";
                 OpenDialog();
                 passportInput = "";
-                if (IsConnected) await SendMessage();
-                AfterActionSpinner = false;
-
                 return 1;
             }
 
             kobipassportModel.MetzayEnteringDate = DateTime.Now;
             kobipassportModel.Hamama = Hamama.Trim();
             kobipassportModel.Gamlon = Gamlon.Trim();
-
-            var backrslt = await Http.PostAsJsonAsync("api/KPassports/NewPassportInsertByManager", kobipassportModel);
-            var backcontent = await backrslt.Content.ReadAsStringAsync();
-
-            //Http Response Failed On Insert
-            if (!backrslt.IsSuccessStatusCode)
+            try
             {
-                if (backcontent == "NOTFOUND")
+                var backrslt = await Http.PostAsJsonAsync("api/KPassports/NewPassportInsertByManager", kobipassportModel);
+                var backcontent = await backrslt.Content.ReadAsStringAsync();
+
+                //Http Response Failed On Insert
+                if (!backrslt.IsSuccessStatusCode)
                 {
-                    ModalError = ThaiNotFound;
-                    OpenDialog();
-                    passportInput = "";
-                    StateHasChanged();
+                    if (backcontent == "NOTFOUND")
+                    {
+                        ModalError = ThaiNotFound;
+                        OpenDialog();
+                        passportInput = "";
+                        return 1;
+
+                    }
+                    else if (backcontent == "DUPLICATE")
+                    {
+                        ModalError = ThaiDuplicate;
+                        OpenDialog();
+                        passportInput = "";
+                        return 1;
+                    }
+                    else
+                    {
+                        ModalError = "פספורט נעול לשינויים!";
+                        OpenDialog();
+                        passportInput = "";
+                        return 1;
+                    }
 
                 }
-                else if (backcontent == "DUPLICATE")
+
+                else
                 {
-                    ModalError = ThaiDuplicate;
-                    OpenDialog();
+
+                    ToastContent = "נשמר";
                     passportInput = "";
-                    StateHasChanged();
+                    await ShowToast();
+                    return 1;
                 }
-
             }
 
-            else
+
+
+            catch (Exception e)
             {
-
-                StateHasChanged();
-                ToastContent = "נשמר";
-                passportInput = "";
-                StateHasChanged();
-                await ShowToast();
-
+                Console.WriteLine(e.Message);
+                ModalError = "פספורט לא קיים!";
+                OpenDialog();
+                passportInput = "";                
             }
-            AfterActionSpinner = false;
             return 0 ;
         }
 
@@ -494,9 +489,7 @@
             ModalError = "פספורט נעול לשינויים!";
             OpenDialog();
             passportInput = "";
-            if (IsConnected) await SendMessage();
-            AfterActionSpinner = false;
-            return 2;
+            return 1;
         }
 
         var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{kobipassportModel.K_PassportId}", kobipassportModel);
@@ -510,7 +503,7 @@
                 ModalError = ThaiNotFound;
                 OpenDialog();
                 passportInput = "";
-                if (IsConnected) await SendMessage();
+                return 1;
 
             }
             else if (content == "DUPLICATE")
@@ -518,7 +511,14 @@
                 ModalError = ThaiDuplicate;
                 OpenDialog();
                 passportInput = "";
-                if (IsConnected) await SendMessage();
+                return 1;
+            }
+            else
+            {
+                ModalError = "פספורט נעול לשינויים!";
+                OpenDialog();
+                passportInput = "";
+                return 1;
             }
 
 
@@ -531,34 +531,12 @@
 
             await localStorage.SetItemAsync(localsrorage, HamamaGamlonStorage);
 
-            if (IsConnected) await SendMessage();
             ToastContent = ThaiSaved;
-            passportInput = "";
-            StateHasChanged();
             await ShowToast();
-
+            passportInput = "";
         }
-
 
         return 0;
     }
-    //2 DROPLIST HAMAMA AND GAMLON SETTINGS
-    public bool EnableStateDropDown = false;
-    public bool EnableCitytDropDown = false;
-    public string StateValue { get; set; } = null;
-    public Query StateQuery { get; set; } = null;
-    public string CityValue { get; set; } = null;
-    public Query CityQuery { get; set; } = null;
-
-    public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
-    {
-        this.EnableStateDropDown = true;
-        this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
-        this.StateValue = null;
-        this.CityValue = null;
-    }
-
-
-    //END DROPDOWN SETTINGS
 
 }

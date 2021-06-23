@@ -1,0 +1,1099 @@
+﻿@page "/inventory/metzaylight"
+@inject IJSRuntime jsRuntime
+
+@using System.Security.Claims;
+
+@using Microsoft.AspNetCore.Authorization
+@using ZXingBlazor.Components
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Notifications
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Spinner
+@using HashtilERP.Shared.Models
+@using Syncfusion.Blazor.Inputs
+@using Microsoft.AspNetCore.SignalR.Client
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Data
+@using System.ComponentModel.DataAnnotations;
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B")]
+
+<div style="text-align:right" class="alert alert-success" role="alert">
+    <h3 style="text-align:center">מצאי</h3>
+</div>
+
+@*Spinner Init*@
+@if (K_Passports == null)
+{
+    <div class="col-sm">
+        <div class="spin-row">
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="true"></SfSpinner>
+        </div>
+    </div>
+}
+@*SCAN BTN*@
+<div class="row">
+    @if (isDevice == "Mobile")
+    {
+        <div class="col">
+            <button class="btn btn-primary"
+                    type="button"
+                    @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+                @*ENTER SCAN*@
+                סריקה
+            </button>
+        </div>
+    }
+
+    <div class="col" style="text-align:left">
+        <button class="btn btn-info"
+                type="button"
+                @onclick="ClearGridfilter">
+            הסר מסנן
+        </button>
+        <button class="btn btn-warning"
+                type="button"
+                @onclick="ClearGridSearch">
+            ניקוי חיפוש
+        </button>
+    </div>
+
+</div>
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { passportInput = e; SearchBtnHandler(passportInput); ShowScanBarcode = !ShowScanBarcode; })"
+                   ShowScanBarcode="ShowScanBarcode"
+                   Close="(() => ShowScanBarcode = !ShowScanBarcode)" />
+
+}
+<div class="col-sm" style="z-index:1">
+    <div class="spin-row" style="z-index:1">
+        <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@AfterActionSpinner"></SfSpinner>
+    </div>
+</div>
+@*Toast Component*@
+<SfToast @ref="ToastObj" ID="toast_default" Title="" Timeout=3000 Icon="e-meeting" EnableRtl="true" Content="@ToastContent">
+    <ToastPosition X="Center"></ToastPosition>
+</SfToast>
+<br />
+@*Custom Edit Dialog*@
+<SfDialog Width="325px" MinHeight="430px" EnableRtl="true" ShowCloseIcon="true" IsModal="true" @bind-Visible="@GridEditModalVisible">
+    <DialogTemplates>
+        <Header>
+            <div style="text-align:right" class="alert alert-success" role="alert">
+                פספורט:<b>@K_Passport.PassportNum</b> <br />
+            </div>
+            <div class="alert alert-primary" style="font-weight:bold" role="alert">
+                @K_Passport.Gidul
+                @K_Passport.Zan
+            </div>
+        </Header>
+        <Content>          
+            <div class="form-row" dir="rtl">
+                <div class="form-group col-md-5">
+                    <label class="e-float-text e-label-top" style="text-align: right; font-weight:500">חממה:</label>
+                    <label class="e-float-text e-label-top" style="text-align:right">@K_Passport.Hamama</label>
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
+                    @*Select a hamama*@
+                    <input type="text" class="form-control" @bind="InputHamama" placeholder="שינוי חממה" />
+                </div>
+            </div>
+
+            <div class="form-row" dir="rtl">
+                <div class="form-group col-md-5">
+                    <label class="e-float-text e-label-top" style="text-align:right;font-weight:500">גמלון</label>
+                    <label class="e-float-text e-label-top" style="text-align:right">@K_Passport.Gamlon</label>
+                </div>
+                <div class="form-group col-md-5">
+                    <label class="e-float-text e-label-top" style="text-align:right;font-weight:500" hidden="hidden"></label>
+                    @*Select a gamlon*@
+                    <input type="text" class="form-control" @bind="InputGamlon" placeholder="שינוי גמלון" />
+
+                </div>
+            </div>
+
+            <div class="form-row" dir="rtl">
+                <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
+                <div class="form-group col-md-6">
+                    <label class="e-float-text e-label-top" style="text-align:right">מגשים</label>
+                    <SfNumericTextBox ID="Freight" @bind-Value="@(K_Passport.MagashAmount)" TValue="int?" EnableRtl="true"></SfNumericTextBox>
+
+                </div>
+            </div>
+        </Content>
+        <FooterTemplate>
+            <button class="btn btn-success" @onclick="@(_ => {  SendMetzayEdit(K_Passport);})">שמירה</button>
+            <button class="btn btn-danger" @onclick="@(_ => {CloseCustomEditDialog();})" style="margin-left:10px">ביטול</button>
+        </FooterTemplate>
+    </DialogTemplates>
+</SfDialog>
+@{
+    var Tool = (new List<string>() { "Search", "ExcelExport" });
+}
+@*GRID SECTION START HERE*@
+<div>
+    <SfGrid DataSource="@K_Passports" FrozenRows="0" AllowExcelExport="true" Height="300" Width="100%" AllowPaging="true" @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true"
+            AllowSorting="true" EnableRtl="true" AllowResizing="true">
+        <GridEvents QueryCellInfo="CustomizeCell" OnActionBegin="ActionBegin" RowDataBound="RowBound"
+             CommandClicked="OnCommandClicked"  TValue="K_Passport"></GridEvents>
+        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
+        <GridPageSettings PageSize="10"></GridPageSettings>
+
+
+
+        <GridAggregates>
+            <GridAggregate>
+                <GridAggregateColumns>
+                    <GridAggregateColumn Field=@nameof(K_Passport.PassportNum) Type="AggregateType.Count">
+                        <FooterTemplate>
+                            @{
+                                var aggregate = (context as AggregateTemplateContext);
+
+                                var num = Convert.ToInt32(aggregate.Count);
+                                var magashNum = string.Format("{0:#,0}", num);
+                                <b>ספירה:@magashNum</b>
+
+                            }
+                        </FooterTemplate>
+                    </GridAggregateColumn>
+                    <GridAggregateColumn Field=@nameof(K_Passport.MagashAmount) Type="AggregateType.Sum">
+                        <FooterTemplate>
+                            @{
+                                var aggregate = (context as AggregateTemplateContext);
+                                var num = Convert.ToInt32(aggregate.Sum);
+                                var magashNum = string.Format("{0:#,0}", num);
+                                <b>@magashNum</b>
+                            }
+                        </FooterTemplate>
+                    </GridAggregateColumn>
+                </GridAggregateColumns>
+            </GridAggregate>
+        </GridAggregates>
+
+        <GridColumns>
+            <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" Width="240px">
+                <GridCommandColumns>
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
+                        <GridCommandColumn Type=CommandButtonType.None
+                                           ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
+                        </GridCommandColumn>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter,Agronomist,Viewer ">
+                        <GridCommandColumn Type=CommandButtonType.None
+                                           ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
+                        </GridCommandColumn>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
+                        <GridCommandColumn Type=CommandButtonType.Edit
+                                           ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
+                        </GridCommandColumn>
+                    </AuthorizeView>
+                </GridCommandColumns>
+            </GridColumn>
+            <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field="@nameof(K_Passport.AutoPassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="100px">
+                <GridCommandColumns>
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+                        <GridCommandColumn Type=CommandButtonType.None
+                                           ButtonOption="@(new CommandButtonOptions() { Content = "שמירה", CssClass = "e-warning" })">
+                        </GridCommandColumn>
+                    </AuthorizeView>
+                </GridCommandColumns>
+            </GridColumn>
+
+        </GridColumns>
+
+    </SfGrid>
+</div>
+
+@*Audit Passport form*@
+<SfDialog Target="#target"
+          Width="300px"
+          Height="350px"
+          IsModal="true"
+          EnableRtl="true"
+          ShowCloseIcon="false"
+          @bind-Visible="DeleteRecordConfirmVisibility">
+    <DialogTemplates>
+        <Header>ביקורת עבור <b>@K_Passport.PassportNum</b></Header>
+        <Content>
+            <EditForm Model="@PassportAuditForm" OnValidSubmit="ConfirmDeleteYes">
+                <DataAnnotationsValidator />
+
+                <div style="text-align:right">
+                    <SfDropDownList TValue="string" TItem="AuditFormStatus" Placeholder="מצב" Width="auto" DataSource="@AuditFormStatus.Statuses"
+                                    PopupHeight="350px" PopupWidth="200px" @bind-Value="@PassportAuditForm.AuditStatus">
+                        <DropDownListFieldSettings Value="Text" Text="Text">
+
+                        </DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <ValidationMessage For="@(() => PassportAuditForm.AuditStatus)"></ValidationMessage>
+                </div>
+                <br />
+                <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
+                <div style="text-align:right">
+                    <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="@PassportAuditForm.Remark" Width="194px"></SfTextBox>
+                    <ValidationMessage For="@(() => PassportAuditForm.Remark)"></ValidationMessage>
+                </div>
+                <br />
+                <div class="button-container" style="text-align:center">
+                    <button type="submit" class="btn btn-success">
+                        אישור
+                    </button>
+                    <button style="margin-right:25px"
+                            class="btn btn-danger"
+                            @onclick="ConfirmDeleteNo">
+                        ביטול
+                    </button>
+                </div>
+            </EditForm>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@*Update Passport Hamama And Or Gamlon NULL Dialog Setting*@
+<SfDialog Width="250px" IsModal="true" @bind-Visible="@IsVisible" EnableRtl="true">
+    <DialogEvents OnOverlayClick="@OnOverlayclick">
+    </DialogEvents>
+    <DialogTemplates>
+        <Header>שגיאה!</Header>
+        <Content> @ModalError </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton Content="אישור" IsPrimary="true" OnClick="@CloseDialog" />
+
+    </DialogButtons>
+</SfDialog>
+
+@*Destroy Passport Dialog Setting*@
+<SfDialog Target="#target" EnableRtl="true"
+          Width="280px"
+          Height="175px"
+          IsModal="true"
+          ShowCloseIcon="false"
+          @bind-Visible="@DestroyVisability">
+    <DialogTemplates>
+        <Header>להשמיד את פספורט:<br>@K_Passport.PassportNum ?</Header>
+        <Content>
+            <SfSpinner Size="40" Label="" Type="SpinnerType.Bootstrap4" CssClass="e-customClass" Visible="@SpinnerBool"></SfSpinner>
+
+            <div class="button-container">
+                <button type="submit"
+                        class="btn btn-success"
+                        @onclick="ConfirmDestroyYesBtn">
+                    אישור
+                </button>
+                <button type="submit" style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="ConfirmDestroyNo">
+                    ביטול
+                </button>
+            </div>
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@*Saving Passport For CX Dialog*@
+<SfDialog Target="#target"
+          Width="350px"
+          Height="250px"
+          IsModal="true"
+          EnableRtl="true"
+          ShowCloseIcon="true"
+          @bind-Visible="SavePassForCxModal">
+    <DialogTemplates>
+        <Header>שמירת @K_Passport.PassportNum ללקוח</Header>
+        <Content>
+
+
+            <br />
+
+            <div style="text-align:right">
+                <SfTextBox Placeholder='הערה' Multiline=true @bind-Value="SavedPassportForCxRemerk" Width="200px"></SfTextBox>
+            </div>
+            <br />
+            <div class="button-container" style="text-align:center">
+                <button style="margin-right:25px"
+                        class="btn btn-success"
+                        @onclick="SaveForCxBtn">
+                    אישור
+                </button>
+                <button style="margin-right:25px"
+                        class="btn btn-warning"
+                        @onclick="DeleteSavedPassForCxRemarkBtn">
+                    מחיקה
+                </button>
+                <button style="margin-right:25px"
+                        class="btn btn-danger"
+                        @onclick="CancelSavedRemarkForCx">
+                    ביטול
+                </button>
+            </div>
+
+        </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    //INIT
+    #region INIT
+    //Objects list populate grid
+    public K_Passport[] K_Passports;
+    protected override async Task OnInitializedAsync()
+    {
+        await FindResponsiveness();
+        InputHamama = "";
+        InputGamlon = "";
+        await LoadData();
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
+            .Build();
+
+        hubConnection.On("ReceiveMessage", () =>
+        {
+            Task.Run(async () => { await LoadData(); });
+            //StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+        ToastContent = HebSaved;
+    }
+
+    //Get list Of K_Passport Objects
+    protected async Task LoadData()
+    {
+        try
+        {
+            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/metzayLight");
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+
+    #endregion
+    //HUB
+    #region HUB
+    //SPA Hub
+    private HubConnection hubConnection;
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+    Task SendMessage() => hubConnection.SendAsync("SendMessage");
+    #endregion
+    //AUDIT FORM
+    #region AUDIT FORM
+    public bool DeleteRecordConfirmVisibility { get; set; } = false;
+    bool SpinnerBool { get; set; } = false;
+    public PassportAuditForm PassportAuditForm = new PassportAuditForm();
+
+    public async void ConfirmDeleteYes()
+    {
+        DeleteRecordConfirmVisibility = false;
+        AfterActionSpinner = true;
+        await SendAuditForm();
+        AfterActionSpinner = false;
+    }
+    public void ConfirmDeleteNo()
+    {
+        this.DeleteRecordConfirmVisibility = false;
+        PassportAuditForm = new PassportAuditForm();
+    }
+    async Task<int> SendAuditForm()
+    {
+        try
+        {
+            //setting kpassport status accordinely
+            if (PassportAuditForm.AuditStatus != "תקין")
+            {
+                K_Passport.IsNeedToBeAudit = true;
+            }
+            K_Passport.PassportCondition = PassportAuditForm.AuditStatus;
+            await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+            var rslt = await Http.PostAsJsonAsync("api/PassportAuditForm", PassportAuditForm);
+            if (rslt.IsSuccessStatusCode)
+            {
+                if (IsConnected) await SendMessage();
+                ToastContent = "נשמר!";
+                await ShowToast();
+            }
+            else
+            {
+                ToastContent = rslt.ReasonPhrase;
+                await ShowToast();
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        PassportAuditForm = new PassportAuditForm();
+        return 0;
+    }
+    #endregion
+    //GRID
+    #region GRID
+    //Grid Object for costum actions
+    SfGrid<K_Passport> SfGrid;
+    public void SearchBtnHandler(string searchKey)
+    {
+        this.SfGrid.Search(searchKey);
+    }
+    public void ClearGridSearch()
+    {
+        try
+        {
+            this.SfGrid.Search("");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+    }
+    public async void ClearGridfilter()
+    {
+        await this.SfGrid.ClearFiltering();
+    }
+    //CELL MAGASH TYPE STYLE
+    public void CustomizeCell(QueryCellInfoEventArgs<K_Passport> args)
+    {
+        if (args.Column.Field == "CelsTray")
+        {
+            try
+            {
+
+                if (Convert.ToDouble(args.Data.CelsTray) == 180)
+                {
+                    args.Cell.AddClass(new string[] { "magash-180" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 187)
+                {
+                    args.Cell.AddClass(new string[] { "magash-187" });
+                }
+                else if (Convert.ToDouble(args.Data.CelsTray) == 442)
+                {
+                    args.Cell.AddClass(new string[] { "magash-442" });
+                }
+                else
+                {
+                    args.Cell.AddClass(new string[] { "magash-308" });
+                }
+            }
+            catch (Exception e)
+            {
+                ModalError = e.Message;
+                IsVisible = true;
+                return;
+            }
+        }
+        ////PASSPORT STYLE
+        if (args.Column.Field == "PassportNum")
+        {
+            args.Cell.AddClass(new string[] { "passport" });
+        }
+        //LOW AVG
+        if (args.Column.Field == "PassportAVG")
+        {
+            if (args.Data.IsLowAVG == true)
+            {
+                args.Cell.AddClass(new string[] { "is-low-avg" });
+            }
+        }
+
+        //HAMAMA STYLE
+        if (args.Column.Field == "Hamama")
+        {
+            if (args.Data.Hamama.Trim() == "1")
+            {
+                args.Cell.AddClass(new string[] { "hamama1" });
+            }
+            else if (args.Data.Hamama.Trim() == "2")
+            {
+                args.Cell.AddClass(new string[] { "hamama2" });
+            }
+            else if (args.Data.Hamama.Trim() == "3")
+            {
+                args.Cell.AddClass(new string[] { "hamama3" });
+            }
+            else if (args.Data.Hamama.Trim() == "4")
+            {
+                args.Cell.AddClass(new string[] { "hamama4" });
+            }
+            else if (args.Data.Hamama.Trim() == "5")
+            {
+                args.Cell.AddClass(new string[] { "hamama5" });
+            }
+            else if (args.Data.Hamama.Trim() == "6")
+            {
+                args.Cell.AddClass(new string[] { "hamama6" });
+            }
+            else if (args.Data.Hamama.Trim() == "7")
+            {
+                args.Cell.AddClass(new string[] { "hamama7" });
+            }
+            else if (args.Data.Hamama.Trim() == null)
+            {
+                args.Cell.AddClass(new string[] { "null" });
+            }
+        }
+    }
+    //edit dialog settings
+    private DialogSettings DialogParams = new DialogSettings { MinHeight = "430px", CloseOnEscape = true, ShowCloseIcon = true, Width = "325px" };
+
+    //ROW IsNeedToBeAudit STYLE
+    public void RowBound(RowDataBoundEventArgs<K_Passport> args)
+    {
+        if (args.Data.IsNeedToBeAudit == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-audit" });
+        }
+        if (args.Data.IsNeedToBeAudit == true && args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved-audit" });
+        }
+        if (args.Data.IsSavedForCx == true)
+        {
+            args.Row.AddClass(new string[] { "is-need-to-be-saved" });
+        }
+
+    }
+
+    public void ActionBegin(ActionEventArgs<K_Passport> arg)
+    {
+        //Handles add operation
+
+        //Handles edit operation. During edit operation, original object will be cloned.
+        if (arg.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+
+        }
+    }
+    #endregion
+    //GRID BTNS
+    #region GRID BTNS
+    //Command Button Clicked In grid
+    public void OnCommandClicked(CommandClickEventArgs<K_Passport> args)
+    {
+        if (args.CommandColumn.ButtonOption.Content == "ביקורת")
+        {
+
+            K_Passport = PassportAlgorithm.ArgsToObject(args.RowData);
+            PassportAuditForm.K_PassportId = K_Passport.K_PassportId;
+            PassportAuditForm.CreateDate = DateTime.Now;
+            this.DeleteRecordConfirmVisibility = true;
+        }
+        if (args.CommandColumn.ButtonOption.Content == "השמדה")
+        {
+            this.DestroyVisability = true;
+            K_Passport = args.RowData;
+            K_Passport.PassportStatus = Status.Destroyed;
+            K_Passport.PassportStatusCode = (int)PassportStatusCode.Destroyed;
+
+        }
+        if (args.CommandColumn.ButtonOption.Content == "שמירה")
+        {
+
+            K_Passport = args.RowData;
+            SavePassForCxModal = true;
+        }
+        if (args.CommandColumn.ButtonOption.Content == "עריכה")
+        {
+            KPassportForAllToEditCheck.Hamama = args.RowData.Hamama;
+            KPassportForAllToEditCheck.Gamlon = args.RowData.Gamlon;
+            KPassportForAllToEditCheck.MagashAmount = args.RowData.MagashAmount;
+
+            K_Passport = args.RowData;
+            OpenCustomEditDialog();
+        }
+    }
+    #endregion
+    //DESTROY APPROVE
+    #region MODAL
+    /// <summary>
+    /// Modal Props and actions
+    /// </summary>
+    private bool IsVisible { get; set; } = false;
+
+    //DESTROY MODAL VISABILITY
+    private bool DestroyVisability { get; set; } = false;
+
+    private string ModalError { get; set; } = "";
+
+    private void OpenDialog()
+    {
+        this.IsVisible = true;
+    }
+
+    private void OnOverlayclick(MouseEventArgs arg)
+    {
+        this.IsVisible = false;
+    }
+    private void CloseDialog()
+    {
+        this.IsVisible = false;
+    }
+    //DIALOG Destroy CANCEL
+    public void ConfirmDestroyNo()
+    {
+        this.DestroyVisability = false;
+    }
+    async void ConfirmDestroyYesBtn()
+    {
+        DestroyVisability = false;
+        AfterActionSpinner = true;
+        await ConfirmDestroyYes();
+        if (IsConnected) await SendMessage();
+        AfterActionSpinner = false;
+    }
+
+    //DIALOG Destroy CONFIRMED
+    public async Task<int> ConfirmDestroyYes()
+    {
+        try
+        {
+            K_Passport.PassportStatus = Status.Destroyed;
+            K_Passport.IsNeedToBeChecked = true;
+
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+            this.DestroyVisability = false;
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                ToastContent = HebSaved;
+                //StateHasChanged();
+                await ShowToast();
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            ToastContent = e.Message;
+            await ShowToast();
+        }
+        return 0;
+    }
+    #endregion
+    //EDIT DIALOG
+    #region Edit Dialog
+    //the Object type fot type grid and PUT calls
+    public K_Passport K_Passport = new K_Passport();
+    //to check if no change when edit
+    public K_Passport KPassportForAllToEditCheck { get; set; } = new K_Passport();
+    //Edit dialog spinner
+    public bool EditPassBool { get; set; } = false;
+    //edit dialog Visabillity
+    private bool GridEditModalVisible { get; set; } = false;
+    //For PUT passport Green & Gamlon
+    string InputHamama, InputGamlon;
+    //Custom Open Edit Dialog For Grid
+    private void OpenCustomEditDialog()
+    {
+        this.GridEditModalVisible = true;
+    }
+    //Custom Close Edit Dialog For Grid
+    private void CloseCustomEditDialog()
+    {
+        this.GridEditModalVisible = false;
+        InputHamama = "";
+        InputGamlon = "";
+    }
+    public async void SendMetzayEdit(K_Passport context)
+    {
+        GridEditModalVisible = false;
+        AfterActionSpinner = true;
+        await UpdatePassport(context);
+        AfterActionSpinner = false;
+    }
+    #endregion
+    //TOAST
+    #region TOAST
+    //TOAST
+    public SfToast ToastObj;
+    private string ToastContent { get; set; } = "";
+    //Toast Screen Show After Succesfull PUT
+    private static string HebSaved = "נשמר!";
+    private async Task ShowToast()
+    {
+        await this.ToastObj.Show();
+    }
+
+    private async Task HideToast()
+    {
+        await this.ToastObj.Hide("All");
+    }
+    #endregion
+    //BARCODE
+    #region BARCODE
+    string passportInput;
+    bool ShowScanBarcode { get; set; } = false;
+    public int? BarCode { get; set; }
+    #endregion
+    //DB
+    #region DB
+    //PUT K_Passport Green/Gamlon/Magash Amount
+    public async Task<int> UpdatePassport(K_Passport context)
+    {
+        if (KPassportForAllToEditCheck.Hamama == InputHamama && KPassportForAllToEditCheck.Gamlon == InputGamlon && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
+        {
+            ModalError = "לא בוצעו שינויים!";
+            IsVisible = true;
+            return 1;
+        }
+        if (String.IsNullOrEmpty(InputHamama) && String.IsNullOrEmpty(InputGamlon) && KPassportForAllToEditCheck.MagashAmount == context.MagashAmount)
+        {
+            ModalError = "לא בוצעו שינויים!";
+            IsVisible = true;
+            return 1;
+        }
+        if (InputHamama != "")
+        {
+            if (InputGamlon != "")
+            {
+                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama, InputGamlon))
+                {
+
+                    context.Hamama = InputHamama;
+                    context.Gamlon = InputGamlon;
+                }
+                else
+                {
+
+                    ModalError = "יש להזין חממה וגמלון מתאימים";
+                    IsVisible = true;
+                    return 1;
+                }
+            }
+            else
+            {
+                if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(InputHamama))
+                {
+                    context.Hamama = InputHamama;
+
+                }
+                else
+                {
+
+                    ModalError = $"הערך {InputHamama} לא תקין";
+                    IsVisible = true;
+                    return 1;
+                }
+            }
+        }
+        if (InputHamama == "" && InputGamlon != "")
+        {
+            if (GreenHouseToGamlon.CheckIfHamamaAndGamlonExsist(context.Hamama.Trim(), InputGamlon))
+            {
+
+                InputHamama = context.Hamama.Trim();
+                context.Gamlon = InputGamlon;
+            }
+            else
+            {
+
+                ModalError = "יש להזין חממה וגמלון מתאימים";
+                IsVisible = true;
+                return 1;
+            }
+        }
+        if (context.MagashAmount < 0)
+        {
+            ModalError = "לא ניתן להזין מספר שלילי!";
+            IsVisible = true;
+            return 1;
+        }
+
+        if (context.MagashAmount == 0)
+        {
+            context.IsNeedToBeChecked = true;
+        }
+        var rslt = await Http.PutAsJsonAsync($"api/KPassports/{context.K_PassportId}", context);
+        //Http Response Failed On Update
+        if (!rslt.IsSuccessStatusCode)
+        {
+
+            ToastContent = rslt.StatusCode.ToString();
+            await ShowToast();
+            StateHasChanged();
+        }
+        else
+        {
+
+
+            if (IsConnected) await SendMessage();
+            ToastContent = HebSaved;
+            StateHasChanged();
+            await ShowToast();
+            CloseCustomEditDialog();
+            InputHamama = "";
+            InputGamlon = "";
+
+
+        }
+
+        return 0;
+    }
+    #endregion
+    //SPINNERS
+    #region SPINNER
+    bool AfterActionSpinner { get; set; } = false;
+
+    #endregion
+    //SAVE FOR CX
+    #region SAVE FOR CX
+    public bool SavePassForCxModal { get; set; } = false;
+    public string SavedPassportForCxRemerk { get; set; }
+    public async void SaveForCxBtn()
+    {
+        SavePassForCxModal = false;
+        AfterActionSpinner = true;
+        await SaveForCx();
+        AfterActionSpinner = false;
+    }
+    //Save pass for cx Save
+    public async Task<int> SaveForCx()
+    {
+
+        try
+        {
+            if (String.IsNullOrEmpty(SavedPassportForCxRemerk))
+            {
+                ModalError = "לא נרשמה הערת שמירה!";
+                IsVisible = true;
+                return 1;
+
+            }
+            K_Passport.SaveForCxRemarks = SavedPassportForCxRemerk;
+            K_Passport.IsSavedForCx = true;
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+
+            if (rslt.IsSuccessStatusCode)
+            {
+                if (IsConnected) await SendMessage();
+                ToastContent = "נשמר!";
+                await ShowToast();
+            }
+            SavedPassportForCxRemerk = "";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        return 0;
+    }
+    public async void DeleteSavedPassForCxRemarkBtn()
+    {
+        SavePassForCxModal = false;
+        AfterActionSpinner = true;
+        await DeleteSavedPassForCxRemark();
+        AfterActionSpinner = false;
+    }
+    //Delete Saved remark for Cx
+    public async Task<int> DeleteSavedPassForCxRemark()
+    {
+        try
+        {
+            if (K_Passport.IsSavedForCx == false || K_Passport.IsSavedForCx == null)
+            {
+                ModalError = "לא משויכת הערה-אין מה למחוק!";
+                IsVisible = true;
+                return 1;
+            }
+
+            K_Passport.IsSavedForCx = false;
+            K_Passport.SaveForCxRemarks = "";
+            SavedPassportForCxRemerk = "";
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{K_Passport.K_PassportId}", K_Passport);
+
+            if (rslt.IsSuccessStatusCode)
+            {
+
+                if (IsConnected) await SendMessage();
+                ToastContent = HebSaved;
+                //StateHasChanged();
+                await ShowToast();
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return 0;
+    }
+    //cancel saving or delete
+    public void CancelSavedRemarkForCx()
+    {
+        SavePassForCxModal = false;
+    }
+    #endregion
+    //DEVICE RESPONSINES
+    #region JS DEVICE RESPONSINES
+    private string isDevice { get; set; }
+    private bool mobile { get; set; }
+    //Check if userAgent is Pc Or Mobile
+    public async Task FindResponsiveness()
+    {
+        mobile = await jsRuntime.InvokeAsync<bool>("isDevice");
+        isDevice = mobile ? "Mobile" : "Desktop";
+
+    }
+    #endregion
+
+}
+<style>
+    .magash-180 {
+        background-color: plum;
+    }
+
+    .magash-187 {
+        background-color: lightyellow;
+    }
+
+    .magash-442 {
+        background-color: grey;
+        font-weight: bold;
+    }
+
+    .magash-308 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .magash-250 {
+        background-color: green;
+        font-weight: bold;
+    }
+
+    .magash-210 {
+        background-color: hotpink;
+        font-weight: bold;
+    }
+
+    .magash-260 {
+        background-color: rosybrown;
+        font-weight: bold;
+    }
+
+    .passport {
+        background-color: powderblue;
+        font-weight: bold;
+        color: red;
+    }
+
+    .null {
+        background-color: antiquewhite;
+        font-weight: bold;
+    }
+
+    .hamama1 {
+        background-color: cornflowerblue;
+        font-weight: bold;
+    }
+
+    .hamama2 {
+        background-color: yellow;
+        font-weight: bold;
+    }
+
+    .hamama3 {
+        background-color: lightpink;
+        font-weight: bold;
+    }
+
+    .hamama4 {
+        background-color: darkseagreen;
+        font-weight: bold;
+    }
+
+    .hamama5 {
+        background-color: gray;
+        font-weight: bold;
+    }
+
+    .hamama6 {
+        background-color: cadetblue;
+        font-weight: bold;
+    }
+
+    .hamama7 {
+        background-color: palevioletred;
+        font-weight: bold;
+    }
+
+
+    #toast_default .e-toast-container {
+        color: black;
+        font-size: 13px;
+        font-weight: normal;
+    }
+
+    /*   GRID ROW STYLE*/
+    .is-need-to-be-audit {
+        background-color: orange;
+    }
+
+    .is-need-to-be-saved {
+        background-color: deepskyblue;
+    }
+
+    .is-need-to-be-saved-audit {
+        background-color: mediumpurple;
+    }
+
+    .is-low-avg {
+        background-color: orangered;
+    }
+
+    .clean {
+        background-color: white;
+    }
+
+    .form-group.col-md-6 {
+        width: 200px;
+    }
+
+    label.e-float-text {
+        position: relative;
+        padding-left: 0;
+        top: 10%;
+    }
+
+    .e-toast-container .e-toast .e-toast-message .e-toast-content {
+        color: white;
+        font-size: 18px;
+        font-weight: normal;
+    }
+
+    .e-toast-container .e-toast {
+        background-color: black;
+    }
+</style>

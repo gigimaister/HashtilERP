@@ -36,7 +36,6 @@ namespace HashtilERP.Data
         public int? PassportStartingAVG { get; set; }
         public int? OriginalMagashAmount { get; set; }
         public string ItemCode { get; set; }
-        
         public string UserName { get; set; }
         public DateTime? DateEnd { get; set; }
         public int? GrowingDays { get; set; }

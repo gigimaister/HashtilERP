@@ -133,14 +133,31 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All" @onclick="Close">
+                    @{ if (isDevice != "Mobile")
+                        {
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All" @onclick="Close">
 
-                                <span class="oi oi-grid-three-up" aria-hidden="true"></span>&nbsp מצאי
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
+                                        <span class="oi oi-grid-three-up" aria-hidden="true"></span>&nbsp מצאי
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                        }
+                    }
+                    @{ if (isDevice == "Mobile")
+                        {
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/metzaylight" Match="NavLinkMatch.All" @onclick="Close">
+
+                                        <span class="oi oi-grid-three-up" aria-hidden="true"></span>&nbsp מצאי
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                        }
+                    }
+
                     @{ if (isDevice == "Mobile" || 1 == 1)
                         {
                             <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
@@ -238,7 +255,7 @@
 </div>
 @code {
 
-    SfSidebar Sidebar;
+        SfSidebar Sidebar;
     public SidebarType Type = SidebarType.Over;
     //CAMERA SCANNER for search in datagrid
     private string isDevice { get; set; }
@@ -267,7 +284,10 @@
         isDevice = mobile ? "Mobile" : "Desktop";
 
     }
-
+    protected override async Task OnInitializedAsync()
+    {
+        await FindResponsiveness();
+    }
 }
 <style>
     .content {

@@ -435,8 +435,8 @@
 
                 await localStorage.SetItemAsync(localsrorage, HamamaGamlonStorage);
 
-                //if (IsConnected) await SendMessage();
-               
+                if (IsConnected) await SendMessage();
+
                 ToastContent = ThaiSaved;
                 passportInput = "";
                 StateHasChanged();
@@ -448,23 +448,6 @@
         }
         AfterActionSpinner = false;
         StateHasChanged();
-    }
-
-
-    //2 DROPLIST HAMAMA AND GAMLON SETTINGS
-    public bool EnableStateDropDown = false;
-    public bool EnableCitytDropDown = false;
-    public string StateValue { get; set; } = null;
-    public Query StateQuery { get; set; } = null;
-    public string CityValue { get; set; } = null;
-    public Query CityQuery { get; set; } = null;
-
-    public void ChangeCountry(Syncfusion.Blazor.DropDowns.ChangeEventArgs<string, GreenHouseToGamlon.Hamama> args)
-    {
-        this.EnableStateDropDown = true;
-        this.StateQuery = new Query().Where(new WhereFilter() { Field = "HamamaId", Operator = "equal", value = args.Value, IgnoreCase = false, IgnoreAccent = false });
-        this.StateValue = null;
-        this.CityValue = null;
     }
 
 

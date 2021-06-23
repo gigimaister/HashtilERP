@@ -41,9 +41,9 @@
 <br />
 <br />
 @*//Paasport Input*@
-<input type="text" class="form-control" style="width:auto;margin-right:auto" name="GRWroom"
+<input type="text" class="form-control" style="width:auto;margin-right:auto" 
        placeholder="หมายเลขหนังสือเดินทาง"
-       @bind=@passportInput />
+       @bind-value=@passportInput />
 <br />
 <div class="col-sm" style="z-index:0">
     <div class="spin-row">
@@ -140,7 +140,7 @@
         }
 
         SfToast ToastObj;
-        private string ToastContent { get; set; } = "";
+        private string ToastContent { get; set; } = "บันทึกแล้ว!";
 
         string passportInput;
         K_Passport[] kobiPassportModels;
@@ -154,7 +154,6 @@
         private static string NoEnteredPassport = "ไม่ได้ใส่หมายเลข!";
         private static string NotValidValue = "ผิดค่า!";
         private static string MustEnterGrowingRoomNumber = "คุณต้องเลือกหมายเลขห้องที่กำลังเติบโต!";
-
         /// <summary>
         /// Modal Props and actions
         /// </summary>
@@ -198,12 +197,17 @@
                 OpenDialog();
                 StateHasChanged();
                 //if (IsConnected) await SendMessage();
-                passportInput = "";
                 return;
             }
             else
             {
-                await SendNewPassport(kobipassportModel);
+                //await SendNewPassport(kobipassportModel);
+                AfterActionSpinner = true;
+                await SendGetNewPassport();
+                passportInput = "";
+                AfterActionSpinner = false;
+                StateHasChanged();
+
             }
 
         }
@@ -242,8 +246,9 @@
 
         protected async Task LoadData()
         {
-            kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/GetGrowingPassForSowing");
 
+            kobiPassportModels = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/GetGrowingPassForSowing");
+            StateHasChanged();
         }
 
         public bool IsConnected =>
@@ -254,84 +259,129 @@
             _ = hubConnection.DisposeAsync();
         }
 
-        //POST NEW PASSPORT
-        protected async Task SendNewPassport(K_Passport kobiPassport)
+        async Task<int> SendGetNewPassport()
         {
-            AfterActionSpinner = true;
-            //IF NULL
-            if (passportInput == null)
-            {
-                ModalError = NoEnteredPassport;
-                OpenDialog();
-                AfterActionSpinner = false;
-
-                StateHasChanged();
-
-                //if (IsConnected) await SendMessage();
-                return;
-            }
             try
             {
-                kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
-            }
-            //IF LONG OR WRONG FORMAT
-            catch (Exception)
-            {
-                ModalError = NotValidValue;
-                OpenDialog();
-                passportInput = "";
-                AfterActionSpinner = false;
-
-                StateHasChanged();
-                //if (IsConnected) await SendMessage();
-            }
-
-
-
-
-            var rslt = await Http.PostAsJsonAsync("api/KPassports", kobiPassport);
-            var content = await rslt.Content.ReadAsStringAsync();
-
-            //Http Response Failed On Insert
-            if (!rslt.IsSuccessStatusCode)
-            {
-                if (content == "NOTFOUND")
+                var rslt = await Http.GetAsync($"api/KPassports/GetInsertPassport/{passportInput}/{kobipassportModel.GrowingRoom}");
+                var content = rslt.Content.ReadAsStringAsync();
+                if (!rslt.IsSuccessStatusCode)
                 {
-                    ModalError = ThaiNotFound;
-                    OpenDialog();
-                    passportInput = "";
-                    AfterActionSpinner = false;
-                    StateHasChanged();
-                    
+                    if (content.Result == "NOTFOUND")
+                    {
+                        ModalError = ThaiNotFound;
+                        OpenDialog();
+                        AfterActionSpinner = false;
+                        StateHasChanged();
+                        return 1;
 
-                    //if (IsConnected) await SendMessage();
+                        //if (IsConnected) await SendMessage();
+
+                    }
+                    else if (content.Result == "DUPLICATE")
+                    {
+                        ModalError = ThaiDuplicate;
+                        OpenDialog();
+                        AfterActionSpinner = false;
+                        StateHasChanged();
+                        return 1;
+                        //if (IsConnected) await SendMessage();
+                    }
 
                 }
-                else if (content == "DUPLICATE")
+                else
                 {
-                    ModalError = ThaiDuplicate;
-                    OpenDialog();
-                    passportInput = "";
-                    AfterActionSpinner = false;
-                    StateHasChanged();
-
-                    //if (IsConnected) await SendMessage();
+                    if (IsConnected) await SendMessage();
+                    ToastContent = ThaiSaved;
+                    await ShowToast();
                 }
-
             }
-            else
+
+            catch (Exception e)
             {
-
-                if (IsConnected) await SendMessage();
-                ToastContent = ThaiSaved;
-                passportInput = "";
-                StateHasChanged();
-                await ShowToast();
-
+                Console.WriteLine(e.Message);
             }
-            AfterActionSpinner = false;
-
+            return 0;
         }
+
+        ////POST NEW PASSPORT
+        //protected async Task SendNewPassport(K_Passport kobiPassport)
+        //{
+        //    AfterActionSpinner = true;
+        //    //IF NULL
+        //    if (passportInput == null)
+        //    {
+        //        ModalError = NoEnteredPassport;
+        //        OpenDialog();
+        //        AfterActionSpinner = false;
+
+        //        StateHasChanged();
+
+        //        //if (IsConnected) await SendMessage();
+        //        return;
+        //    }
+        //    try
+        //    {
+        //        kobiPassport.PassportNum = Convert.ToInt32((string)passportInput);
+        //    }
+        //    //IF LONG OR WRONG FORMAT
+        //    catch (Exception)
+        //    {
+        //        ModalError = NotValidValue;
+        //        OpenDialog();
+        //        passportInput = "";
+        //        AfterActionSpinner = false;
+
+        //        StateHasChanged();
+        //        //if (IsConnected) await SendMessage();
+        //    }
+
+
+
+
+        //var rslt = await Http.PostAsJsonAsync("api/KPassports/SowInsert", kobiPassport);
+        //    var content = await rslt.Content.ReadAsStringAsync();
+
+        //    //Http Response Failed On Insert
+        //    if (!rslt.IsSuccessStatusCode)
+        //    {
+        //        if (content == "NOTFOUND")
+        //        {
+        //            ModalError = ThaiNotFound;
+        //            OpenDialog();
+        //            passportInput = "";
+        //            AfterActionSpinner = false;
+        //            StateHasChanged();
+
+
+        //            //if (IsConnected) await SendMessage();
+
+        //        }
+        //        else if (content == "DUPLICATE")
+        //        {
+        //            ModalError = ThaiDuplicate;
+        //            OpenDialog();
+        //            passportInput = "";
+        //            AfterActionSpinner = false;
+        //            StateHasChanged();
+
+        //            //if (IsConnected) await SendMessage();
+        //        }
+
+        //    }
+        //    else
+        //    {
+
+        //        if (IsConnected) await SendMessage();
+        //        ToastContent = ThaiSaved;
+        //        passportInput = "";
+        //        StateHasChanged();
+        //        await ShowToast();
+
+        //    }
+        //    AfterActionSpinner = false;
+
+        //}
 
 
 
