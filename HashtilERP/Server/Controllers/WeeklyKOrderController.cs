@@ -299,18 +299,28 @@ namespace HashtilERP.Server.Controllers
 
         // DELETE: api/WeeklyKOrder/KOrderPassportsDelete/5
         [HttpDelete("KOrderPassportsDelete/{id}")]
-        public async Task<IActionResult> KOrderPassportsDelete(int id)
+        public async Task<IActionResult> KOrderPassportsDelete(int? id)
         {
-            var kordpass = await _context.KOrderPassports.Where(x=>x.JobId == id).ToListAsync();
-            if (kordpass == null)
-            {
-                return NotFound();
+
+            try 
+            { 
+                var kordpass = await _context.KOrderPassports.Where(x => x.JobId == id).ToListAsync();
+                if (kordpass == null)
+                {
+                    return NotFound();
+                }
+                foreach (var korpas in kordpass)
+                {
+                    _context.KOrderPassports.Remove(korpas);
+                    await _context.SaveChangesAsync();
+                }
             }
-            foreach(var korpas in kordpass)
+            catch(Exception e)
             {
-                _context.KOrderPassports.Remove(korpas);
-                await _context.SaveChangesAsync();
+                Console.WriteLine(e.Message); 
             }
+            
+            
            
             return NoContent();
         }

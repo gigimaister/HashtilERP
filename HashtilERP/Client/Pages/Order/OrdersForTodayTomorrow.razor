@@ -2514,6 +2514,7 @@
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "פספורט נעול לשינויים! נא ליצור קשר עם Admin!";
             ErrorDialogIsVisible = true;
+
             return;
         }
         //set kPassport magash before delete
@@ -2764,8 +2765,17 @@
                         Console.WriteLine(e.Message);
                     }
                 }
-                //Delete KOrderKpassports
-                await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{K_OrderForPickPassport.JobId}");
+                try
+                {
+                    //Delete KOrderKpassports
+                    var t = await Http.DeleteAsync($"api/WeeklyKOrder/KOrderPassportsDelete/{K_OrderForPickPassport.JobId}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+
+
 
 
                 K_OrderForPickPassport.JobStatus = K_OrderPhase.StandBy.Trim();
@@ -3465,7 +3475,7 @@
     #region TOAST
     //TOAST
     public SfToast ToastObj;
-    private string ToastContent { get; set; } = "";
+    private string ToastContent { get; set; } = "נשמר!";
     private async Task ShowToast()
     {
         await this.ToastObj.Show();
