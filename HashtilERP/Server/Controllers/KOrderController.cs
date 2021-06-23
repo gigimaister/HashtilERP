@@ -68,7 +68,10 @@ namespace HashtilERP.Server.Controllers
                             UserName = "בוט תיאום הוצאות"
 
                         };
-
+                        if(passprod.UCustName.Contains("כלובים קטנים"))
+                        {
+                            korder.IsCageSmall = true;
+                        }
 
                         //if Cx's Seeds && if 1 trey was split for different types of seeds!
                         if (passprod.UQuantity > 55555 && passport.UTraySow == 1)

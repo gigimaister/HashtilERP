@@ -1772,7 +1772,10 @@
                     }
                 }
 
-
+                if(k_Order.CxName.Contains("כלובים קטנים"))
+                {
+                    k_Order.IsCageSmall = true;
+                }
                 var rslt = await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderInsert", k_Order);
                 var content = await rslt.Content.ReadAsStringAsync();
 
@@ -1831,7 +1834,10 @@
                 }
             }
 
-
+            if (k_Order.CxName.Contains("כלובים קטנים"))
+            {
+                k_Order.IsCageSmall = true;
+            }
             var rslt = await Http.PostAsJsonAsync("api/WeeklyKOrder/NewKOrderInsert", k_Order);
             var content = await rslt.Content.ReadAsStringAsync();
 
