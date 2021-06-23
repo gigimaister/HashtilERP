@@ -199,6 +199,13 @@
                 //if (IsConnected) await SendMessage();
                 return;
             }
+            else if (String.IsNullOrEmpty(passportInput))
+            {
+                ModalError = NoEnteredPassport;
+                OpenDialog();
+                StateHasChanged();
+                return;
+            }
             else
             {
                 //await SendNewPassport(kobipassportModel);
