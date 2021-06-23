@@ -169,7 +169,7 @@
     }
 
     SfToast ToastObj;
-    private string ToastContent { get; set; } = "";
+    private string ToastContent { get; set; } = "נשמר";
 
     string passportInput;
     string Hamama { get; set; }
@@ -413,7 +413,8 @@
             kobipassportModel.Gamlon = Gamlon.Trim();
             try
             {
-                var backrslt = await Http.PostAsJsonAsync("api/KPassports/NewPassportInsertByManager", kobipassportModel);
+                var backrslt = await Http.GetAsync($"api/KPassports/GetInsertPassportManager/{passportInput}/{kobipassportModel.Hamama}/{kobipassportModel.Gamlon}");
+                //var backrslt = await Http.PostAsJsonAsync("api/KPassports/NewPassportInsertByManager", kobipassportModel);
                 var backcontent = await backrslt.Content.ReadAsStringAsync();
 
                 //Http Response Failed On Insert
@@ -436,7 +437,7 @@
                     }
                     else
                     {
-                        ModalError = "פספורט נעול לשינויים!";
+                        ModalError = backcontent;
                         OpenDialog();
                         passportInput = "";
                         return 1;
@@ -447,7 +448,7 @@
                 else
                 {
 
-                    ToastContent = "נשמר";
+                    //ToastContent = "נשמר";
                     passportInput = "";
                     await ShowToast();
                     return 1;
@@ -461,7 +462,7 @@
                 Console.WriteLine(e.Message);
                 ModalError = "פספורט לא קיים!";
                 OpenDialog();
-                passportInput = "";                
+                passportInput = "";
             }
             return 0 ;
         }
@@ -515,7 +516,7 @@
             }
             else
             {
-                ModalError = "פספורט נעול לשינויים!";
+                ModalError = content;
                 OpenDialog();
                 passportInput = "";
                 return 1;
