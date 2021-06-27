@@ -417,7 +417,8 @@ namespace HashtilERP.Server
             kPassport.DateEnd = sap.UDateEnd;
             //if ZIREY LAKOACH
             if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
-            kPassport.PassportStartingAVG = startingAvg; kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
+            kPassport.PassportStartingAVG = startingAvg;
+            kPassport.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
             kPassport.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.MagashAmount = Convert.ToInt32(sap.UTraySow);
             kPassport.PlantsAmount = sap.UQuanProd * 1000;
@@ -529,6 +530,147 @@ namespace HashtilERP.Server
             }
 
             return CreatedAtAction("GetKPassport", new { id = kPassport.K_PassportId }, kPassport);
+        }
+
+        [HttpGet("MetzayForOren")]
+        public async Task<List<MetzayForOren>> MetzayForOren()
+        {
+            var K_Passports = new List<K_Passport>();
+            var metzayForOrens = new List<MetzayForOren>();
+
+
+            try
+            {
+                K_Passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)                        
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)                           
+                           .ToListAsync();
+
+                //for every passport
+                foreach (var kpassport in K_Passports)
+                {
+                    decimal? temp;
+                    int startAvg;
+                    if (kpassport.Passport.Passprods.Count == 0)
+                    {
+                        try
+                        {
+                            temp = kpassport.Passport.UQuanProd * 1000;
+                            startAvg = Convert.ToInt32((kpassport.Passport.UQuanProd * 1000) / kpassport.Passport.UTraySow);
+                            MetzayForOren metzayForOren = new MetzayForOren
+                            {
+                                Hamama = kpassport.Hamama,
+                                Gamlon = kpassport.Gamlon,
+                                Gidul = kpassport.Gidul,
+                                Zan = kpassport.Zan,
+                                SowDate = kpassport.SowDate,
+                                DateEnd = kpassport.DateEnd,
+                                GrowingDays = kpassport.GrowingDays,
+                                PassportNum = kpassport.PassportNum,
+                                Cx = "לא הוכנס ל-SAP",
+                                MagashAmount = kpassport.MagashAmount,
+                                PassportAvg = kpassport.PassportAvg,
+                                CxPlantsOrder = temp,
+                                CelsTray = kpassport.CelsTray,
+                                PassportStartingAVG = startAvg,
+                                SumOfCxsPlants = Convert.ToInt32(temp)
+                            };
+                            metzayForOrens.Add(metzayForOren);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                            continue;
+                        }
+                    }
+                    //if more than 1 cx
+                    else if (kpassport.Passport.Passprods.Count > 1)
+                    {
+                        var counter = 1;
+                        var sumofPlants = 0;
+
+                        foreach (var cx in kpassport.Passport.Passprods)
+                        {
+                            if (kpassport.Passport.UQuanOrdP > 5555554)
+                            {
+                                temp = kpassport.Passport.UQuanProd * 1000;
+                                startAvg = Convert.ToInt32((kpassport.Passport.UQuanProd * 1000) / kpassport.Passport.UTraySow);
+                            }
+                            else
+                            {
+                                temp = (cx.UQuantity * 1000);
+                                startAvg = Convert.ToInt32((kpassport.Passport.UQuanOrdP * 1000) / kpassport.Passport.UTraySow);
+                            }
+                            sumofPlants += Convert.ToInt32(temp);
+                            counter++;
+                            MetzayForOren metzayForOren = new MetzayForOren
+                            {
+                                Hamama = kpassport.Hamama,
+                                Gamlon = kpassport.Gamlon,
+                                Gidul = kpassport.Gidul,
+                                Zan = kpassport.Zan,
+                                SowDate = kpassport.SowDate,
+                                DateEnd = kpassport.DateEnd,
+                                GrowingDays = kpassport.GrowingDays,
+                                PassportNum = kpassport.PassportNum,
+                                Cx = cx.UCustName,
+                                PassportAvg = kpassport.PassportAvg,
+                                CxPlantsOrder = temp,
+                                CelsTray = kpassport.CelsTray,
+                                PassportStartingAVG = startAvg
+
+
+                            };
+                            if (counter > kpassport.Passport.Passprods.Count)
+                            {
+                                metzayForOren.SumOfCxsPlants = sumofPlants;
+                                metzayForOren.MagashAmount = kpassport.MagashAmount;
+                            }
+                            metzayForOrens.Add(metzayForOren);
+                        }
+                    }
+                    //if cx list = 1
+                    else
+                    {
+
+                        if (kpassport.Passport.UQuanOrdP > 5555554)
+                        {
+                            temp = kpassport.Passport.UQuanProd * 1000;
+                            startAvg = Convert.ToInt32((kpassport.Passport.UQuanProd * 1000) / kpassport.Passport.UTraySow);
+                        }
+                        else
+                        {
+                            temp = (kpassport.Passport.Passprods.FirstOrDefault().UQuantity * 1000);
+                            startAvg = Convert.ToInt32((kpassport.Passport.UQuanOrdP * 1000) / kpassport.Passport.UTraySow);
+                        }
+
+                        MetzayForOren metzayForOren = new MetzayForOren
+                        {
+                            Hamama = kpassport.Hamama,
+                            Gamlon = kpassport.Gamlon,
+                            Gidul = kpassport.Gidul,
+                            Zan = kpassport.Zan,
+                            SowDate = kpassport.SowDate,
+                            DateEnd = kpassport.DateEnd,
+                            GrowingDays = kpassport.GrowingDays,
+                            PassportNum = kpassport.PassportNum,
+                            Cx = kpassport.Passport.Passprods.FirstOrDefault().UCustName,
+                            MagashAmount = kpassport.MagashAmount,
+                            PassportAvg = kpassport.PassportAvg,
+                            CxPlantsOrder = temp,
+                            CelsTray = kpassport.CelsTray,
+                            PassportStartingAVG = startAvg,
+                            SumOfCxsPlants = Convert.ToInt32(temp)
+                        };
+                        metzayForOrens.Add(metzayForOren);
+                    }
+                }
+                return metzayForOrens;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
         #endregion
 

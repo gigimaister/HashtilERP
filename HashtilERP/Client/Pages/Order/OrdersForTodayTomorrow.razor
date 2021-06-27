@@ -2446,6 +2446,7 @@
 
     K_OrderPassports korderPassport { get; set; } = new K_OrderPassports();
 
+    K_Passport chosenKPassport { get; set; } = new K_Passport();
     //KPassports for KOrderPassports UPDATE
     List<K_Passport> k_PassportsForKOrderPassportsUpdate { get; set; }
 
@@ -2889,167 +2890,170 @@
         if (args.CommandColumn.ButtonOption.Content == "")
         {
             LoadingSpinner = true;
-            StateHasChanged();
-            var chosenKPassport = await Task.Run(() => args.RowData);
-            //if no avg,plants && magash set
-            if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
-            {
-                ErrorDialogIsVisible = true;
-                ErrorModalHeaderContent = "שגיאה!";
-                ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
-                LoadingSpinner = false;
-                StateHasChanged();
-                return;
-            }
-            //if 0 magas && trying to take
-            else if (KOrdersfunctions.IsPassportEmpty(chosenKPassport))
-            {
-                ErrorDialogIsVisible = true;
-                ErrorModalHeaderContent = "שגיאה!";
-                ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
-                LoadingSpinner = false;
-                StateHasChanged();
-                return;
-            }
-            int? kpassportAvarage = await Task.Run(() => KOrdersfunctions.GetKpassportAvg(chosenKPassport));
-
-            //IF WE DO NOT have a Existing list
-            if (kOrderPassports == null || kOrderPassports.Count == 0)
-            {
-                korderPassport.JobId = K_OrderForPickPassport.JobId;
-                korderPassport.K_PassportNum = chosenKPassport.PassportNum;
-                korderPassport.K_PassportId = chosenKPassport.K_PassportId;
-                korderPassport.KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama);
-                korderPassport.KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon);
-                korderPassport.SelectedAVG = await Task.Run(() => Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage)));
-                //Check if KPassport.Magash > WorkTotalMagash(WTM)
-                if (chosenKPassport.MagashAmount > K_OrderForPickPassport.JobNumOfMagash)
-                {
-                    //update kpassport magash
-                    chosenKPassport.MagashAmount -= K_OrderForPickPassport.JobNumOfMagash;
-                    korderPassport.PassportMagashAmpunt = K_OrderForPickPassport.JobNumOfMagash;
-                    korderPassport.MagashToCompare = K_OrderForPickPassport.JobNumOfMagash;
-                }
-                //KPassport.Magash < WTM
-                else
-                {
-                    korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
-                    korderPassport.MagashToCompare = chosenKPassport.MagashAmount;
-                    //then kpassport.magash = 0
-                    chosenKPassport.MagashAmount = 0;
-                }
-
-                //Adding korderpassport to list
-                await Task.Run(() => kOrderPassports.Add(korderPassport));
-                SfGridKpassport.Refresh();
-
-
-            }
-            //IF WE have EXISTING LIST
-            else
-            {
-                //If we have the selecting passport in that List
-                if (KOrdersfunctions.CheckIfKpassInsideKordPassports(kOrderPassports, chosenKPassport))
-                {
-                    //WTM - RTM
-                    var korderMinusToalMagashList = await Task.Run(() => KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports));
-                    //index for list obj edit
-                    var index = kOrderPassports.FindIndex(x => x.K_PassportId == chosenKPassport.K_PassportId);
-                    //korderpassport obj for logic
-                    var korderpassportObj = kOrderPassports.Where(x => x.K_PassportId == chosenKPassport.K_PassportId).FirstOrDefault();
-
-                    //if WTM > LTM
-                    if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
-                    {
-                        //if kpassport.magash > RTM
-                        if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
-                        {
-                            //Updating the obj in the list
-                            kOrderPassports[index].PassportMagashAmpunt += korderMinusToalMagashList;
-                            kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
-                            chosenKPassport.MagashAmount -= korderMinusToalMagashList;
-                        }
-                        //kpassport < RTM
-                        else
-                        {
-                            kOrderPassports[index].PassportMagashAmpunt += chosenKPassport.MagashAmount;
-                            kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
-
-                            //then kpassport.magash = 0
-                            chosenKPassport.MagashAmount = 0;
-                        }
-                    }
-                    //WTM < LTM
-                    else
-                    {
-                        //if we good with magash amount only add 1 at a time
-                        kOrderPassports[index].PassportMagashAmpunt += 1;
-                        kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
-                        chosenKPassport.MagashAmount -= 1;
-
-                    }
-                    SfGridKpassport.Refresh();
-                }
-                //NO PASSPORT IN THE EXISTING LIST
-                else
-                {
-                    //WTM - RTM
-                    var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
-
-                    korderPassport = new K_OrderPassports()
-                    {
-                        JobId = K_OrderForPickPassport.JobId,
-                        K_PassportNum = chosenKPassport.PassportNum,
-                        K_PassportId = chosenKPassport.K_PassportId,
-                        KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama),
-                        KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon),
-                        SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage))
-                    };
-
-                    //IF WTM > List Total Magash(LTM)
-                    if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
-                    {
-                        //If kpassport.magash > Relative Total Magash(korder.magash - LTM)
-                        if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
-                        {
-                            //update kpassport magash
-                            chosenKPassport.MagashAmount -= korderMinusToalMagashList;
-                            korderPassport.PassportMagashAmpunt = korderMinusToalMagashList;
-                            korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
-                        }
-                        //kpassport.magash < RTM
-                        else
-                        {
-                            korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
-                            korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
-
-                            //then kpassport.magash = 0
-                            chosenKPassport.MagashAmount = 0;
-                        }
-
-                    }
-                    //WTM < LTM
-                    else
-                    {
-                        korderPassport.PassportMagashAmpunt = 1;
-                        korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
-                        chosenKPassport.MagashAmount -= 1;
-                    }
-
-                    //Adding korderpassport to list
-                    kOrderPassports.Add(korderPassport);
-                    SfGridKpassport.Refresh();
-                    //StateHasChanged();
-
-                }
-            }
-
+            //StateHasChanged();
+            chosenKPassport = args.RowData;
+            await CalculateKPassportMagash(args.RowData);
             //SfGridKpassport.Refresh();
             LoadingSpinner = false;
             StateHasChanged();
         }
     }
+    async Task CalculateKPassportMagash(K_Passport chosenKPassport)
+    {
 
+        //if no avg,plants && magash set
+        if (!KOrdersfunctions.IsKOrderCanPickPassIntAmountSet(K_OrderForPickPassport))
+        {
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
+            LoadingSpinner = false;
+            StateHasChanged();
+            return;
+        }
+        //if 0 magas && trying to take
+        else if (KOrdersfunctions.IsPassportEmpty(chosenKPassport))
+        {
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
+            LoadingSpinner = false;
+            StateHasChanged();
+            return;
+        }
+        int? kpassportAvarage = await Task.Run(() => KOrdersfunctions.GetKpassportAvg(chosenKPassport));
+
+        //IF WE DO NOT have a Existing list
+        if (kOrderPassports == null || kOrderPassports.Count == 0)
+        {
+            korderPassport.JobId = K_OrderForPickPassport.JobId;
+            korderPassport.K_PassportNum = chosenKPassport.PassportNum;
+            korderPassport.K_PassportId = chosenKPassport.K_PassportId;
+            korderPassport.KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama);
+            korderPassport.KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon);
+            korderPassport.SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage));
+            //Check if KPassport.Magash > WorkTotalMagash(WTM)
+            if (chosenKPassport.MagashAmount > K_OrderForPickPassport.JobNumOfMagash)
+            {
+                //update kpassport magash
+                chosenKPassport.MagashAmount -= K_OrderForPickPassport.JobNumOfMagash;
+                korderPassport.PassportMagashAmpunt = K_OrderForPickPassport.JobNumOfMagash;
+                korderPassport.MagashToCompare = K_OrderForPickPassport.JobNumOfMagash;
+            }
+            //KPassport.Magash < WTM
+            else
+            {
+                korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
+                korderPassport.MagashToCompare = chosenKPassport.MagashAmount;
+                //then kpassport.magash = 0
+                chosenKPassport.MagashAmount = 0;
+            }
+
+            //Adding korderpassport to list
+            kOrderPassports.Add(korderPassport);
+            SfGridKpassport.Refresh();
+
+
+        }
+        //IF WE have EXISTING LIST
+        else
+        {
+            //If we have the selecting passport in that List
+            if (KOrdersfunctions.CheckIfKpassInsideKordPassports(kOrderPassports, chosenKPassport))
+            {
+                //WTM - RTM
+                var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
+                //index for list obj edit
+                var index = kOrderPassports.FindIndex(x => x.K_PassportId == chosenKPassport.K_PassportId);
+                //korderpassport obj for logic
+                var korderpassportObj = kOrderPassports.Where(x => x.K_PassportId == chosenKPassport.K_PassportId).FirstOrDefault();
+
+                //if WTM > LTM
+                if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
+                {
+                    //if kpassport.magash > RTM
+                    if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
+                    {
+                        //Updating the obj in the list
+                        kOrderPassports[index].PassportMagashAmpunt += korderMinusToalMagashList;
+                        kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
+                        chosenKPassport.MagashAmount -= korderMinusToalMagashList;
+                    }
+                    //kpassport < RTM
+                    else
+                    {
+                        kOrderPassports[index].PassportMagashAmpunt += chosenKPassport.MagashAmount;
+                        kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
+
+                        //then kpassport.magash = 0
+                        chosenKPassport.MagashAmount = 0;
+                    }
+                }
+                //WTM < LTM
+                else
+                {
+                    //if we good with magash amount only add 1 at a time
+                    kOrderPassports[index].PassportMagashAmpunt += 1;
+                    kOrderPassports[index].MagashToCompare = kOrderPassports[index].PassportMagashAmpunt;
+                    chosenKPassport.MagashAmount -= 1;
+
+                }
+                SfGridKpassport.Refresh();
+            }
+            //NO PASSPORT IN THE EXISTING LIST
+            else
+            {
+                //WTM - RTM
+                var korderMinusToalMagashList = KOrdersfunctions.GetKorderMinusTotalMagashList(K_OrderForPickPassport, kOrderPassports);
+
+                korderPassport = new K_OrderPassports()
+                {
+                    JobId = K_OrderForPickPassport.JobId,
+                    K_PassportNum = chosenKPassport.PassportNum,
+                    K_PassportId = chosenKPassport.K_PassportId,
+                    KpassportHamama = Convert.ToInt32(chosenKPassport.Hamama),
+                    KpassportGamlon = Convert.ToInt32(chosenKPassport.Gamlon),
+                    SelectedAVG = Math.Min(Convert.ToInt32(kpassportAvarage), Convert.ToInt32(K_OrderForPickPassport.JobPlansAvarage))
+                };
+
+                //IF WTM > List Total Magash(LTM)
+                if (K_OrderForPickPassport.JobNumOfMagash > KOrdersfunctions.GetTotalMagashPassportList(kOrderPassports))
+                {
+                    //If kpassport.magash > Relative Total Magash(korder.magash - LTM)
+                    if (chosenKPassport.MagashAmount > korderMinusToalMagashList)
+                    {
+                        //update kpassport magash
+                        chosenKPassport.MagashAmount -= korderMinusToalMagashList;
+                        korderPassport.PassportMagashAmpunt = korderMinusToalMagashList;
+                        korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
+                    }
+                    //kpassport.magash < RTM
+                    else
+                    {
+                        korderPassport.PassportMagashAmpunt = chosenKPassport.MagashAmount;
+                        korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
+
+                        //then kpassport.magash = 0
+                        chosenKPassport.MagashAmount = 0;
+                    }
+
+                }
+                //WTM < LTM
+                else
+                {
+                    korderPassport.PassportMagashAmpunt = 1;
+                    korderPassport.MagashToCompare = korderPassport.PassportMagashAmpunt;
+                    chosenKPassport.MagashAmount -= 1;
+                }
+
+                //Adding korderpassport to list
+                kOrderPassports.Add(korderPassport);
+                SfGridKpassport.Refresh();
+                //StateHasChanged();
+
+            }
+        }
+    }
     async void GetKpassportsByGidulAndZan()
     {
         LoadingSpinner = true;

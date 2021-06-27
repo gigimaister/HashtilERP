@@ -133,6 +133,14 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
+                    <AuthorizeView Roles="Administrator,Manager-Oren,Manager-GreenHouse">
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="inventory/excellookmetzay" Match="NavLinkMatch.All" @onclick="Close">
+
+                                <span class="oi oi-grid-four-up" aria-hidden="true"></span>&nbsp מצאי אורן
+                            </NavLink>
+                        </li>
+                    </AuthorizeView>
                     @{ if (isDevice != "Mobile")
                         {
                             <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">

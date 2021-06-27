@@ -84,5 +84,6 @@ namespace HashtilERP.Shared.Models
             return plantsMagash;
         }
 
+        
     }
 }
