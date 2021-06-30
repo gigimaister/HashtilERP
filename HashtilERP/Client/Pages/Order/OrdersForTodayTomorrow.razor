@@ -2214,13 +2214,14 @@
                 {
                     foreach (var pass in order.K_OrderPassports)
                     {
-                        pass.K_Passport.IsNeedToBeChecked = true;
+                        pass.K_Passport.IsNeedToBeChecked = true;                        
                         await Http.PutAsJsonAsync($"api/KPassports/SetKPassportNeedToCheckON/{pass.K_PassportId}", pass.K_Passport);
 
                     }
                 }
 
                 order.JobStatus = K_OrderPhase.Finish;
+                order.IsPrinted = false;
                 var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{order.JobId}", order);
 
                 if (rslt.IsSuccessStatusCode)
@@ -2889,16 +2890,17 @@
     {
         if (args.CommandColumn.ButtonOption.Content == "")
         {
-            LoadingSpinner = true;
-            //StateHasChanged();
+
+            //StateHasChanged()
             chosenKPassport = args.RowData;
-            await CalculateKPassportMagash(args.RowData);
+            LoadingSpinner = true;
+            var o = await CalculateKPassportMagash(args.RowData);
             //SfGridKpassport.Refresh();
             LoadingSpinner = false;
             StateHasChanged();
         }
     }
-    async Task CalculateKPassportMagash(K_Passport chosenKPassport)
+    async Task<int> CalculateKPassportMagash(K_Passport chosenKPassport)
     {
 
         //if no avg,plants && magash set
@@ -2909,7 +2911,7 @@
             ModalError = "יש לתאם כ.מגשים, שתילים וממוצע על מנת לבחור פספורט!";
             LoadingSpinner = false;
             StateHasChanged();
-            return;
+            return 1;
         }
         //if 0 magas && trying to take
         else if (KOrdersfunctions.IsPassportEmpty(chosenKPassport))
@@ -2919,7 +2921,7 @@
             ModalError = "לא ניתן לקחת מגשים מפספורט שנגמר!";
             LoadingSpinner = false;
             StateHasChanged();
-            return;
+            return 1;
         }
         int? kpassportAvarage = await Task.Run(() => KOrdersfunctions.GetKpassportAvg(chosenKPassport));
 
@@ -2952,6 +2954,7 @@
             //Adding korderpassport to list
             kOrderPassports.Add(korderPassport);
             SfGridKpassport.Refresh();
+
 
 
         }
@@ -3053,6 +3056,7 @@
 
             }
         }
+        return 0;
     }
     async void GetKpassportsByGidulAndZan()
     {

@@ -455,8 +455,6 @@
                 }
             }
 
-
-
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
@@ -473,7 +471,6 @@
         //if in growing room
         if (kobipassportModel.PassportStatus.Trim() == Status.GrowingRoom)
         {
-
             kobipassportModel.MetzayEnteringDate = DateTime.Now;
             kobipassportModel.PassportStatus = status.Trim();
             kobipassportModel.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
@@ -484,10 +481,16 @@
             kobipassportModel.PassportStatus = status.Trim();
             kobipassportModel.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
         }
+        //if in waiting for confirmation
+        else if (kobipassportModel.PassportStatus.Trim() == Status.WaitingForOK)
+        {
+            kobipassportModel.PassportStatus = status.Trim();
+            kobipassportModel.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
+        }
 
         else
         {
-            ModalError = "פספורט נעול לשינויים!";
+            ModalError = $"פספורט נעול לשינויים! במצב {kobipassportModel.PassportStatus}";
             OpenDialog();
             passportInput = "";
             return 1;
