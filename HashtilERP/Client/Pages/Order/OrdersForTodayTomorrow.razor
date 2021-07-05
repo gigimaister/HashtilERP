@@ -42,7 +42,9 @@
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
                     </div>
-
+                    <div class="col" style="text-align:left">
+                        <button class="btn btn-outline-danger" @onclick="BtnCancelJobs">ביטול עבודה</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -602,7 +604,7 @@
 <SfDialog Target="#target" EnableRtl="true"
           Width="350"
           Height="350"
-          @bind-Visible="@CancelKorderShow" ShowCloseIcon="true" IsModal="true">
+          @bind-Visible="@CancelKorderShow" ShowCloseIcon="false" IsModal="true">
     <DialogTemplates>
         <Content>
             <div>
@@ -613,8 +615,23 @@
             </div>
         </Content>
         <FooterTemplate>
-            <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
-            <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+            <div class="row">
+                <div class="col" style="text-align:right">
+                    @{if (IsListOfCancelJobs == true)
+                        {
+                            <button class="btn btn-success" @onclick="SencListJobsCancel">שליחה</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
+                        }
+                    }
+                </div>              
+            <div class="col">
+                <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+            </div>              
+            </div>
+         
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
@@ -1353,7 +1370,7 @@
     //KOrder Cnacel Dialog
     #region KOrder Cnacel Dialog
     public bool CancelKorderShow { get; set; } = false;
-
+    public bool IsListOfCancelJobs { get; set; } = false;
     //T.box and Who canceled
     string TboxCancel, WhoCancel;
 
@@ -1363,6 +1380,7 @@
     void KorderCancelHide()
     {
         CancelKorderShow = false;
+        IsListOfCancelJobs = false;
     }
 
     void KorderCancelShow()
@@ -1390,6 +1408,10 @@
         await ShowToast();
         //StateHasChanged();
         if (IsConnected) await SendMessage();
+        WhoCancel = "";
+        TboxCancel = "";
+
+
     }
     async Task<int> SendJobCancelForm()
     {
@@ -2214,7 +2236,7 @@
                 {
                     foreach (var pass in order.K_OrderPassports)
                     {
-                        pass.K_Passport.IsNeedToBeChecked = true;                        
+                        pass.K_Passport.IsNeedToBeChecked = true;
                         await Http.PutAsJsonAsync($"api/KPassports/SetKPassportNeedToCheckON/{pass.K_PassportId}", pass.K_Passport);
 
                     }
@@ -2244,6 +2266,69 @@
         }
         return 0;
     }
+    //Multi jobs cancel BTN
+    void BtnCancelJobs()
+    {
+        if (selectedRows.Count() == 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+        IsListOfCancelJobs = true;
+        CancelKorderShow = true;
+    }
+    async void  SencListJobsCancel()
+    {
+        if (String.IsNullOrEmpty(TboxCancel) || String.IsNullOrEmpty(WhoCancel))
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "יש למלא את שתי האופציות!";
+            ErrorDialogIsVisible = true;
+            return ;
+        }
+        LoadingSpinner = true;
+        KorderCancelHide();
+        await CancelJobsDB(selectedRows);
+        IsListOfCancelJobs = false;
+        LoadingSpinner = false;
+        if (IsConnected) await SendMessage();
+        return;
+    }
+    async Task<int> CancelJobsDB(List<K_Order> selectedRows)
+    {
+        foreach (var row in selectedRows)
+        {
+            try
+            {
+                K_OrderForEdit = row;
+                K_OrderRemark.JobId = K_OrderForEdit.JobId;
+                K_OrderRemark.Remark = $"ביטול עבודה-מי ביטל: {WhoCancel} סיבת ביטול:{TboxCancel}";
+                if (K_OrderForEdit.IsDeliveryNote == true) { K_OrderForEdit.IsWasChangedAfterDeliveryReport = true; }
+
+                if (K_OrderForEdit.K_OrderPassports.Count() > 0)
+                {
+                    K_OrderForEdit.IsPrinted = false;
+                }
+                else
+                {
+                    K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+                }
+                K_OrderForEdit.IsJobCancel = true;
+                await Http.PostAsJsonAsync(("api/WeeklyKOrder/NewKOrderRemark"), K_OrderRemark);
+                await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+                K_OrderRemark = new K_OrderRemark();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                continue;
+            }
+        }
+        return 0;
+    }
     //Multi Change Date
     async void BtnSendMultiDate()
     {
@@ -2252,6 +2337,7 @@
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "לא נבחרו עבודות!";
             ErrorDialogIsVisible = true;
+            return;
         }
         //if MarketDate < Today
         var md = Convert.ToDateTime(MultiDate).Subtract(DateTime.Today).TotalDays;

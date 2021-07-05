@@ -739,7 +739,16 @@
         protected async void GetSapOrders()
         {
             LoadingSpinner = true;
-            var getWasOk = await Http.GetFromJsonAsync<int>("api/KOrder/PrepReport");
+            var getWasOk = await Http.GetAsync("api/KOrder/PrepReport");
+            var backcontent = await getWasOk.Content.ReadAsStringAsync();
+            if (!getWasOk.IsSuccessStatusCode) 
+            {
+                Console.WriteLine(backcontent);
+                ErrorModalHeaderContent = "שגיאה!";
+                ModalError = backcontent;
+                ErrorDialogIsVisible = true;
+                return;
+            }
             ShowCorrectDate = false;
             await LoadData();
             LoadingSpinner = false;

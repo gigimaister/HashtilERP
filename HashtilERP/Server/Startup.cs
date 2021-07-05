@@ -126,10 +126,8 @@ namespace HashtilERP.Server
 
             app.UseIdentityServer();
             app.UseAuthentication();                      
-            app.UseAuthorization();
-
+            app.UseAuthorization();           
             
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
