@@ -346,7 +346,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field="@nameof(K_Passport.AutoPlantsCalc)" HeaderText="שתילים" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="100px">
+        <GridColumn HeaderText="" TextAlign="TextAlign.Center">
             <GridCommandColumns>
                 <AuthorizeView Roles="Administrator,Manager-GreenHouse">
                     <GridCommandColumn Type=CommandButtonType.None

@@ -51,7 +51,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*Grid No.1*@
-<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="800" Width="100%" @ref="@SfGrid"
+<SfGrid DataSource="@K_Orders" FrozenRows="0" Height="800" Width="auto" @ref="@SfGrid"
         AllowFiltering="true" Toolbar=@Tool EnableRtl="true"
         AllowGrouping="false" AllowSorting="true" AllowSelection="true">
     <GridSelectionSettings CheckboxOnly="true" Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>
@@ -97,7 +97,7 @@
 
     </GridAggregates>
     <GridColumns>
-        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center"></GridColumn>
         <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
         <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -109,9 +109,9 @@
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
         <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="50px">
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center">
                 <GridCommandColumns>
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "טופל", CssClass = "e-success" })">

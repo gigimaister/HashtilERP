@@ -159,8 +159,8 @@
 
         </GridAggregates>
         <GridColumns>
-            <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
+            <GridColumn Type="ColumnType.CheckBox" Width="50" HeaderTextAlign="TextAlign.Center"></GridColumn>
             <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -170,7 +170,7 @@
             <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות למזרע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.FixedCoordinationRemark) HeaderText="מצב" EditType="EditType.DropDownEdit" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(K_Order.OpenCoordinationRemark) HeaderText="הערות מתאמת דוח" EditorSettings="@CustomerEditParams" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+            <GridColumn Field=@nameof(K_Order.OpenCoordinationRemark) HeaderText="הערות מתאמת דוח" EditorSettings="@CustomerEditParams" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" >
 
             </GridColumn>
         </GridColumns>

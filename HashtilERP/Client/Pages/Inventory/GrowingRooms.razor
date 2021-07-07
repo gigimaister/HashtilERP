@@ -14,7 +14,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter")]
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Sales-A,Sales-B")]
     <div style="text-align:right" class="alert alert-info" role="alert">
         <h3 style="text-align:center">חדרי הנבטה</h3>
     </div>
@@ -130,7 +130,7 @@
     </GridAggregates>
 
     <GridColumns>
-        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingRoom) HeaderText="חדר הנבטה" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.GrowingRoomExitDay) HeaderText="יציאה לחממות" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -143,7 +143,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.AutoPlantsCalc) HeaderText="שתילים" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" ></GridColumn>
     </GridColumns>
 </SfGrid>
 @*Spinner Style*@

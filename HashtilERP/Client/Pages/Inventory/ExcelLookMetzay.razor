@@ -20,7 +20,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Manager-Oren")]
+@attribute [Authorize(Roles = "Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
     <h2 style="text-align:center">מצאי אורן</h2>
 </div>
@@ -92,9 +92,9 @@
 
         <GridColumns>
 
-            <GridColumn Field=@nameof(MetzayForOren.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.Gidul)  HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -103,7 +103,7 @@
             <GridColumn Field=@nameof(MetzayForOren.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.Cx) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.MagashAmount) HeaderText="מגש" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true">
+            <GridColumn Field=@nameof(MetzayForOren.MagashAmount) HeaderText="מגש" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" Width="110">
                 <Template>
                     @{
                         var value = (context as MetzayForOren);
@@ -133,8 +133,8 @@
                     }
                 </Template>
             </GridColumn>
-            <GridColumn Field="@nameof(MetzayForOren.CxPlantsOrder)" HeaderText="הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" Width="100" AutoFit="true"></GridColumn>
+            <GridColumn Field="@nameof(MetzayForOren.CxPlantsOrder)" HeaderText="הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
         </GridColumns>
 
     </SfGrid>

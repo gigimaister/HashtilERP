@@ -133,17 +133,17 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Manager-Oren,Manager-GreenHouse">
+                    <AuthorizeView Roles="Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/excellookmetzay" Match="NavLinkMatch.All" @onclick="Close">
 
-                                <span class="oi oi-grid-four-up" aria-hidden="true"></span>&nbsp מצאי אורן
+                                <span class="oi oi-grid-four-up" aria-hidden="true"></span>&nbsp מצאי אקסל
                             </NavLink>
                         </li>
                     </AuthorizeView>
                     @{ if (isDevice != "Mobile")
                         {
-                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All" @onclick="Close">
 
@@ -151,11 +151,19 @@
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
-                             <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-Drivers,Sales-A,Sales-B,Agronomist">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/MetzayDetailedNoButtons" Match="NavLinkMatch.All" @onclick="Close">
+
+                                        <span class="oi oi-grid-three-up" aria-hidden="true"></span>&nbsp מצאי מפורט
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/MetzayLight" Match="NavLinkMatch.All" @onclick="Close">
 
-                                        <span class="oi oi-grid-four-up" aria-hidden="true"></span>&nbsp מצאי קל
+                                        <span class="oi oi-grid-two-up" aria-hidden="true"></span>&nbsp מצאי קל
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
@@ -163,7 +171,7 @@
                     }
                     @{ if (isDevice == "Mobile")
                         {
-                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/metzaylight" Match="NavLinkMatch.All" @onclick="Close">
 

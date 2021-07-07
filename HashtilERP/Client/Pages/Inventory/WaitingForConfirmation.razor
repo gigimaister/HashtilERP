@@ -68,7 +68,7 @@
     var Tool = (new List<string>() { "Search" });
 }
 @*GRID SECTION START HERE*@
-<SfGrid DataSource="@K_Passports" @ref="@SfGrid" AllowGrouping="false" Toolbar=@Tool AllowSorting="true" AllowResizing="true"
+<SfGrid DataSource="@K_Passports" @ref="@SfGrid" AllowGrouping="false" Width="auto" Toolbar=@Tool AllowSorting="true" AllowResizing="true"
         AllowFiltering="true" EnableRtl="true">
     <GridEvents TValue="K_Passport"></GridEvents>
 
@@ -96,7 +96,7 @@
         <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Right" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Passport.PassportStatus) HeaderText="סטטוס" HeaderTextAlign="TextAlign.Right" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" HeaderTextAlign="TextAlign.Right" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" HeaderTextAlign="TextAlign.Right" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
 
 
     </GridColumns>
