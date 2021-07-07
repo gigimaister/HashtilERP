@@ -54,11 +54,11 @@
 
 @*GRID SECTION START HERE*@
 
-<div>
+
     <SfGrid DataSource="@metzayForOrens" FrozenRows="0" AllowExcelExport="true" Height="700" Width="100%" AllowPaging="true" 
             @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true"
             AllowSorting="true" EnableRtl="true" AllowResizing="false">
-        <GridEvents TValue="MetzayForOren" QueryCellInfo="CustomizeCell" RowDataBound="RowBound"></GridEvents>
+        <GridEvents TValue="MetzayForOren" QueryCellInfo="CustomizeCell" OnToolbarClick="ToolbarClickHandler" RowDataBound="RowBound"></GridEvents>
         <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel"></GridFilterSettings>
         <GridPageSettings PageSize="40"></GridPageSettings>
         <GridAggregates>
@@ -134,11 +134,11 @@
                 </Template>
             </GridColumn>
             <GridColumn Field="@nameof(MetzayForOren.CxPlantsOrder)" HeaderText="הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" Width="100" AutoFit="true"></GridColumn>
         </GridColumns>
 
     </SfGrid>
-</div>
+
 
 @code {
 
@@ -187,7 +187,7 @@
     //GRID
     #region GRID
     SfGrid<MetzayForOren> SfGrid;
-    List<MetzayForOren> metzayForOrens { get; set; } 
+    List<MetzayForOren> metzayForOrens { get; set; }
     public K_Passport[] K_Passports;
     public void SearchBtnHandler(string searchKey)
     {
@@ -455,6 +455,22 @@
 
     }
 
+    //EXCEL EXPORT
+    public async Task ToolbarClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
+    {
+        if (args.Item.Text == "Excel Export")
+        {
+            var Now = DateTime.Now;
+            var stringNowDate = Now.ToShortDateString();
+            var stringNow = Now.ToShortTimeString();
+
+
+            ExcelExportProperties ExportProperties = new ExcelExportProperties();
+            ExportProperties.IncludeTemplateColumn = true;
+            ExportProperties.FileName = $"מצאי חממות לתאריך-{stringNowDate} שעה: {stringNow}.xlsx";
+            await this.SfGrid.ExcelExport(ExportProperties);
+        }
+    }
 
     #endregion
 }

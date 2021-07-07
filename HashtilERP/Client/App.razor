@@ -9,21 +9,35 @@
                     {
                         <RedirectToLogin />
                     }
+                    //THAI GRNHOUSE
                     else if (context.User.IsInRole("Thai-GreenHouse"))
                     {
                         Navigation.NavigateTo("thai-greenhouse/newmovingpassports");
                     }
+                    //SOWING
                     else if (context.User.IsInRole("Thai-Guy"))
                     {
                         Navigation.NavigateTo("sowing/insertpassport");
                     }
+                    //COUNTER
                     else if (context.User.IsInRole("AuditAvgCounter"))
                     {
                         Navigation.NavigateTo("inventory/passportavg");
                     }
+                    //MNGR GRNHOUSE
                     else if (context.User.IsInRole("Manager-GreenHouse"))
                     {
                         Navigation.NavigateTo("inventory/WaitingForConfirmation");
+                    }
+                    //SALES,OREN,TRUCK DELIVERY
+                    else if (context.User.IsInRole("Sales-A") || context.User.IsInRole("Sales-B") || context.User.IsInRole("Manager-Oren") || context.User.IsInRole("Manager-Drivers"))
+                    {
+                        Navigation.NavigateTo("order/OrdersForTodayTomorrow");
+                    }
+                    //VIEWER
+                    else if (context.User.IsInRole("Viewer"))
+                    {
+                        Navigation.NavigateTo("inventory/GrowingRooms");
                     }
                 </NotAuthorized>
             </AuthorizeRouteView>

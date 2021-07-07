@@ -20,11 +20,11 @@
     <PackageReference Include="BlazingComponents.Authentication" Version="29062019.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.7" />
-    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.8.2" />
+    <PackageReference Include="Microsoft.Azure.SignalR" Version="1.9.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" ExcludeAssets="All" />
-    <PackageReference Include="Syncfusion.Blazor" Version="19.1.0.54" />
+    <PackageReference Include="Syncfusion.Blazor" Version="19.2.0.44" />
   </ItemGroup>
 
   <ItemGroup>
