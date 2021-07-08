@@ -33,6 +33,7 @@ namespace HashtilERP.Shared.Models
         public bool? IsDeliveryNote { get; set; } = false;
         public bool? IsJobCancel { get; set; } = false;
         public bool? IsWasChangedAfterDeliveryReport { get; set; } = false;
+        public bool? WasEditAfterAttachedPassports { get; set; } = false;
         public int? NumOfCages { get; set; } = 0;
         public int? NumOfBarTenderStickers { get; set; } = 0;
 
@@ -43,6 +44,8 @@ namespace HashtilERP.Shared.Models
         public string OpenCoordinationRemark { get; set; }="";
         public string UserName { get; set; }="";
         public string PassprodComments { get; set; }="";
+
+        public DateTime MarketingDateDate => Convert.ToDateTime(MarketingDate);
 
         [ForeignKey("JobId")]
         public virtual List<K_OrderPassports> K_OrderPassports { get; set; }

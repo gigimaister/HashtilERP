@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using HashtilERP.Shared.Models;
 
 #nullable disable
 
@@ -39,13 +40,15 @@ namespace HashtilERP.Data
         public string UserName { get; set; }
         public DateTime? DateEnd { get; set; }
         public int? GrowingDays { get; set; }
+        public int PassportAge => Convert.ToInt32(((TimeSpan)(DateTime.Now - SowDate)).Days);
         public string Gidul { get; set; }
         public string Zan { get; set; }
         public string PassportCondition { get; set; }
         public DateTime? GrowingRoomExitDay { get; set; }
         public int CelsTray { get; set; }
         public string SaveForCxRemarks { get; set; }
-
+        public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAvg, PassportStartingAVG, MagashAmount);
+        public string AutoPassportAVG => K_PassportFunctions.GetKorderAvg(PassportAvg, PassportStartingAVG);
         public double? AuditAge => (Convert.ToDouble(((TimeSpan)(DateTime.Now - SowDate)).Days) / Convert.ToDouble(GrowingDays));
 
         [ForeignKey("SapDocEntry")]

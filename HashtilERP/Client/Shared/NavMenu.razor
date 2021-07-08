@@ -42,42 +42,48 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/weeklykorders" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-clock" aria-hidden="true"></span>&nbsp הוצ' שבועי
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
 
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/kordersarchive" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-calendar" aria-hidden="true"></span>&nbsp הוצ' ארכיון
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/prepreport" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-task" aria-hidden="true"></span>&nbsp תיאום הוצ'
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/prepreportarchive" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-document" aria-hidden="true"></span>&nbsp ארכיון ת.הוצ'
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
+
+                    @{ if (isDevice != "Mobile")
+                        {
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/weeklykorders" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-clock" aria-hidden="true"></span>&nbsp הוצ' שבועי
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/kordersarchive" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-calendar" aria-hidden="true"></span>&nbsp הוצ' ארכיון
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/prepreport" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-task" aria-hidden="true"></span>&nbsp תיאום הוצ'
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-Oren,Manager-Drivers,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/prepreportarchive" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-document" aria-hidden="true"></span>&nbsp ארכיון ת.הוצ'
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                        }
+                    }
 
                     <AuthorizeView Roles="Administrator">
                         <li class="nav-item px-3">
@@ -143,6 +149,7 @@
                     </AuthorizeView>
                     @{ if (isDevice != "Mobile")
                         {
+                            //DESKTOP-WITH BTN
                             <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All" @onclick="Close">
@@ -151,6 +158,7 @@
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
+                            //DESKTOP-WITH NO BTN!
                             <AuthorizeView Roles="Administrator,Viewer,Manager-Drivers,Sales-A,Sales-B,Agronomist">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/MetzayDetailedNoButtons" Match="NavLinkMatch.All" @onclick="Close">
@@ -159,6 +167,7 @@
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
+                            //LIGHT-FOR EDIT AUTH ONLY!
                             <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/MetzayLight" Match="NavLinkMatch.All" @onclick="Close">
@@ -182,13 +191,13 @@
                         }
                     }
 
-                    @{ if (isDevice == "Mobile" || 1 == 1)
+                    @{ if (isDevice != "Mobile")
                         {
                             <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Manager-Oren,AuditAvgCounter,Manager-Drivers,Sales-A,Sales-B">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/metzaybycx" Match="NavLinkMatch.All" @onclick="Close">
 
-                                        <span class="oi oi-grid-two-up" aria-hidden="true"></span>&nbsp מצאי לפי לקוח
+                                        <span class="oi oi-person" aria-hidden="true"></span>&nbsp מצאי לפי לקוח
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
@@ -244,20 +253,26 @@
                         </li>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="inventory/metzayarchive" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-book" aria-hidden="true"></span>&nbsp מצאי-ארכיון
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="inventory/metzayreportfor" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-bar-chart" aria-hidden="true"></span>&nbsp דוח מצאי ליום
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
+
+                    @{ if (isDevice != "Mobile")
+                        {
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/metzayarchive" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-book" aria-hidden="true"></span>&nbsp מצאי-ארכיון
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="inventory/metzayreportfor" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-bar-chart" aria-hidden="true"></span>&nbsp דוח מצאי ליום
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                        }
+                    }
+
                     <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/newpassportsinsertformanagers" Match="NavLinkMatch.All" @onclick="Close">
@@ -267,8 +282,6 @@
                     </AuthorizeView>
 
                 </ul>
-
-
             </ChildContent>
         </SfSidebar>
         <!-- end of sidebar element -->

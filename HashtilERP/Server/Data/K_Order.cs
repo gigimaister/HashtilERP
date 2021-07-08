@@ -46,7 +46,7 @@ namespace HashtilERP.Data
         public bool? IsDeliveryNote { get; set; }
         public bool? IsJobCancel { get; set; }
         public bool? IsWasChangedAfterDeliveryReport { get; set; }
-
+        public bool? WasEditAfterAttachedPassports { get; set; } = false;
         public int? NumOfCages { get; set; }
         public int? NumOfBarTenderStickers { get; set; } = 0;
 

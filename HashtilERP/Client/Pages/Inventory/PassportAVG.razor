@@ -331,9 +331,47 @@
     }
     public async void SubmitAVGEditDialog()
     {
+        //if empty AVG
+        if (String.IsNullOrEmpty(ediTedAVG))
+        {
+            ModalErrorContent = "לא הוכנס ממוצע!";
+            ErrorModalIsVisible = true;
+            ediTedAVG = "";
+            return;
+        }
+        try
+        {
+            EditedAVG = Convert.ToInt32(ediTedAVG);
+        }
+        catch (Exception e)
+        {
+            ModalErrorContent = "יש להזין ספרות בלבד!";
+            ErrorModalIsVisible = true;
+            ediTedAVG = "";
+            Console.WriteLine(e.Message);
+            return ;
+        }
+        if (CurrentAVG == EditedAVG)
+        {
+            ModalErrorContent = "ממוצע חדש שווה לממוצע נוכחי...אין מה לעדכן";
+            ErrorModalIsVisible = true;
+            return ;
+        }
+        //if AVG > magash type
+        if (EditedAVG > K_Passport.CelsTray)
+        {
+            ModalErrorContent = "ממוצע גבוה מסוג מגש";
+            ErrorModalIsVisible = true;
+            return;
+        }
         SpinnerBool = true;
         await SendPassportAVG();
         SpinnerBool = false;
+        ToastContent = "נשמר!";
+        ediTedAVG = "";
+        await ShowToast();
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
 
     //EDIT/SEND NEW AVG
@@ -390,102 +428,53 @@
     }
 
     //EDIT PASSPORT AVG MODAL BUTTONS
-    public async Task SendPassportAVG()
+    public async Task<int> SendPassportAVG()
     {
-        //if empty AVG
-        if(String.IsNullOrEmpty(ediTedAVG))
+
+        K_Passport.PassportAVG = EditedAVG;
+        K_Passport.AVGEnteringDate = DateTime.Now;
+        if (PassportAlgorithm.IsAVGLow(K_Passport))
         {
-            ModalErrorContent = "לא הוכנס ממוצע!";
-            ErrorModalIsVisible = true;
-            ediTedAVG = "";
-            return;
-        }
-        SpinnerBool = true;
-        try
-        {
-            EditedAVG = Convert.ToInt32(ediTedAVG);
-        }
-        catch(Exception e)
-        {
-            ModalErrorContent = "יש להזין ספרות בלבד!";
-            ErrorModalIsVisible = true;
-            ediTedAVG = "";
-            Console.WriteLine(e.Message);
-            return;
-        }
-        if (CurrentAVG == EditedAVG)
-        {
-            ModalErrorContent = "ממוצע חדש שווה לממוצע נוכחי...אין מה לעדכן";
-            ErrorModalIsVisible = true;
-            return;
-        }
-        //if AVG > magash type
-        if (EditedAVG > K_Passport.CelsTray)
-        {
-            ModalErrorContent = "ממוצע גבוה מסוג מגש";
-            ErrorModalIsVisible = true;
-            //if (IsConnected) await SendMessage();
-            SpinnerBool = false;
-            StateHasChanged();
+            K_Passport.IsLowAVG = true;
         }
         else
         {
-            K_Passport.PassportAVG = EditedAVG;
-            K_Passport.AVGEnteringDate = DateTime.Now;
-            if (PassportAlgorithm.IsAVGLow(K_Passport))
+            if (K_Passport.IsLowAVG == true)
             {
-                K_Passport.IsLowAVG = true;
-            }
-            else
-            {
-                if (K_Passport.IsLowAVG == true)
-                {
-                    K_Passport.IsLowAVG = false;
-                }
-            }
-
-            try
-            {
-                var rslt = await Http.PutAsJsonAsync($"api/KPassports/{K_Passport.K_PassportId}", K_Passport);
-                //Http Response Failed On Update
-                if (!rslt.IsSuccessStatusCode)
-                {
-                    SpinnerBool = false;
-                    ModalErrorContent = rslt.ReasonPhrase;
-                    ErrorModalIsVisible = true;
-                    //if (IsConnected) await SendMessage();
-                    passportInput = "";
-                    StateHasChanged();
-                }
-                else
-                {
-
-                    SpinnerBool = false;
-                    //OK
-                    this.IsVisible = false;
-                    ToastContent = "נשמר!";
-                    ediTedAVG = "";
-
-                    await ShowToast();
-                    passportInput = "";
-                    EditedAVG = 0;
-
-                    if (IsConnected) await SendMessage();
-                    //StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                SpinnerBool = false;
-                //if (IsConnected) await SendMessage();
-                this.IsVisible = false;
-                ToastContent = e.Message;
-
-                await ShowToast();
-                StateHasChanged();
+                K_Passport.IsLowAVG = false;
             }
         }
 
+        try
+        {
+            var rslt = await Http.PutAsJsonAsync($"api/KPassports/{K_Passport.K_PassportId}", K_Passport);
+            //Http Response Failed On Update
+            if (!rslt.IsSuccessStatusCode)
+            {
+                SpinnerBool = false;
+                ModalErrorContent = rslt.ReasonPhrase;
+                ErrorModalIsVisible = true;
+                //if (IsConnected) await SendMessage();
+                passportInput = "";
+                StateHasChanged();
+                return 1;
+            }
+
+            this.IsVisible = false;
+            passportInput = "";
+            EditedAVG = 0;
+
+        }
+        catch (Exception e)
+        {
+
+            this.IsVisible = false;
+            ToastContent = e.Message;
+            Console.WriteLine(e.Message);
+
+        }
+
+        return 0;
     }
     public void CancelEditPassportAVG()
     {

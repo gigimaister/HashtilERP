@@ -178,6 +178,21 @@ namespace HashtilERP.Server
                 throw new Exception(e.Message);
             }
         }
+        //Tomatos cut
+        [HttpGet("NeedToCutt")]
+        public async Task<List<K_Passport>> GetNeedToCutt()
+        {
+            var passports = new List<K_Passport>();
+            try
+            {
+                passports = await _context.KPassport.Where(x => x.IsNeedToCut == true && x.PassportStatus == Status.InGreenHouse).ToListAsync();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return passports;
+        }
         //Tomatos For cut
         [HttpGet("NeedToBeCut")]
         public async Task<ActionResult<IEnumerable<K_Passport>>> GetNeedToBeCut()

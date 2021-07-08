@@ -257,6 +257,13 @@
                             </AuthorizeView>
                         }
                     }
+                    @{ if (K_OrderForEdit.WasEditAfterAttachedPassports == true)
+                        {
+                            <AuthorizeView Roles="Administrator, Manager-GreenHouse">
+                                <button class="btn btn-dark" style="text-align:left" @onclick="@KorderConfirmEdit">אישור עריכה</button>
+                            </AuthorizeView>
+                        }
+                    }
                 </div>
             </div>
             <hr>
@@ -1274,16 +1281,16 @@
                                 </GridAggregates>
 
                                 <GridColumns>
-                                    <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"> </GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true">
+                                    <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" > </GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" >
                                         <Template>
                                             @{
                                                 var value = (context as K_Passport);
@@ -1292,9 +1299,9 @@
                                             }
                                         </Template>
                                     </GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-                                    <GridColumn HeaderText="בחירה" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" Width="50px">
+                                    <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn HeaderText="בחירה" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" >
                                         <GridCommandColumns>
                                             <GridCommandColumn Type=CommandButtonType.None
                                                                ButtonOption="@(new CommandButtonOptions() {  IconCss ="e-icons e-plus-icon", CssClass = "e-round", IsPrimary = true })">
@@ -1387,8 +1394,33 @@
     {
         CancelKorderShow = true;
     }
+    //set wasedit after passports attached to FALSE
+    async void KorderConfirmEdit()
+    {
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        await UpdateJobConfirmEdit();
+        LoadingSpinner = false;
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        await ShowToast();
+    }
+    async Task<int> UpdateJobConfirmEdit()
+    {
+        K_OrderForEdit.WasEditAfterAttachedPassports = false;
+        var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+        if (!StandByrslt.IsSuccessStatusCode)
+        {
 
-
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = StandByrslt.ReasonPhrase; ;
+            ErrorDialogIsVisible = true;
+            LoadingSpinner = false;
+            return 1;
+        }
+        return 0;
+    }
     async void SendOrderCancelForm()
     {
         if (String.IsNullOrEmpty(TboxCancel) || String.IsNullOrEmpty(WhoCancel))
@@ -1505,11 +1537,12 @@
             return;
         }
 
-        if (IsConnected) await SendMessage();
+
         ToastContent = "נשמר!";
-        StateHasChanged();
+        //StateHasChanged();
         LoadingSpinner = false;
         await ShowToast();
+        if (IsConnected) await SendMessage();
 
     }
 
@@ -2478,8 +2511,12 @@
     {
         K_OrderForEdit = args.RowData;
         RowEditDialogShow = true;
-        await Task.Run(() => K_OrderForAllEdit.Gidul = args.RowData.Gidul);
-        await Task.Run(() => K_OrderForAllEdit.Zan = args.RowData.Zan);
+        K_OrderForAllEdit.Gidul = args.RowData.Gidul;
+        K_OrderForAllEdit.Zan = args.RowData.Zan;
+        K_OrderForAllEdit.JobNumOfMagash = args.RowData.JobNumOfMagash;
+        K_OrderForAllEdit.JobPlantsNum = args.RowData.JobPlantsNum;
+        K_OrderForAllEdit.JobPlansAvarage = args.RowData.JobPlansAvarage;
+        K_OrderForAllEdit.HamamaRemarks = args.RowData.HamamaRemarks;
         AVGAutoCalc = "";
     }
 
@@ -3450,6 +3487,12 @@
                 }
 
             }
+            //if changes where made after attached passports
+            if (k_Order.K_OrderPassports.Count()>0 && K_OrderForAllEdit.JobNumOfMagash != k_Order.JobNumOfMagash || K_OrderForAllEdit.JobPlantsNum != k_Order.JobPlantsNum
+                || K_OrderForAllEdit.JobPlansAvarage != k_Order.JobPlansAvarage || K_OrderForAllEdit.HamamaRemarks != k_Order.HamamaRemarks)
+            {
+                k_Order.WasEditAfterAttachedPassports = true;
+            }
             //if we edit the order after delivery bill was out
             if (k_Order.IsDeliveryNote == true) { k_Order.IsWasChangedAfterDeliveryReport = true; }
             var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
@@ -3592,7 +3635,7 @@
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Order> args)
     {
-        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true)
+        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true && args.Data.WasEditAfterAttachedPassports != true)
         {
             args.Row.AddClass(new string[] { "is-attached-passports" });
         }
@@ -3603,6 +3646,10 @@
         if (args.Data.JobStatus == K_OrderPhase.Finish)
         {
             args.Row.AddClass(new string[] { "is-job-ready" });
+        }
+        if (args.Data.WasEditAfterAttachedPassports == true)
+        {
+            args.Row.AddClass(new string[] { "job-was-edit-after-passports" });
         }
     }
     //IsPrinted TYPE STYLE
@@ -3630,6 +3677,9 @@
 }
 
 <style>
+    .job-was-edit-after-passports {
+        background-color: darksalmon;
+    }
     .is-job-ready {
         background-color: mediumseagreen;
     }

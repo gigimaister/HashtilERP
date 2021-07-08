@@ -164,7 +164,7 @@
             <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.JobPlantsNum) HeaderText="כמות" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-            <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+            <GridColumn Field=@nameof(K_Order.MarketingDateDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.SaleNum) HeaderText="מספר הזמנה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.CardCode) HeaderText="מספר לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -344,7 +344,7 @@
         SfGrid<K_Order> SfGrid;
 
         //list of KOrder(Grid Rows)
-        K_Order[] K_Orders;
+        List<K_Order> K_Orders;
 
         List<K_Order> KOrderForMultiEditSelect = new List<K_Order>();
 
@@ -729,7 +729,7 @@
             try
             {
                 ShowCorrectDate = false;
-                K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/KOrder/GetKOrders");
+                K_Orders = await Http.GetFromJsonAsync<List<K_Order>>("api/KOrder/GetKOrders");
                 StateHasChanged();
             }
             catch (Exception e) { Console.WriteLine(e.Message); }
@@ -766,7 +766,7 @@
 
                 ShowCorrectDate = true;
 
-                K_Orders = await Http.GetFromJsonAsync<K_Order[]>($"api/KOrder/GetKOrdersByDateRange/{startDate}/{endDate}");
+                K_Orders = await Http.GetFromJsonAsync<List<K_Order>>($"api/KOrder/GetKOrdersByDateRange/{startDate}/{endDate}");
 
                 LoadingSpinner = false;
 
