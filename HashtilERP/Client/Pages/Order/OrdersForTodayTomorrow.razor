@@ -3488,8 +3488,8 @@
 
             }
             //if changes where made after attached passports
-            if (k_Order.K_OrderPassports.Count()>0 && K_OrderForAllEdit.JobNumOfMagash != k_Order.JobNumOfMagash || K_OrderForAllEdit.JobPlantsNum != k_Order.JobPlantsNum
-                || K_OrderForAllEdit.JobPlansAvarage != k_Order.JobPlansAvarage || K_OrderForAllEdit.HamamaRemarks != k_Order.HamamaRemarks)
+            if (k_Order.K_OrderPassports.Count() > 0 && (K_OrderForAllEdit.JobNumOfMagash != k_Order.JobNumOfMagash || K_OrderForAllEdit.JobPlantsNum != k_Order.JobPlantsNum
+                || K_OrderForAllEdit.JobPlansAvarage != k_Order.JobPlansAvarage || K_OrderForAllEdit.HamamaRemarks != k_Order.HamamaRemarks))
             {
                 k_Order.WasEditAfterAttachedPassports = true;
             }
