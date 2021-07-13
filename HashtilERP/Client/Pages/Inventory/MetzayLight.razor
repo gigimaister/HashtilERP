@@ -667,8 +667,9 @@
         DestroyVisability = false;
         AfterActionSpinner = true;
         await ConfirmDestroyYes();
-        if (IsConnected) await SendMessage();
         AfterActionSpinner = false;
+        if (IsConnected) await SendMessage();        
+        StateHasChanged();
     }
 
     //DIALOG Destroy CONFIRMED
@@ -730,6 +731,13 @@
         AfterActionSpinner = true;
         await UpdatePassport(context);
         AfterActionSpinner = false;
+        if (IsConnected) await SendMessage();
+        ToastContent = HebSaved;
+        await ShowToast();
+        CloseCustomEditDialog();
+        InputHamama = "";
+        InputGamlon = "";
+        StateHasChanged();
     }
     #endregion
     //TOAST
@@ -841,20 +849,6 @@
             ToastContent = rslt.StatusCode.ToString();
             await ShowToast();
             StateHasChanged();
-        }
-        else
-        {
-
-
-            if (IsConnected) await SendMessage();
-            ToastContent = HebSaved;
-            StateHasChanged();
-            await ShowToast();
-            CloseCustomEditDialog();
-            InputHamama = "";
-            InputGamlon = "";
-
-
         }
 
         return 0;
