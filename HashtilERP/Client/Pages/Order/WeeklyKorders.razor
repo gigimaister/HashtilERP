@@ -22,7 +22,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B")]
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers")]
 <div style="text-align:right" class="alert alert-secondary" role="alert">
     <h2 style="text-align:center">הוצאות שבועיות</h2>
 </div>
@@ -40,12 +40,14 @@
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-                    
+
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
                     </div>
-
+                    <div class="col" style="text-align:left">
+                        <button class="btn btn-outline-danger" @onclick="BtnCancelJobs">ביטול עבודה</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -253,6 +255,13 @@
                         {
                             <AuthorizeView Roles="Administrator, Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B">
                                 <button class="btn btn-danger" style="text-align:left" @onclick="@KorderCancelShow">ביטול עבודה</button>
+                            </AuthorizeView>
+                        }
+                    }
+                    @{ if (K_OrderForEdit.WasEditAfterAttachedPassports == true)
+                        {
+                            <AuthorizeView Roles="Administrator, Manager-GreenHouse">
+                                <button class="btn btn-dark" style="text-align:left" @onclick="@KorderConfirmEdit">אישור עריכה</button>
                             </AuthorizeView>
                         }
                     }
@@ -555,7 +564,7 @@
         </Content>
 
         <FooterTemplate>
-            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Sales-A,Sales-B">
+            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Sales-A,Sales-B,Manager-Oren">
                 <div class="row text-center">
                     <div class="col">
                         <button class="btn btn-success" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">אישור</button>
@@ -614,8 +623,23 @@
             </div>
         </Content>
         <FooterTemplate>
-            <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
-            <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+            <div class="row">
+                <div class="col" style="text-align:right">
+                    @{if (IsListOfCancelJobs == true)
+                        {
+                            <button class="btn btn-success" @onclick="SencListJobsCancel">שליחה</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
+                        }
+                    }
+                </div>
+                <div class="col">
+                    <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+                </div>
+            </div>
+
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
@@ -784,16 +808,16 @@
 
     <DialogTemplates>
         <Content>
-            <SfTooltip ID="Tooltip" Target="#gidzanbtn" EnableRtl="true" IsSticky="true" Content="@GidZanToolContentContent"
-                       Position="Position.LeftCenter"></SfTooltip>
+            @*<SfTooltip ID="Tooltip" Target="#gidzanbtn" EnableRtl="true" IsSticky="true" Content="@GidZanToolContentContent"
+                       Position="Position.LeftCenter"></SfTooltip>*@
 
             <div class="row">
                 <div class="col" style="text-align:right">
-                    <input type="text" class="form-control" style="width:200px"
+                    @*<input type="text" class="form-control" style="width:200px"
                            placeholder="הכנסת זן בלבד(לא חובה)"
-                           @bind=@SearchByZan />
+                           @bind=@SearchByZan />*@
                     <br />
-                    <button id="gidzanbtn" style="text-align:left" class="btn btn-outline-secondary" @onclick="@(_ => {GetKpassportsByGidulAndZan();})">טעינת עבודות לפי גידול וזן</button>
+                    <button id="gidzanbtn" style="text-align:left" class="btn btn-outline-secondary" @onclick="@(_ => {GetKpassportsByGidulAndZan();})">טעינת כל המצאי</button>
 
                 </div>
                 <div class="col">
@@ -1293,7 +1317,7 @@
     //KOrder Cnacel Dialog
     #region KOrder Cnacel Dialog
     public bool CancelKorderShow { get; set; } = false;
-
+    public bool IsListOfCancelJobs { get; set; } = false;
     //T.box and Who canceled
     string TboxCancel, WhoCancel;
 
@@ -1309,7 +1333,33 @@
     {
         CancelKorderShow = true;
     }
+    //set wasedit after passports attached to FALSE
+    async void KorderConfirmEdit()
+    {
+        RowEditDialogShow = false;
+        LoadingSpinner = true;
+        await UpdateJobConfirmEdit();
+        LoadingSpinner = false;
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
+        ToastContent = "נשמר!";
+        await ShowToast();
+    }
+    async Task<int> UpdateJobConfirmEdit()
+    {
+        K_OrderForEdit.WasEditAfterAttachedPassports = false;
+        var StandByrslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+        if (!StandByrslt.IsSuccessStatusCode)
+        {
 
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = StandByrslt.ReasonPhrase; ;
+            ErrorDialogIsVisible = true;
+            LoadingSpinner = false;
+            return 1;
+        }
+        return 0;
+    }
 
     async void SendOrderCancelForm()
     {
@@ -2190,6 +2240,69 @@
         }
         return 0;
     }
+    //Multi jobs cancel BTN
+    void BtnCancelJobs()
+    {
+        if (selectedRows.Count() == 0)
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+        IsListOfCancelJobs = true;
+        CancelKorderShow = true;
+    }
+    async void SencListJobsCancel()
+    {
+        if (String.IsNullOrEmpty(TboxCancel) || String.IsNullOrEmpty(WhoCancel))
+        {
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "יש למלא את שתי האופציות!";
+            ErrorDialogIsVisible = true;
+            return;
+        }
+        LoadingSpinner = true;
+        KorderCancelHide();
+        await CancelJobsDB(selectedRows);
+        IsListOfCancelJobs = false;
+        LoadingSpinner = false;
+        if (IsConnected) await SendMessage();
+        return;
+    }
+    async Task<int> CancelJobsDB(List<K_Order> selectedRows)
+    {
+        foreach (var row in selectedRows)
+        {
+            try
+            {
+                K_OrderForEdit = row;
+                K_OrderRemark.JobId = K_OrderForEdit.JobId;
+                K_OrderRemark.Remark = $"ביטול עבודה-מי ביטל: {WhoCancel} סיבת ביטול:{TboxCancel}";
+                if (K_OrderForEdit.IsDeliveryNote == true) { K_OrderForEdit.IsWasChangedAfterDeliveryReport = true; }
+
+                if (K_OrderForEdit.K_OrderPassports.Count() > 0)
+                {
+                    K_OrderForEdit.IsPrinted = false;
+                }
+                else
+                {
+                    K_OrderForEdit.JobStatus = K_OrderPhase.Canceled;
+                }
+                K_OrderForEdit.IsJobCancel = true;
+                await Http.PostAsJsonAsync(("api/WeeklyKOrder/NewKOrderRemark"), K_OrderRemark);
+                await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{K_OrderForEdit.JobId}", K_OrderForEdit);
+                K_OrderRemark = new K_OrderRemark();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                continue;
+            }
+        }
+        return 0;
+    }
     //Multi Change Date
     async void BtnSendMultiDate()
     {
@@ -2996,8 +3109,8 @@
         LoadingSpinner = false;
 
         SfGridKpassport.Refresh();
-        if (IsConnected) await SendMessageForPickPassport();
-        StateHasChanged();
+        //if (IsConnected) await SendMessageForPickPassport();
+
     }
 
     //Get Passports By ItemCode
@@ -3006,21 +3119,29 @@
         k_PassportsForKorder = new List<K_Passport>();
 
 
-        if (isItemcode == false && String.IsNullOrEmpty(SearchByZan))
+        //if (isItemcode == false && String.IsNullOrEmpty(SearchByZan))
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{k_Order.Zan}");
+        //}
+        //else if (isItemcode == false && !String.IsNullOrEmpty(SearchByZan))
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{SearchByZan}");
+        //}
+        //else
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByItemCode/{k_Order.ItemCode}");
+        //}
+        if (isItemcode)
         {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{k_Order.Zan}");
-        }
-        else if (isItemcode == false && !String.IsNullOrEmpty(SearchByZan))
-        {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{SearchByZan}");
+            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulZanLIKE/{k_Order.Gidul}/{k_Order.Zan}");
+
         }
         else
         {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByItemCode/{k_Order.ItemCode}");
+            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/metzay");
         }
-
-
-        if (IsConnected) await SendMessageForPickPassport();
+        //if (IsConnected) await SendMessageForPickPassport();
+        //StateHasChanged();
         StateHasChanged();
 
         return 0;
@@ -3289,18 +3410,22 @@
                 }
 
             }
+            //if changes where made after attached passports
+            if (k_Order.K_OrderPassports.Count() > 0 && (K_OrderForAllEdit.JobNumOfMagash != k_Order.JobNumOfMagash || K_OrderForAllEdit.JobPlantsNum != k_Order.JobPlantsNum
+                || K_OrderForAllEdit.JobPlansAvarage != k_Order.JobPlansAvarage || K_OrderForAllEdit.HamamaRemarks != k_Order.HamamaRemarks))
+            {
+                k_Order.WasEditAfterAttachedPassports = true;
+            }
             //if we edit the order after delivery bill was out
             if (k_Order.IsDeliveryNote == true) { k_Order.IsWasChangedAfterDeliveryReport = true; }
             var rslt = await Http.PutAsJsonAsync($"api/WeeklyKOrder/UpdateTodayTomorrowOrder/{k_Order.JobId}", k_Order);
 
             if (rslt.IsSuccessStatusCode)
             {
-                ToastContent = "נשמר!";
-                await ShowToast();
-                StateHasChanged();
-
                 if (IsConnected) await SendMessage();
-
+                ToastContent = "נשמר!";
+                StateHasChanged();
+                await ShowToast();
             }
             else
             {
@@ -3433,7 +3558,7 @@
     //ROW IsNeedToBeAudit STYLE
     public void RowBound(RowDataBoundEventArgs<K_Order> args)
     {
-        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true)
+        if (args.Data.JobStatus == K_OrderPhase.AttachedPassports && args.Data.IsJobCancel != true && args.Data.WasEditAfterAttachedPassports != true)
         {
             args.Row.AddClass(new string[] { "is-attached-passports" });
         }
@@ -3444,6 +3569,10 @@
         if (args.Data.JobStatus == K_OrderPhase.Finish)
         {
             args.Row.AddClass(new string[] { "is-job-ready" });
+        }
+        if (args.Data.WasEditAfterAttachedPassports == true)
+        {
+            args.Row.AddClass(new string[] { "job-was-edit-after-passports" });
         }
     }
     //IsPrinted TYPE STYLE
@@ -3464,6 +3593,13 @@
                 Console.WriteLine(e.Message);
             }
         }
+        if (args.Column.Field == "JobPlansAvarage")
+        {
+            if ((args.Data.JobPlansAvarage > 442 || args.Data.JobPlansAvarage < 150) && args.Data.JobPlansAvarage != 0)
+            {
+                args.Cell.AddClass(new string[] { "is-avg-not-good" });
+            }
+        }
 
     }
 
@@ -3471,6 +3607,9 @@
 }
 
 <style>
+    .job-was-edit-after-passports {
+        background-color: darksalmon;
+    }
     .is-job-ready {
         background-color: mediumseagreen;
     }
@@ -3599,7 +3738,9 @@
     .is-printed {
         background-color: yellow;
     }
-
+    .is-avg-not-good {
+        background-color: tomato;
+    }
     .is-need-to-show-kpassport-pick-selection {
         background-color: lightgoldenrodyellow;
     }

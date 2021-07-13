@@ -53,10 +53,10 @@
 }
 
 
+<AuthorizeView Roles="Administrator,Sales-A,Sales-B">
+    @*Multi AVG for rows*@
+    <div>
 
-@*Multi AVG for rows*@
-<div>
-    
         <div class="col alert alert-success" role="alert">
             <div class="row">
                 <div class="col">
@@ -68,19 +68,21 @@
                     <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
                 </div>
                 <div class="col">
-                    <button class="btn btn-outline-danger" style="margin-right:120px" @onclick="SendMultiCancel">ביטול עבודות כללי</button>                 
+                    <button class="btn btn-outline-danger" style="margin-right:120px" @onclick="SendMultiCancel">ביטול עבודות כללי</button>
                 </div>
                 <div class="col">
-                    <AuthorizeView Roles="Administrator,Sales-A,Sales-B">
-                        <div style="text-align:left">
-                            <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
-                        </div>
-                    </AuthorizeView>
-                </div>               
-            </div>           
+
+                    <div style="text-align:left">
+                        <button class="btn btn-primary" @onclick="@(_ => {  GetSapOrders();})" type="submit">רענון</button>
+                    </div>
+
+                </div> 
+            </div>
         </div>
-    
-</div>
+
+    </div>
+</AuthorizeView>
+
      
         
    

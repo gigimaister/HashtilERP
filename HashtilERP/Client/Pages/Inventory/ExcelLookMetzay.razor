@@ -20,9 +20,9 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist")]
+@attribute [Authorize(Roles = "Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist,Manager-Drivers")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
-    <h2 style="text-align:center">מצאי אורן</h2>
+    <h2 style="text-align:center">מצאי דומה לאקסל</h2>
 </div>
 @if (metzayForOrens == null)
 {

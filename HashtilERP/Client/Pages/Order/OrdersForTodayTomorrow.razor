@@ -15,11 +15,12 @@
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.SplitButtons
+@using System.Timers;
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B")]
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
     <h2 style="text-align:center">הוצאות להיום/מחר</h2>
 </div>
@@ -563,7 +564,7 @@
         </Content>
 
         <FooterTemplate>
-            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Sales-A,Sales-B">
+            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Sales-A,Sales-B,Manager-Oren">
                 <div class="row text-center">
                     <div class="col">
                         <button class="btn btn-success" @onclick="@(_ => { SendRowEdit(K_OrderForEdit); })">אישור</button>
@@ -868,16 +869,16 @@
 
     <DialogTemplates>
         <Content>
-            <SfTooltip ID="Tooltip" Target="#gidzanbtn" EnableRtl="true" IsSticky="true" Content="@GidZanToolContentContent"
-                       Position="Position.LeftCenter"></SfTooltip>
+            @*<SfTooltip ID="Tooltip" Target="#gidzanbtn" EnableRtl="true" IsSticky="true" Content="@GidZanToolContentContent"
+                       Position="Position.LeftCenter"></SfTooltip>*@
 
             <div class="row">
                 <div class="col" style="text-align:right">
-                    <input type="text" class="form-control" style="width:200px"
+                    @*<input type="text" class="form-control" style="width:200px"
                            placeholder="הכנסת זן בלבד(לא חובה)"
-                           @bind=@SearchByZan />
+                           @bind=@SearchByZan />*@
                     <br />
-                    <button id="gidzanbtn" style="text-align:left" class="btn btn-outline-secondary" @onclick="@(_ => {GetKpassportsByGidulAndZan();})">טעינת עבודות לפי גידול וזן</button>
+                    <button id="gidzanbtn" style="text-align:left" class="btn btn-outline-secondary" @onclick="@(_ => {GetKpassportsByGidulAndZan();})">טעינת כל המצאי</button>
 
                 </div>
                 <div class="col">
@@ -1672,8 +1673,18 @@
             Task.Run(async () => { await LoadPickPassportData(); });
             StateHasChanged();
         });
-
+        //call loadData every 5 min
         await hubConnection.StartAsync();
+        var timer = new System.Timers.Timer();
+        timer.Interval = 300000;
+        timer.Elapsed += new ElapsedEventHandler(OnTimedEvent);
+        timer.AutoReset = true;
+        timer.Enabled = true;
+
+    }
+    private async void OnTimedEvent(Object source, ElapsedEventArgs e)
+    {
+        await LoadDataOrder();
     }
     async Task LoadPickPassportData()
     {
@@ -2081,7 +2092,7 @@
                 LoadingSpinner = true;
 
                 await GetKpassportsForKorder(args.RowData);
-                StateHasChanged();
+
 
                 if (K_OrderForPickPassport.K_OrderPassports.Count() > 0)
                 {
@@ -2092,6 +2103,7 @@
                     }
                 }
                 LoadingSpinner = false;
+                StateHasChanged();
 
             }
         }
@@ -3197,8 +3209,8 @@
         LoadingSpinner = false;
 
         SfGridKpassport.Refresh();
-        if (IsConnected) await SendMessageForPickPassport();
-        StateHasChanged();
+        //if (IsConnected) await SendMessageForPickPassport();
+
     }
 
     //Get Passports By ItemCode
@@ -3207,23 +3219,30 @@
         k_PassportsForKorder = new List<K_Passport>();
 
 
-        if (isItemcode == false && String.IsNullOrEmpty(SearchByZan))
+        //if (isItemcode == false && String.IsNullOrEmpty(SearchByZan))
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{k_Order.Zan}");
+        //}
+        //else if (isItemcode == false && !String.IsNullOrEmpty(SearchByZan))
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{SearchByZan}");
+        //}
+        //else
+        //{
+        //    k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByItemCode/{k_Order.ItemCode}");
+        //}
+        if (isItemcode)
         {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{k_Order.Zan}");
-        }
-        else if (isItemcode == false && !String.IsNullOrEmpty(SearchByZan))
-        {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulAndZan/{k_Order.Gidul}/{SearchByZan}");
+            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByGidulZanLIKE/{k_Order.Gidul}/{k_Order.Zan}");
+
         }
         else
         {
-            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/GetKPassportsForKOrderByItemCode/{k_Order.ItemCode}");
+            k_PassportsForKorder = await Http.GetFromJsonAsync<List<K_Passport>>($"api/KPassports/metzay");
         }
-
-
         //if (IsConnected) await SendMessageForPickPassport();
         //StateHasChanged();
-
+        StateHasChanged();
         return 0;
     }
 
@@ -3670,6 +3689,13 @@
                 Console.WriteLine(e.Message);
             }
         }
+        if(args.Column.Field == "JobPlansAvarage")
+        {
+            if ((args.Data.JobPlansAvarage > 442 || args.Data.JobPlansAvarage < 150) && args.Data.JobPlansAvarage != 0)
+            {
+                args.Cell.AddClass(new string[] { "is-avg-not-good" });
+            }
+        }
 
     }
 
@@ -3808,7 +3834,9 @@
     .is-printed {
         background-color: yellow;
     }
-
+    .is-avg-not-good {
+        background-color: tomato;
+    }
     .is-need-to-show-kpassport-pick-selection {
         background-color: lightgoldenrodyellow;
     }

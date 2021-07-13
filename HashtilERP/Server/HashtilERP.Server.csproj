@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>HashtilERP.Server-61827254-BD00-4D9B-B6CC-C3440E70F35B</UserSecretsId>
     <StartupObject>HashtilERP.Server.Program</StartupObject>
+    <ApplicationIcon>HashtilERPR-logo_512x512.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>

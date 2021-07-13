@@ -300,17 +300,13 @@
         {
             k_Passport.HasBeenAudited = true;
             var rslt = await Http.PutAsJsonAsync($"api/KPassports/Thai/Passport/Update/{k_Passport.K_PassportId}", k_Passport);
-            if (rslt.IsSuccessStatusCode)
+            if (!rslt.IsSuccessStatusCode)
             {
-                if (IsConnected) await SendMessage();
-                ToastContent = "נשמר!";
-                await ShowToast();
-            }
-            else
-            {
+                Console.WriteLine(rslt.ReasonPhrase);
                 ToastContent = rslt.ReasonPhrase;
                 await ShowToast();
             }
+
         }
         catch (Exception e)
         {
@@ -341,7 +337,7 @@
     #region TOAST
     //TOAST
     public SfToast ToastObj;
-    private string ToastContent { get; set; } = "";
+    private string ToastContent { get; set; } = "נשמר!";
     private async Task ShowToast()
     {
         await this.ToastObj.Show();
@@ -381,6 +377,9 @@
         AfterActionSpinner = true;
         await SendHasBeenAudit();
         AfterActionSpinner = false;
+        await ShowToast();
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
     //DIALOG Destroy CANCEL
     public void ConfirmDestroyNo()
@@ -402,6 +401,9 @@
         await SendAuditForm();
         await SendHasBeenAudit();
         AfterActionSpinner = false;
+        await ShowToast();
+        StateHasChanged();
+        if (IsConnected) await SendMessage();
     }
     public void ConfirmDeleteNo()
     {

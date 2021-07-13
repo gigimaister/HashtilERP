@@ -378,6 +378,35 @@ namespace HashtilERP.Server
             return k_Passports;
         }
 
+        [HttpGet("GetKPassportsForKOrderByGidulZanLIKE/{gidul}/{zan}")]
+        public async Task<List<K_Passport>> GetKPassportsForKOrderByGidulZanLIKE(string gidul, string zan)
+        {
+            var first_gidul_word = gidul.Split(' ').FirstOrDefault();
+            var zanSplit = zan.Split(' ');
+            var first_zan_word = zan.Split(' ').FirstOrDefault();
+            var zanSearchWord = zanSplit.Length == 2 ? zan : first_zan_word;
+            var k_Passports = new List<K_Passport>();
+
+            k_Passports = await _context.KPassport.Where(x => x.Gidul.Contains(first_gidul_word) && x.Zan.Contains(zanSearchWord)  && x.PassportStatus == Status.InGreenHouse)
+                .Include(e => e.Passport)
+                .ThenInclude(e => e.Passprods)
+                .Include(e => e.PassportAuditForms)
+                .Include(e => e.k_PassportAuditTblVer2s)
+                .OrderBy(x => x.SowDate)
+                .ToListAsync();
+            if(k_Passports.Count == 0)
+            {
+                k_Passports = await _context.KPassport.Where(x => x.PassportStatus == Status.InGreenHouse)
+                           .Include(e => e.KPassportInsertAudit)
+                           .Include(e => e.Passport)
+                           .ThenInclude(e => e.Passprods)
+                           .Include(e => e.PassportAuditForms)
+                           .Include(e => e.k_PassportAuditTblVer2s)
+                           .ToListAsync();
+            }
+            return k_Passports;
+        }
+
         [HttpGet("AuditPassports")]
         public async Task<List<K_Passport>> AuditPassports()
         {

@@ -28,14 +28,8 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator">
-                        <li class="nav-item px-3">
-                            <NavLink class="nav-link" href="order/dashboard" Match="NavLinkMatch.All" @onclick="Close">
-                                <span class="oi oi-dashboard" aria-hidden="true"></span>&nbsp סיכום
-                            </NavLink>
-                        </li>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+
+                    <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="order/ordersfortodaytomorrow" Match="NavLinkMatch.All" @onclick="Close">
                                 <span class="oi oi-bolt" aria-hidden="true"></span>&nbsp הוצ' יומי
@@ -46,22 +40,28 @@
 
                     @{ if (isDevice != "Mobile")
                         {
-                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="order/weeklykorders" Match="NavLinkMatch.All" @onclick="Close">
                                         <span class="oi oi-clock" aria-hidden="true"></span>&nbsp הוצ' שבועי
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
-
-                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator">
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="order/dashboard" Match="NavLinkMatch.All" @onclick="Close">
+                                        <span class="oi oi-dashboard" aria-hidden="true"></span>&nbsp סיכום
+                                    </NavLink>
+                                </li>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="order/kordersarchive" Match="NavLinkMatch.All" @onclick="Close">
                                         <span class="oi oi-calendar" aria-hidden="true"></span>&nbsp הוצ' ארכיון
                                     </NavLink>
                                 </li>
                             </AuthorizeView>
-                            <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B">
+                            <AuthorizeView Roles="Administrator,,Manager-GreenHouse,Sales-A,Sales-B,Manager-Drivers">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="order/shippingcertificatechanged" Match="NavLinkMatch.All" @onclick="Close">
                                         <span class="oi oi-thumb-down" aria-hidden="true"></span>&nbspשונו ת.משלוח
@@ -139,7 +139,7 @@
                             </NavLink>
                         </li>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist">
+                    <AuthorizeView Roles="Administrator,Manager-Oren,Manager-GreenHouse,AuditAvgCounter,Sales-A,Sales-B,Agronomist,Manager-Drivers">
                         <li class="nav-item px-3">
                             <NavLink class="nav-link" href="inventory/excellookmetzay" Match="NavLinkMatch.All" @onclick="Close">
 
@@ -150,7 +150,7 @@
                     @{ if (isDevice != "Mobile")
                         {
                             //DESKTOP-WITH BTN
-                            <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,AuditAvgCounter">
+                            <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/Metzay" Match="NavLinkMatch.All" @onclick="Close">
 
@@ -159,7 +159,7 @@
                                 </li>
                             </AuthorizeView>
                             //DESKTOP-WITH NO BTN!
-                            <AuthorizeView Roles="Administrator,Viewer,Manager-Drivers,Sales-A,Sales-B,Agronomist">
+                            <AuthorizeView Roles="Administrator,Viewer,Manager-Drivers,Sales-A,Sales-B,Agronomist,Manager-Oren">
                                 <li class="nav-item px-3">
                                     <NavLink class="nav-link" href="inventory/MetzayDetailedNoButtons" Match="NavLinkMatch.All" @onclick="Close">
 
