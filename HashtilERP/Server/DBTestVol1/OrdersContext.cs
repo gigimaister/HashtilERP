@@ -35,8 +35,12 @@ namespace HashtilERP.DBTestVol1
         public virtual DbSet<KOrderAuditTable> KOrderAuditTable { get; set; }
         public virtual DbSet<KOrderRemark> KOrderRemarks { get; set; }
 
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            try
+            {
+           
             modelBuilder.HasDefaultSchema("db_datareader")
                 .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP850_CI_AS");
 
@@ -1112,9 +1116,9 @@ namespace HashtilERP.DBTestVol1
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.SefazDate).HasColumnType("datetime");
+                //entity.Property(e => e.SefazDate).HasColumnType("datetime");
 
-                entity.Property(e => e.SefazReply).HasMaxLength(254);
+                //entity.Property(e => e.SefazReply).HasMaxLength(254);
 
                 entity.Property(e => e.SelfInvoic)
                     .HasMaxLength(1)
@@ -4930,6 +4934,8 @@ namespace HashtilERP.DBTestVol1
             });
 
             OnModelCreatingPartial(modelBuilder);
+            }
+            catch (Exception e) { Console.WriteLine(e.Message); }
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

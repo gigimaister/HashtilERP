@@ -320,8 +320,8 @@ namespace HashtilERP.DBTestVol1
         public string RcpntId { get; set; }
         public int? MainUsage { get; set; }
         public string SefazCheck { get; set; }
-        public string SefazReply { get; set; }
-        public DateTime? SefazDate { get; set; }
+        //public string SefazReply { get; set; }
+        //public DateTime? SefazDate { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTill { get; set; }
         public string RelCode { get; set; }

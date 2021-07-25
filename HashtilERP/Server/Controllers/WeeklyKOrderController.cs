@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using HashtilERP.Server.Models;
 using HashtilERP.DBTestVol1;
 using HashtilERP.Shared.Models;
+//using HashtilERP.Shared.Models;
 
 namespace HashtilERP.Server.Controllers
 {
@@ -82,7 +83,7 @@ namespace HashtilERP.Server.Controllers
 
         //Today Orders
         [HttpGet("GetKOrdersForTodayTomorrow")]
-        public async Task<List<KOrder>> GetKOrdersForTodayTomorrow()
+        public async Task<ActionResult<IEnumerable<KOrder>>> GetKOrdersForTodayTomorrow()
         {
             var k_Orders = new List<KOrder>();
             try
