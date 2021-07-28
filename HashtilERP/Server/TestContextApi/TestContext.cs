@@ -20,6 +20,7 @@ namespace HashtilERP.TestContextApi
 
         public virtual DbSet<KOrder> KOrder { get; set; }
         public virtual DbSet<KOrderAuditTable> KOrderAuditTable { get; set; }
+        public virtual DbSet<KOrderForBartender> KOrderForBartender { get; set; }
         public virtual DbSet<KOrderForTest> KOrderForTest { get; set; }
         public virtual DbSet<KOrderPassports> KOrderPassports { get; set; }
         public virtual DbSet<KOrderRemark> KOrderRemark { get; set; }
@@ -37,6 +38,15 @@ namespace HashtilERP.TestContextApi
         public virtual DbSet<Passprod> Passprod { get; set; }
         public virtual DbSet<Rdr1> Rdr1 { get; set; }
         public virtual DbSet<UpdateKPassportAudit> UpdateKPassportAudit { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Data Source=hsap;Initial Catalog=Hashtil09;Persist Security Info=True;User ID=h2;Password=H2kobiApp");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -97,6 +107,13 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.Date).HasColumnType("datetime");
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<KOrderForBartender>(entity =>
+            {
+                entity.ToTable("K_Order_For_Bartender");
+
+                entity.Property(e => e.KorderForBarTenderId).HasColumnName("KOrderForBarTenderId");
             });
 
             modelBuilder.Entity<KOrderForTest>(entity =>
@@ -280,7 +297,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.PassportCondition).HasMaxLength(50);
 
-                entity.Property(e => e.PassportStartingAVG).HasColumnName("PassportStartingAVG");
+                entity.Property(e => e.PassportStartingAvg).HasColumnName("PassportStartingAVG");
 
                 entity.Property(e => e.PassportStatus).HasMaxLength(50);
 
@@ -360,6 +377,11 @@ namespace HashtilERP.TestContextApi
                     .IsFixedLength(true);
 
                 entity.Property(e => e.AgentCode).HasMaxLength(32);
+
+                entity.Property(e => e.AggregDoc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.AliasName).HasColumnType("ntext");
 
@@ -509,6 +531,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
+                entity.Property(e => e.CreateTs).HasColumnName("CreateTS");
+
                 entity.Property(e => e.CreditLine).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.CrtfcateNo)
@@ -525,6 +549,8 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.DateFrom).HasColumnType("datetime");
 
                 entity.Property(e => e.DateTill).HasColumnType("datetime");
+
+                entity.Property(e => e.DatevAcct).HasMaxLength(9);
 
                 entity.Property(e => e.DatevFirst)
                     .HasMaxLength(1)
@@ -559,6 +585,11 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.DflAccount).HasMaxLength(50);
 
                 entity.Property(e => e.DflBranch).HasMaxLength(50);
+
+                entity.Property(e => e.DflCustomr)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.DflIban)
                     .HasMaxLength(50)
@@ -598,6 +629,12 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.DpmIntAct).HasMaxLength(15);
 
+                entity.Property(e => e.Dppstatus)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("DPPStatus")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.DscntRel)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -607,9 +644,37 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.DunnDate).HasColumnType("datetime");
 
+                entity.Property(e => e.EBuildnNum).HasColumnName("eBuildnNum");
+
+                entity.Property(e => e.ECityTown)
+                    .HasMaxLength(48)
+                    .HasColumnName("eCityTown");
+
+                entity.Property(e => e.ECountry)
+                    .HasMaxLength(3)
+                    .HasColumnName("eCountry");
+
+                entity.Property(e => e.EDistrict)
+                    .HasMaxLength(3)
+                    .HasColumnName("eDistrict");
+
                 entity.Property(e => e.EMail)
                     .HasMaxLength(100)
                     .HasColumnName("E_Mail");
+
+                entity.Property(e => e.EStreet)
+                    .HasMaxLength(38)
+                    .HasColumnName("eStreet");
+
+                entity.Property(e => e.EStreetNum)
+                    .HasMaxLength(4)
+                    .HasColumnName("eStreetNum");
+
+                entity.Property(e => e.EZipCode)
+                    .HasMaxLength(10)
+                    .HasColumnName("eZipCode");
+
+                entity.Property(e => e.EbvatExCau).HasColumnName("EBVatExCau");
 
                 entity.Property(e => e.EcvatGroup)
                     .HasMaxLength(8)
@@ -617,7 +682,61 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.EdocExpFrm).HasColumnName("EDocExpFrm");
 
+                entity.Property(e => e.EdocGenTyp)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EDocGenTyp")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EdrsFromBp)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EdrsFromBP")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EdrsToBp)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EdrsToBP")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EffcAllSrc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EffecPrice)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.EmplymntCt).HasMaxLength(2);
+
+                entity.Property(e => e.EnAddId)
+                    .HasColumnType("ntext")
+                    .HasColumnName("EnAddID");
+
+                entity.Property(e => e.EnDflAccnt).HasColumnType("ntext");
+
+                entity.Property(e => e.EnDflIban)
+                    .HasColumnType("ntext")
+                    .HasColumnName("EnDflIBAN");
+
+                entity.Property(e => e.EnErd4in)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EnERD4In")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EnErd4out)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EnERD4Out")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.EncryptIv)
+                    .HasMaxLength(100)
+                    .HasColumnName("EncryptIV");
 
                 entity.Property(e => e.Equ)
                     .HasMaxLength(1)
@@ -646,7 +765,31 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.Fax).HasMaxLength(20);
 
+                entity.Property(e => e.Fcerelevnt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("FCERelevnt")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Fcevldte)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("FCEVldte")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.FeeAcc).HasMaxLength(15);
+
+                entity.Property(e => e.Free312)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("free312")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Free313)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("free313")
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.FreeText)
                     .HasColumnType("ntext")
@@ -728,6 +871,10 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.IntrstRate).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.IpacodePa)
+                    .HasMaxLength(32)
+                    .HasColumnName("IPACodePA");
+
                 entity.Property(e => e.IsDomestic)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -750,7 +897,9 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(20)
                     .HasColumnName("KBKCode");
 
-                entity.Property(e => e.LetterNum).HasMaxLength(20);
+                entity.Property(e => e.LegalText).HasMaxLength(254);
+
+                entity.Property(e => e.LetterNum).HasMaxLength(50);
 
                 entity.Property(e => e.LicTradNum).HasMaxLength(32);
 
@@ -783,6 +932,10 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.MaxAmount).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.MerchantId)
+                    .HasMaxLength(15)
+                    .HasColumnName("MerchantID");
+
                 entity.Property(e => e.MinIntrst).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.MivzExpSts)
@@ -791,6 +944,11 @@ namespace HashtilERP.TestContextApi
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Mthcounter).HasColumnName("MTHCounter");
+
+                entity.Property(e => e.NaturalPer)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.Ninum)
                     .HasMaxLength(20)
@@ -846,6 +1004,10 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Pecaddr)
+                    .HasMaxLength(254)
+                    .HasColumnName("PECAddr");
+
                 entity.Property(e => e.Phone1).HasMaxLength(20);
 
                 entity.Property(e => e.Phone2).HasMaxLength(20);
@@ -855,6 +1017,11 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.PlngGroup).HasMaxLength(10);
 
                 entity.Property(e => e.PrevYearAc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.PriceMode)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
@@ -1202,7 +1369,23 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.RelCode).HasMaxLength(2);
 
+                entity.Property(e => e.RepAddId)
+                    .HasMaxLength(28)
+                    .HasColumnName("RepAddID");
+
+                entity.Property(e => e.RepCmpName).HasMaxLength(36);
+
+                entity.Property(e => e.RepFisCode).HasMaxLength(16);
+
+                entity.Property(e => e.RepFname)
+                    .HasMaxLength(20)
+                    .HasColumnName("RepFName");
+
                 entity.Property(e => e.RepName).HasMaxLength(15);
+
+                entity.Property(e => e.RepSname)
+                    .HasMaxLength(36)
+                    .HasColumnName("RepSName");
 
                 entity.Property(e => e.ResidenNum)
                     .HasMaxLength(1)
@@ -1229,10 +1412,6 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
-
-                entity.Property(e => e.SefazDate).HasColumnType("datetime");
-
-                entity.Property(e => e.SefazReply).HasMaxLength(254);
 
                 entity.Property(e => e.SelfInvoic)
                     .HasMaxLength(1)
@@ -1285,6 +1464,11 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.ToDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Transfered)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.TxExMxVdTp)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
@@ -1380,6 +1564,13 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(2)
                     .HasColumnName("U_HesOnlyEmail");
 
+                entity.Property(e => e.UIsKorder)
+                    .IsRequired()
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("U_IsKOrder")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.ULongname)
                     .IsRequired()
                     .HasColumnType("ntext")
@@ -1392,6 +1583,13 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.UnpaidBoE).HasMaxLength(15);
 
                 entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UpdateTs).HasColumnName("UpdateTS");
+
+                entity.Property(e => e.UseBilAddr)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.UseShpdGd)
                     .HasMaxLength(1)
@@ -1423,6 +1621,8 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.VatIdnum)
                     .HasMaxLength(32)
                     .HasColumnName("VatIDNum");
+
+                entity.Property(e => e.VatResDate).HasColumnType("datetime");
 
                 entity.Property(e => e.VatStatus)
                     .HasMaxLength(1)
@@ -1481,9 +1681,13 @@ namespace HashtilERP.TestContextApi
 
                 entity.HasIndex(e => e.TreeType, "OITM_TREE_TYPE");
 
-                entity.Property(e => e.ItemCode).HasMaxLength(20);
+                entity.Property(e => e.ItemCode).HasMaxLength(50);
 
                 entity.Property(e => e.AcqDate).HasColumnType("datetime");
+
+                entity.Property(e => e.AssVal4Wtr)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("AssVal4WTR");
 
                 entity.Property(e => e.AssblValue).HasColumnType("numeric(19, 6)");
 
@@ -1504,7 +1708,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.AssetRmk2).HasMaxLength(100);
 
-                entity.Property(e => e.AssetSerNo).HasMaxLength(30);
+                entity.Property(e => e.AssetSerNo).HasMaxLength(32);
 
                 entity.Property(e => e.AsstStatus)
                     .HasMaxLength(1)
@@ -1512,6 +1716,11 @@ namespace HashtilERP.TestContextApi
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Attachment).HasColumnType("ntext");
+
+                entity.Property(e => e.AutoBatch)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.AvgPrice).HasColumnType("numeric(19, 6)");
 
@@ -1606,6 +1815,8 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Cestcode).HasColumnName("CESTCode");
+
                 entity.Property(e => e.ChapterId).HasColumnName("ChapterID");
 
                 entity.Property(e => e.CntUnitMsr).HasMaxLength(100);
@@ -1629,6 +1840,15 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.CountryOrg).HasMaxLength(3);
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CreateTs).HasColumnName("CreateTS");
+
+                entity.Property(e => e.CstmActing)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.CtrSealQty).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.CustomPer).HasColumnType("numeric(19, 6)");
 
@@ -1664,10 +1884,21 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(15)
                     .HasColumnName("ECInAcct");
 
+                entity.Property(e => e.EnAstSeri)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.EvalSystem)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.ExcFixAmnt).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.ExcImpQuoM).HasColumnName("ExcImpQUoM");
+
+                entity.Property(e => e.ExcRate).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.Excisable)
                     .HasMaxLength(1)
@@ -1736,6 +1967,27 @@ namespace HashtilERP.TestContextApi
                     .HasColumnName("GLPickMeth")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.GstTaxCtg)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Gstrelevnt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("GSTRelevnt")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Imported)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.InCostRoll)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.IncomeAcct).HasMaxLength(15);
 
                 entity.Property(e => e.IndirctTax)
@@ -1768,7 +2020,7 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.ItemName).HasMaxLength(100);
+                entity.Property(e => e.ItemName).HasMaxLength(200);
 
                 entity.Property(e => e.ItemType)
                     .HasMaxLength(1)
@@ -1794,6 +2046,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.LastPurDat).HasColumnType("datetime");
 
                 entity.Property(e => e.LastPurPrc).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.LegalText).HasMaxLength(250);
+
+                entity.Property(e => e.LinkRsc).HasMaxLength(50);
 
                 entity.Property(e => e.LstEvlDate).HasColumnType("datetime");
 
@@ -1851,9 +2107,19 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.NumInSale).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.Nvecode)
+                    .HasMaxLength(6)
+                    .HasColumnName("NVECode");
+
                 entity.Property(e => e.ObjType).HasMaxLength(20);
 
                 entity.Property(e => e.OnHand).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.OnHldLimt)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("onHldLimt");
+
+                entity.Property(e => e.OnHldPert).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.OnOrder).HasColumnType("numeric(19, 6)");
 
@@ -1890,6 +2156,8 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.PrdStdCst).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.PricingPrc).HasColumnType("numeric(19, 6)");
 
@@ -2246,6 +2514,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.RuleCode).HasMaxLength(2);
 
+                entity.Property(e => e.Sacentry).HasColumnName("SACEntry");
+
                 entity.Property(e => e.SalFactor1).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.SalFactor2).HasColumnType("numeric(19, 6)");
@@ -2295,6 +2565,14 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.Slength2).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.Soiexc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("SOIExc")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.SouVirAsst).HasMaxLength(50);
+
                 entity.Property(e => e.SpProdType).HasMaxLength(2);
 
                 entity.Property(e => e.SpcialDisc).HasColumnType("numeric(19, 6)");
@@ -2310,7 +2588,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.SuoMentry).HasColumnName("SUoMEntry");
 
-                entity.Property(e => e.SuppCatNum).HasMaxLength(17);
+                entity.Property(e => e.SuppCatNum).HasMaxLength(50);
 
                 entity.Property(e => e.SvolUnit).HasColumnName("SVolUnit");
 
@@ -2346,6 +2624,8 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(16)
                     .HasColumnName("SWW");
 
+                entity.Property(e => e.TaxCatCode).HasMaxLength(50);
+
                 entity.Property(e => e.TaxCodeAp)
                     .HasMaxLength(8)
                     .HasColumnName("TaxCodeAP");
@@ -2360,6 +2640,10 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.Tnved)
+                    .HasMaxLength(10)
+                    .HasColumnName("TNVED");
 
                 entity.Property(e => e.TrackSales)
                     .HasMaxLength(1)
@@ -2550,6 +2834,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
+                entity.Property(e => e.UpdateTs).HasColumnName("UpdateTS");
+
                 entity.Property(e => e.UserText).HasColumnType("ntext");
 
                 entity.Property(e => e.ValidComm).HasMaxLength(30);
@@ -2576,6 +2862,11 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasColumnName("VATLiable")
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.VirtAstItm)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
                     .IsFixedLength(true);
 
                 entity.Property(e => e.WarrntTmpl).HasMaxLength(20);
@@ -2630,6 +2921,11 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.Address2).HasMaxLength(254);
 
                 entity.Property(e => e.AgentCode).HasMaxLength(32);
+
+                entity.Property(e => e.AggregDoc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.AqcsTax).HasColumnType("numeric(19, 6)");
 
@@ -2780,6 +3076,16 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.CntrlBnk).HasMaxLength(15);
 
+                entity.Property(e => e.ComTrade)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.ComTradeRt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.Comments).HasMaxLength(254);
 
                 entity.Property(e => e.Confirmed)
@@ -2798,6 +3104,16 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.CreateTs).HasColumnName("CreateTS");
 
+                entity.Property(e => e.CtActTax).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.CtActTaxFc)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("CtActTaxFC");
+
+                entity.Property(e => e.CtActTaxSc)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("CtActTaxSC");
+
                 entity.Property(e => e.CtlAccount).HasMaxLength(15);
 
                 entity.Property(e => e.Cup).HasColumnName("CUP");
@@ -2807,10 +3123,14 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.CustOffice).HasMaxLength(60);
+
                 entity.Property(e => e.DataSource)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.DateReport).HasColumnType("datetime");
 
                 entity.Property(e => e.DeferrTax)
                     .HasMaxLength(1)
@@ -2826,6 +3146,10 @@ namespace HashtilERP.TestContextApi
                     .HasColumnName("DiscSumFC");
 
                 entity.Property(e => e.DiscSumSy).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.DmpTransId)
+                    .HasMaxLength(20)
+                    .HasColumnName("DmpTransID");
 
                 entity.Property(e => e.DocCur).HasMaxLength(3);
 
@@ -2853,6 +3177,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.DocSubType)
                     .IsRequired()
                     .HasMaxLength(2);
+
+                entity.Property(e => e.DocTaxId)
+                    .HasMaxLength(32)
+                    .HasColumnName("DocTaxID");
 
                 entity.Property(e => e.DocTotal).HasColumnType("numeric(19, 6)");
 
@@ -2912,12 +3240,26 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.DpmVatSc).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.Dppstatus)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("DPPStatus")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.DraftKey).HasColumnName("draftKey");
 
                 entity.Property(e => e.DutyStatus)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.EcomerGstn)
+                    .HasMaxLength(15)
+                    .HasColumnName("EComerGSTN");
+
+                entity.Property(e => e.EcommerBp)
+                    .HasMaxLength(15)
+                    .HasColumnName("ECommerBP");
 
                 entity.Property(e => e.EdocCancel)
                     .HasMaxLength(1)
@@ -2971,11 +3313,23 @@ namespace HashtilERP.TestContextApi
                     .HasColumnName("EDocTest")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.EdocType)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EDocType")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.ElCoMsg).HasMaxLength(254);
 
                 entity.Property(e => e.ElCoStatus).HasMaxLength(10);
 
                 entity.Property(e => e.Email).HasMaxLength(100);
+
+                entity.Property(e => e.EnBnkAcct).HasColumnType("ntext");
+
+                entity.Property(e => e.EncryptIv)
+                    .HasMaxLength(100)
+                    .HasColumnName("EncryptIV");
 
                 entity.Property(e => e.EndDlvDate).HasColumnType("datetime");
 
@@ -2989,6 +3343,12 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.Eseries).HasColumnName("ESeries");
 
+                entity.Property(e => e.EwbgenType)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .HasColumnName("EWBGenType")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.ExcDocDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ExcRefDate).HasColumnType("datetime");
@@ -2996,6 +3356,11 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.ExcRmvTime).HasMaxLength(8);
 
                 entity.Property(e => e.Excised)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.ExclTaxRep)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
@@ -3050,6 +3415,10 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Fci)
+                    .HasMaxLength(36)
+                    .HasColumnName("FCI");
+
                 entity.Property(e => e.Filler).HasMaxLength(8);
 
                 entity.Property(e => e.FiscDocNum).HasMaxLength(100);
@@ -3096,6 +3465,8 @@ namespace HashtilERP.TestContextApi
                     .HasColumnType("numeric(19, 6)")
                     .HasColumnName("FreeChrgSC");
 
+                entity.Property(e => e.FrmBpDate).HasColumnType("datetime");
+
                 entity.Property(e => e.FromDate).HasColumnType("datetime");
 
                 entity.Property(e => e.GrosProfFc)
@@ -3105,6 +3476,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.GrosProfSy).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.GrosProfit).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.GsttranTyp)
+                    .HasMaxLength(2)
+                    .HasColumnName("GSTTranTyp");
 
                 entity.Property(e => e.Gtsrlvnt)
                     .HasMaxLength(1)
@@ -3184,7 +3559,7 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(53)
                     .HasColumnName("ISRCodLine");
 
-                entity.Property(e => e.JrnlMemo).HasMaxLength(50);
+                entity.Property(e => e.JrnlMemo).HasMaxLength(254);
 
                 entity.Property(e => e.Kvvatcode)
                     .HasColumnType("ntext")
@@ -3195,7 +3570,12 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.LetterNum).HasMaxLength(20);
+                entity.Property(e => e.Letter)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.LetterNum).HasMaxLength(50);
 
                 entity.Property(e => e.LicTradNum).HasMaxLength(32);
 
@@ -3229,6 +3609,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.MinvNum).HasColumnName("MInvNum");
 
                 entity.Property(e => e.Model).HasMaxLength(6);
+
+                entity.Property(e => e.Myftype)
+                    .HasMaxLength(2)
+                    .HasColumnName("MYFtype");
 
                 entity.Property(e => e.NbSbAmntFc)
                     .HasColumnType("numeric(19, 6)")
@@ -3345,6 +3729,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.PaymentRef).HasMaxLength(27);
 
+                entity.Property(e => e.PermitNo).HasMaxLength(20);
+
                 entity.Property(e => e.PeyMethod).HasMaxLength(15);
 
                 entity.Property(e => e.Pick)
@@ -3363,6 +3749,11 @@ namespace HashtilERP.TestContextApi
                     .IsRequired()
                     .HasMaxLength(10)
                     .HasColumnName("PIndicator");
+
+                entity.Property(e => e.PoDropPrss)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.PoPrss)
                     .HasMaxLength(1)
@@ -3396,6 +3787,11 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.PqtgrpSer).HasColumnName("PQTGrpSer");
 
+                entity.Property(e => e.PriceMode)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.PrintSepa)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -3408,6 +3804,14 @@ namespace HashtilERP.TestContextApi
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Project).HasMaxLength(20);
+
+                entity.Property(e => e.Pticode)
+                    .HasMaxLength(5)
+                    .HasColumnName("PTICode");
+
+                entity.Property(e => e.QrcodeSrc)
+                    .HasColumnType("ntext")
+                    .HasColumnName("QRCodeSrc");
 
                 entity.Property(e => e.Ref1).HasMaxLength(11);
 
@@ -3423,11 +3827,13 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.RepSection).HasMaxLength(3);
+
                 entity.Property(e => e.ReqDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ReqName).HasMaxLength(155);
 
-                entity.Property(e => e.Requester).HasMaxLength(8);
+                entity.Property(e => e.Requester).HasMaxLength(25);
 
                 entity.Property(e => e.Reserve)
                     .HasMaxLength(1)
@@ -3440,6 +3846,19 @@ namespace HashtilERP.TestContextApi
                     .IsFixedLength(true);
 
                 entity.Property(e => e.RetInvoice)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.RevCreRefD).HasColumnType("datetime");
+
+                entity.Property(e => e.RevCreRefN).HasMaxLength(100);
+
+                entity.Property(e => e.RevRefDate).HasColumnType("datetime");
+
+                entity.Property(e => e.RevRefNo).HasMaxLength(100);
+
+                entity.Property(e => e.Revision)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
@@ -3462,13 +3881,26 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Sappassprt)
+                    .HasColumnType("ntext")
+                    .HasColumnName("SAPPassprt");
+
                 entity.Property(e => e.SelfInv)
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .HasColumnName("selfInv")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.SelfPosted)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.SeriesStr).HasMaxLength(3);
+
+                entity.Property(e => e.ShipPlace).HasMaxLength(60);
+
+                entity.Property(e => e.ShipState).HasMaxLength(3);
 
                 entity.Property(e => e.ShipToCode).HasMaxLength(50);
 
@@ -3488,7 +3920,24 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.SignMsg).HasColumnType("ntext");
 
+                entity.Property(e => e.SoiwizId).HasColumnName("SOIWizId");
+
                 entity.Property(e => e.SpecDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SplitPmnt)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.SplitTax).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.SplitTaxFc)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("SplitTaxFC");
+
+                entity.Property(e => e.SplitTaxSc)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("SplitTaxSC");
 
                 entity.Property(e => e.SrvGpPrcnt).HasColumnType("numeric(19, 6)");
 
@@ -3532,6 +3981,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.TaxDate).HasColumnType("datetime");
 
+                entity.Property(e => e.TaxInvNo).HasMaxLength(100);
+
                 entity.Property(e => e.TaxOnExAp).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.TaxOnExApF).HasColumnType("numeric(19, 6)");
@@ -3543,6 +3994,8 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.TaxOnExpFc).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.TaxOnExpSc).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.ToBinCode).HasMaxLength(228);
 
                 entity.Property(e => e.ToDate).HasColumnType("datetime");
 
@@ -3701,6 +4154,11 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.UpdateTs).HasColumnName("UpdateTS");
 
+                entity.Property(e => e.UseBilAddr)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.UseCorrVat)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -3745,7 +4203,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.VclPlate).HasMaxLength(20);
 
-                entity.Property(e => e.VersionNum).HasMaxLength(11);
+                entity.Property(e => e.VersionNum).HasMaxLength(13);
 
                 entity.Property(e => e.Volume).HasColumnType("numeric(19, 6)");
 
@@ -3797,9 +4255,18 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.DocEntry).ValueGeneratedNever();
 
+                entity.Property(e => e.AsChild)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Attachment).HasColumnType("ntext");
+
                 entity.Property(e => e.CardCode).HasMaxLength(15);
 
                 entity.Property(e => e.CloseDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CloseVerNm).HasMaxLength(13);
 
                 entity.Property(e => e.CmpltQty).HasColumnType("numeric(19, 6)");
 
@@ -3807,11 +4274,22 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
+                entity.Property(e => e.CreateTs).HasColumnName("CreateTS");
+
+                entity.Property(e => e.DataSource)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.DueDate).HasColumnType("datetime");
 
-                entity.Property(e => e.ItemCode).HasMaxLength(20);
+                entity.Property(e => e.ItemCode).HasMaxLength(50);
 
-                entity.Property(e => e.JrnlMemo).HasMaxLength(50);
+                entity.Property(e => e.JrnlMemo).HasMaxLength(254);
+
+                entity.Property(e => e.LinkToObj).HasMaxLength(20);
+
+                entity.Property(e => e.ObjType).HasMaxLength(20);
 
                 entity.Property(e => e.OcrCode).HasMaxLength(8);
 
@@ -3844,13 +4322,31 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.ProcItms)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.ProdName).HasMaxLength(200);
+
                 entity.Property(e => e.Project).HasMaxLength(20);
 
                 entity.Property(e => e.RjctQty).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.RlsDate).HasColumnType("datetime");
 
+                entity.Property(e => e.RouDatCalc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.Sappassprt)
+                    .HasColumnType("ntext")
+                    .HasColumnName("SAPPassprt");
+
                 entity.Property(e => e.SeriesStr).HasMaxLength(3);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Status)
                     .HasMaxLength(1)
@@ -3860,6 +4356,8 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.SubStr).HasMaxLength(3);
 
                 entity.Property(e => e.SupplCode).HasMaxLength(254);
+
+                entity.Property(e => e.SysCloseDt).HasColumnType("datetime");
 
                 entity.Property(e => e.Type)
                     .HasMaxLength(1)
@@ -3898,11 +4396,18 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.Uom).HasMaxLength(100);
 
+                entity.Property(e => e.UpdAlloc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.UpdateDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Warehouse).HasMaxLength(8);
+                entity.Property(e => e.UpdateTs).HasColumnName("UpdateTS");
 
-                entity.Property(e => e.Wor1count).HasColumnName("WOR1Count");
+                entity.Property(e => e.VersionNum).HasMaxLength(13);
+
+                entity.Property(e => e.Warehouse).HasMaxLength(8);
             });
 
             modelBuilder.Entity<Passport>(entity =>
@@ -3911,8 +4416,6 @@ namespace HashtilERP.TestContextApi
                     .HasName("KPASSPORT_PR");
 
                 entity.ToTable("@PASSPORT", "dbo");
-
-                entity.HasIndex(e => e.DocNum, "IX_@PASSPORT_DocNum");
 
                 entity.Property(e => e.DocEntry).ValueGeneratedNever();
 
@@ -3923,7 +4426,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.CreateDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Creator).HasMaxLength(8);
+                entity.Property(e => e.Creator).HasMaxLength(25);
 
                 entity.Property(e => e.DataSource)
                     .HasMaxLength(1)
@@ -4253,6 +4756,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.Address).HasMaxLength(254);
 
+                entity.Property(e => e.AllocBinC).HasMaxLength(11);
+
                 entity.Property(e => e.AssblValue).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.BackOrdr)
@@ -4283,6 +4788,8 @@ namespace HashtilERP.TestContextApi
                     .HasColumnName("CEECFlag")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Cestcode).HasColumnName("CESTCode");
+
                 entity.Property(e => e.Cfopcode)
                     .HasMaxLength(6)
                     .HasColumnName("CFOPCode");
@@ -4292,6 +4799,10 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .HasColumnName("ChgAsmBoMW")
                     .IsFixedLength(true);
+
+                entity.Property(e => e.Cnjpman)
+                    .HasMaxLength(14)
+                    .HasColumnName("CNJPMan");
 
                 entity.Property(e => e.CodeBars).HasMaxLength(254);
 
@@ -4338,6 +4849,8 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(2)
                     .HasColumnName("CSTfPIS");
 
+                entity.Property(e => e.CtrSealQty).HasColumnType("numeric(19, 6)");
+
                 entity.Property(e => e.Currency).HasMaxLength(3);
 
                 entity.Property(e => e.DedVatSum).HasColumnType("numeric(19, 6)");
@@ -4367,6 +4880,10 @@ namespace HashtilERP.TestContextApi
                     .HasColumnName("DetailsOW")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Diotnat)
+                    .HasMaxLength(3)
+                    .HasColumnName("DIOTNat");
+
                 entity.Property(e => e.DiscPrcnt).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.DistribExp)
@@ -4389,7 +4906,7 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
-                entity.Property(e => e.Dscription).HasMaxLength(100);
+                entity.Property(e => e.Dscription).HasMaxLength(200);
 
                 entity.Property(e => e.DstrbSumFc)
                     .HasColumnType("numeric(19, 6)")
@@ -4403,6 +4920,10 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.EncryptIv)
+                    .HasMaxLength(100)
+                    .HasColumnName("EncryptIV");
 
                 entity.Property(e => e.EquVatPer).HasColumnType("numeric(19, 6)");
 
@@ -4421,6 +4942,25 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.ExciseAmt).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.ExpOpType)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.ExpType).HasMaxLength(4);
+
+                entity.Property(e => e.ExpUuid)
+                    .HasMaxLength(50)
+                    .HasColumnName("ExpUUID");
+
+                entity.Property(e => e.ExtTaxRate).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.ExtTaxSum).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.ExtTaxSumF).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.ExtTaxSumS).HasColumnType("numeric(19, 6)");
+
                 entity.Property(e => e.Factor1).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.Factor2).HasColumnType("numeric(19, 6)");
@@ -4428,6 +4968,8 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.Factor3).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.Factor4).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.FisrtBin).HasMaxLength(228);
 
                 entity.Property(e => e.FreeChrgBp)
                     .HasMaxLength(1)
@@ -4438,6 +4980,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.FreeTxt).HasMaxLength(100);
 
                 entity.Property(e => e.FromWhsCod).HasMaxLength(8);
+
+                entity.Property(e => e.GpbefDisc)
+                    .HasColumnType("numeric(19, 6)")
+                    .HasColumnName("GPBefDisc");
 
                 entity.Property(e => e.GpttlBasPr)
                     .HasColumnType("numeric(19, 6)")
@@ -4473,6 +5019,11 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.ImportLog).HasMaxLength(20);
 
+                entity.Property(e => e.IndEscala)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.Inmprice)
                     .HasColumnType("numeric(19, 6)")
                     .HasColumnName("INMPrice");
@@ -4499,6 +5050,16 @@ namespace HashtilERP.TestContextApi
                     .IsUnicode(false)
                     .IsFixedLength(true);
 
+                entity.Property(e => e.IsCstmAct)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
+                entity.Property(e => e.IsPrscGood)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.IsSrvCall)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -4517,7 +5078,21 @@ namespace HashtilERP.TestContextApi
                     .HasColumnType("numeric(19, 6)")
                     .HasColumnName("ISDistrbSC");
 
-                entity.Property(e => e.ItemCode).HasMaxLength(20);
+                entity.Property(e => e.IsdtCryImp)
+                    .HasMaxLength(3)
+                    .HasColumnName("ISDtCryImp");
+
+                entity.Property(e => e.IsdtRgnImp).HasColumnName("ISDtRgnImp");
+
+                entity.Property(e => e.IsorCryExp)
+                    .HasMaxLength(3)
+                    .HasColumnName("ISOrCryExp");
+
+                entity.Property(e => e.IsorRgnExp).HasColumnName("ISOrRgnExp");
+
+                entity.Property(e => e.ItemCode).HasMaxLength(50);
+
+                entity.Property(e => e.ItmTaxType).HasMaxLength(2);
 
                 entity.Property(e => e.LegalText).HasMaxLength(254);
 
@@ -4574,6 +5149,12 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.LstByDsSum).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.Myftype)
+                    .HasMaxLength(2)
+                    .HasColumnName("MYFtype");
+
+                entity.Property(e => e.Ncmcode).HasColumnName("NCMCode");
+
                 entity.Property(e => e.NeedQty)
                     .HasMaxLength(1)
                     .IsUnicode(false)
@@ -4587,6 +5168,10 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.NumPerMsr).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.NumPerMsr2).HasColumnType("numeric(19, 6)");
+
+                entity.Property(e => e.Nvecode)
+                    .HasMaxLength(6)
+                    .HasColumnName("NVECode");
 
                 entity.Property(e => e.ObjType).HasMaxLength(20);
 
@@ -4618,7 +5203,13 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.OrderedQty).HasColumnType("numeric(19, 6)");
 
-                entity.Property(e => e.OrigItem).HasMaxLength(20);
+                entity.Property(e => e.OriBabsEnt).HasColumnName("OriBAbsEnt");
+
+                entity.Property(e => e.OriBdocTyp).HasColumnName("OriBDocTyp");
+
+                entity.Property(e => e.OriBlinNum).HasColumnName("OriBLinNum");
+
+                entity.Property(e => e.OrigItem).HasMaxLength(50);
 
                 entity.Property(e => e.PackQty).HasColumnType("numeric(19, 6)");
 
@@ -4635,6 +5226,8 @@ namespace HashtilERP.TestContextApi
                     .HasMaxLength(1)
                     .IsUnicode(false)
                     .IsFixedLength(true);
+
+                entity.Property(e => e.PoNum).HasMaxLength(20);
 
                 entity.Property(e => e.PoTrgEntry).HasMaxLength(11);
 
@@ -4702,6 +5295,10 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.ShipDate).HasColumnType("datetime");
 
+                entity.Property(e => e.ShipFromCo).HasMaxLength(50);
+
+                entity.Property(e => e.ShipFromDe).HasMaxLength(254);
+
                 entity.Property(e => e.ShipToCode).HasMaxLength(50);
 
                 entity.Property(e => e.ShipToDesc).HasMaxLength(254);
@@ -4739,6 +5336,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.StckSumApp).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.StgDesc).HasMaxLength(100);
+
                 entity.Property(e => e.StockPrice).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.StockSum).HasColumnType("numeric(19, 6)");
@@ -4749,13 +5348,18 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.StockValue).HasColumnType("numeric(19, 6)");
 
-                entity.Property(e => e.SubCatNum).HasMaxLength(20);
+                entity.Property(e => e.SubCatNum).HasMaxLength(50);
 
                 entity.Property(e => e.Surpluses).HasColumnType("numeric(19, 6)");
 
                 entity.Property(e => e.Sww)
                     .HasMaxLength(16)
                     .HasColumnName("SWW");
+
+                entity.Property(e => e.TaxAmtSrc)
+                    .HasMaxLength(1)
+                    .IsUnicode(false)
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.TaxCode).HasMaxLength(8);
 
@@ -4924,6 +5528,10 @@ namespace HashtilERP.TestContextApi
                     .HasColumnType("datetime")
                     .HasColumnName("U_zriaa");
 
+                entity.Property(e => e.UffiscBene)
+                    .HasMaxLength(10)
+                    .HasColumnName("UFFiscBene");
+
                 entity.Property(e => e.UnitMsr)
                     .HasMaxLength(100)
                     .HasColumnName("unitMsr");
@@ -4958,6 +5566,8 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.VatDscntPr).HasColumnType("numeric(19, 6)");
 
+                entity.Property(e => e.VatExLn).HasColumnName("VatExLN");
+
                 entity.Property(e => e.VatGroup).HasMaxLength(8);
 
                 entity.Property(e => e.VatGrpSrc)
@@ -4979,7 +5589,7 @@ namespace HashtilERP.TestContextApi
 
                 entity.Property(e => e.VatWoDpmSc).HasColumnType("numeric(19, 6)");
 
-                entity.Property(e => e.VendorNum).HasMaxLength(17);
+                entity.Property(e => e.VendorNum).HasMaxLength(50);
 
                 entity.Property(e => e.Volume).HasColumnType("numeric(19, 6)");
 

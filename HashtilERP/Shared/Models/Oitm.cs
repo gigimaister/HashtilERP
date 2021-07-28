@@ -261,7 +261,7 @@ namespace HashtilERP.Shared.Models
         public short? UserSign2 { get; set; }
         public string Spec { get; set; }
         public string TaxCtg { get; set; }
-        public short? Series { get; set; }
+        public int? Series { get; set; }
         public int? Number { get; set; }
         public int? FuelCode { get; set; }
         public string BeverTblC { get; set; }

@@ -77,7 +77,7 @@ namespace HashtilERP.TestContextApi
         public short? VolUnit { get; set; }
         public decimal? Weight { get; set; }
         public short? WeightUnit { get; set; }
-        public short? Series { get; set; }
+        public int? Series { get; set; }
         public DateTime? TaxDate { get; set; }
         public string Filler { get; set; }
         public string DataSource { get; set; }
@@ -280,7 +280,7 @@ namespace HashtilERP.TestContextApi
         public int? Payee { get; set; }
         public int? CopyNumber { get; set; }
         public string Ssiexmpt { get; set; }
-        public short? PqtgrpSer { get; set; }
+        public int? PqtgrpSer { get; set; }
         public int? PqtgrpNum { get; set; }
         public string PqtgrpHw { get; set; }
         public string ReopOriDoc { get; set; }
@@ -385,6 +385,61 @@ namespace HashtilERP.TestContextApi
         public decimal? FoCfrght { get; set; }
         public decimal? FoCfrghtFc { get; set; }
         public decimal? FoCfrghtSc { get; set; }
+        public short? InterimTyp { get; set; }
+        public string Pticode { get; set; }
+        public string Letter { get; set; }
+        public int? FolNumFrom { get; set; }
+        public int? FolNumTo { get; set; }
+        public int? FolSeries { get; set; }
+        public decimal? SplitTax { get; set; }
+        public decimal? SplitTaxFc { get; set; }
+        public decimal? SplitTaxSc { get; set; }
+        public string ToBinCode { get; set; }
+        public string PriceMode { get; set; }
+        public string PoDropPrss { get; set; }
+        public string PermitNo { get; set; }
+        public string Myftype { get; set; }
+        public string DocTaxId { get; set; }
+        public DateTime? DateReport { get; set; }
+        public string RepSection { get; set; }
+        public string ExclTaxRep { get; set; }
+        public int? PosCashReg { get; set; }
+        public string DmpTransId { get; set; }
+        public string EcommerBp { get; set; }
+        public string EcomerGstn { get; set; }
+        public string Revision { get; set; }
+        public string RevRefNo { get; set; }
+        public DateTime? RevRefDate { get; set; }
+        public string RevCreRefN { get; set; }
+        public DateTime? RevCreRefD { get; set; }
+        public string TaxInvNo { get; set; }
+        public DateTime? FrmBpDate { get; set; }
+        public string GsttranTyp { get; set; }
+        public int? BaseType { get; set; }
+        public int? BaseEntry { get; set; }
+        public string ComTrade { get; set; }
+        public string UseBilAddr { get; set; }
+        public short? IssReason { get; set; }
+        public string ComTradeRt { get; set; }
+        public string SplitPmnt { get; set; }
+        public int? SoiwizId { get; set; }
+        public string SelfPosted { get; set; }
+        public string EnBnkAcct { get; set; }
+        public string EncryptIv { get; set; }
+        public string Dppstatus { get; set; }
+        public string Sappassprt { get; set; }
+        public string EwbgenType { get; set; }
+        public decimal? CtActTax { get; set; }
+        public decimal? CtActTaxFc { get; set; }
+        public decimal? CtActTaxSc { get; set; }
+        public string EdocType { get; set; }
+        public string QrcodeSrc { get; set; }
+        public string AggregDoc { get; set; }
+        public int? DataVers { get; set; }
+        public string ShipState { get; set; }
+        public string ShipPlace { get; set; }
+        public string CustOffice { get; set; }
+        public string Fci { get; set; }
         public string UDriver { get; set; }
         public string UBalance { get; set; }
         public string UProcStat { get; set; }

@@ -25,6 +25,9 @@ namespace HashtilERP.Server.ControllersTest
             _userManager = userManager;
         }
 
+       
+
+
         //Insert into TEST Db!!
         [HttpGet("GetNewMetzayForTest")]
         public async Task<IActionResult> GetNewMetzayForTest()
@@ -35,12 +38,12 @@ namespace HashtilERP.Server.ControllersTest
             try
             {
                 var limitKpassport = await _context.KPassportExcelInsert.ToListAsync();
-                foreach(var limitPass in limitKpassport)
+                foreach (var limitPass in limitKpassport)
                 {
                     var kpass = new KPassportForTest();
                     kpass.Hamama = limitPass.Hamama.ToString();
                     kpass.Gamlon = limitPass.Gamlon.ToString();
-                    kpass.PassportNum = limitPass.Passport;
+                    kpass.PassportNum = Convert.ToInt32(limitPass.Passport);
                     kpass.MagashAmount = limitPass.Magash;
                     kpass.PassportAvg = limitPass.Avarage;
 
@@ -60,7 +63,7 @@ namespace HashtilERP.Server.ControllersTest
                         return StatusCode(500, "NOTFOUND");
                     }
 
-                    var screenName ="בוט השתיל";
+                    var screenName = "בוט השתיל";
                     int? startingAvg;
 
                     var dup = await _context.KPassportForTest.Where(X => X.PassportNum == kpass.PassportNum).FirstOrDefaultAsync();
@@ -76,7 +79,7 @@ namespace HashtilERP.Server.ControllersTest
                     kpass.DateEnd = sap.UDateEnd;
                     //if ZIREY LAKOACH
                     if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
-                    kpass.PassportStartingAVG = startingAvg;
+                    kpass.PassportStartingAvg = startingAvg;
                     kpass.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
                     kpass.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
                     kpass.MagashAmount = Convert.ToInt32(sap.UTraySow);
@@ -106,7 +109,7 @@ namespace HashtilERP.Server.ControllersTest
                 }
 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
@@ -126,7 +129,7 @@ namespace HashtilERP.Server.ControllersTest
                 var limitKpassport = await _context.KPassportExcelInsert.ToListAsync();
                 foreach (var limitPass in limitKpassport)
                 {
-                    var kpass = new HashtilERP.TestContextApi.KPassport();
+                    var kpass = new K_Passport();
                     kpass.Hamama = limitPass.Hamama.ToString();
                     kpass.Gamlon = limitPass.Gamlon.ToString();
                     kpass.PassportNum = Convert.ToInt32(limitPass.Passport);
@@ -152,7 +155,7 @@ namespace HashtilERP.Server.ControllersTest
                     var screenName = "בוט השתיל";
                     int? startingAvg;
 
-                    var dup = await _context.KPassport.Where(X => X.PassportNum == kpass.PassportNum).FirstOrDefaultAsync();
+                    var dup = await _Context.KPassport.Where(X => X.PassportNum == kpass.PassportNum).FirstOrDefaultAsync();
                     //if duplicate in K_Passport
                     if (dup != null)
                     {
@@ -165,10 +168,10 @@ namespace HashtilERP.Server.ControllersTest
                     kpass.DateEnd = sap.UDateEnd;
                     //if ZIREY LAKOACH
                     if (sap.UQuanOrdP > 5555554) { startingAvg = Convert.ToInt32(sap.UQuanProd * 1000 / sap.UTraySow); } else { startingAvg = Convert.ToInt32(sap.UQuanOrdP * 1000 / sap.UTraySow); }
-                    kpass.PassportStartingAvg = startingAvg;
+                    kpass.PassportStartingAVG = startingAvg;
                     kpass.GrowingDays = Convert.ToInt32(((TimeSpan)(sap.UDateEnd - sap.UDateSow)).Days);
                     kpass.OriginalMagashAmount = Convert.ToInt32(sap.UTraySow);
-                    kpass.MagashAmount = Convert.ToInt32(sap.UTraySow);
+                    //kpass.MagashAmount = Convert.ToInt32(sap.UTraySow);
                     kpass.PlantsAmount = sap.UQuanProd * 1000;
                     kpass.PassportStatus = Status.InGreenHouse.Trim();
                     kpass.PassportStatusCode = (int)PassportStatusCode.InsideGreenHouse;
@@ -182,10 +185,10 @@ namespace HashtilERP.Server.ControllersTest
                     kpass.IsSavedForCx = false;
                     kpass.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
                     kpass.MetzayEnteringDate = DateTime.Today;
-                    _context.KPassport.Add(kpass);
+                    _Context.KPassport.Add(kpass);
                     try
                     {
-                        await _context.SaveChangesAsync();
+                        await _Context.SaveChangesAsync();
                     }
                     catch (Exception e)
                     {

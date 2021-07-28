@@ -303,7 +303,7 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>בחירת לקוח</label>
-                                                <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@K_OrderForEdit.CxName" DataSource="@DropDownKOrderSapCxNames">
+                                                <SfAutoComplete TValue="string" TItem="string" Placeholder="בחירת לקוח" @bind-Value="@K_OrderForEdit.CxName" DataSource="@DropDownKOrderSapCxNames">
                                                     <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
                                                 </SfAutoComplete>
                                             </div>
@@ -746,7 +746,7 @@
                 </div>
                 <div class="form-group">
                     <label>בחירת לקוח</label>
-                    <SfAutoComplete TValue="string" TItem="K_Order" Placeholder="בחירת לקוח" @bind-Value="@NewJobK_Order.CxName" DataSource="@DropDownKOrderSapCxNames">
+                    <SfAutoComplete TValue="string" TItem="string" Placeholder="בחירת לקוח" @bind-Value="@NewJobK_Order.CxName" DataSource="@DropDownKOrderSapCxNames">
                         <AutoCompleteFieldSettings Value="CxName"></AutoCompleteFieldSettings>
                     </SfAutoComplete>
                 </div>
@@ -1708,7 +1708,7 @@
             GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
             || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
             //GET CX FROM SAP
-            DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
+            DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<List<string>>("api/WeeklyKOrder/GetSapCxListAsString");
             //GET PASSPORTS
             k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
 
@@ -1743,8 +1743,8 @@
     K_Order NewJobK_Order { get; set; } = new K_Order();
 
     //list of korder only for dropdown sap cx list
-    K_Order[] DropDownKOrderSapCxNames;
-
+    //K_Order[] DropDownKOrderSapCxNames;
+    List<string> DropDownKOrderSapCxNames;
     //Passports for gidul and zan
     K_Passport[] k_PassportsForJobs;
 

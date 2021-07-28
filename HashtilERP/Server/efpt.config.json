@@ -1,14 +1,13 @@
 ﻿{
    "CodeGenerationMode": 0,
-   "ContextClassName": "TestContext",
+   "ContextClassName": "TestContext2",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": null,
-   "OutputPath": "TestContextApi",
-   "ProceduresReturnList": false,
+   "OutputPath": "TestContextApi2",
    "ProjectRootNamespace": "HashtilERP",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
@@ -16,6 +15,10 @@
    "Tables": [
       {
          "Name": "[db_datareader].[K_Order]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[db_datareader].[K_Order_For_Bartender]",
          "ObjectType": 0
       },
       {
@@ -91,7 +94,7 @@
          "ObjectType": 0
       }
    ],
-   "UiHint": "HASHTIL-SAP1.Hashtil09",
+   "UiHint": "hsap.Hashtil09.db_datareader",
    "UseBoolPropertiesWithoutDefaultSql": false,
    "UseDatabaseNames": false,
    "UseDbContextSplitting": false,
@@ -104,5 +107,6 @@
    "UseNoObjectFilter": false,
    "UseNodaTime": false,
    "UseNullableReferences": false,
+   "UseSchemaFolders": false,
    "UseSpatial": false
 }

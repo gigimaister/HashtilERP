@@ -271,6 +271,53 @@ namespace HashtilERP.TestContextApi
         public string LicTradNum { get; set; }
         public string InvQtyOnly { get; set; }
         public int? UnencReasn { get; set; }
+        public string ShipFromCo { get; set; }
+        public string ShipFromDe { get; set; }
+        public string FisrtBin { get; set; }
+        public string AllocBinC { get; set; }
+        public string ExpType { get; set; }
+        public string ExpUuid { get; set; }
+        public string ExpOpType { get; set; }
+        public string Diotnat { get; set; }
+        public string Myftype { get; set; }
+        public decimal? GpbefDisc { get; set; }
+        public short? ReturnRsn { get; set; }
+        public short? ReturnAct { get; set; }
+        public int? StgSeqNum { get; set; }
+        public int? StgEntry { get; set; }
+        public string StgDesc { get; set; }
+        public string ItmTaxType { get; set; }
+        public int? SacEntry { get; set; }
+        public int? Ncmcode { get; set; }
+        public int? HsnEntry { get; set; }
+        public int? OriBabsEnt { get; set; }
+        public int? OriBlinNum { get; set; }
+        public int? OriBdocTyp { get; set; }
+        public string IsPrscGood { get; set; }
+        public string IsCstmAct { get; set; }
+        public string EncryptIv { get; set; }
+        public decimal? ExtTaxRate { get; set; }
+        public decimal? ExtTaxSum { get; set; }
+        public string TaxAmtSrc { get; set; }
+        public decimal? ExtTaxSumF { get; set; }
+        public decimal? ExtTaxSumS { get; set; }
+        public int? StdItemId { get; set; }
+        public int? CommClass { get; set; }
+        public int? VatExEntry { get; set; }
+        public short? VatExLn { get; set; }
+        public int? NatOfTrans { get; set; }
+        public string IsdtCryImp { get; set; }
+        public int? IsdtRgnImp { get; set; }
+        public string IsorCryExp { get; set; }
+        public int? IsorRgnExp { get; set; }
+        public string Nvecode { get; set; }
+        public string PoNum { get; set; }
+        public int? PoItmNum { get; set; }
+        public string IndEscala { get; set; }
+        public int? Cestcode { get; set; }
+        public decimal? CtrSealQty { get; set; }
+        public string Cnjpman { get; set; }
+        public string UffiscBene { get; set; }
         public string UAriza { get; set; }
         public DateTime? UZriaa { get; set; }
         public DateTime? UNevitatest { get; set; }

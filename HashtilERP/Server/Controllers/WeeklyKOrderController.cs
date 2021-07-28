@@ -99,7 +99,7 @@ namespace HashtilERP.Server.Controllers
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
               .Include(x => x.k_OrderAuditTables)
-              .OrderBy(x=>x.CxName)
+              .OrderBy(x => x.CxName)
               .ToListAsync();
             }
             catch (Exception e) { Console.WriteLine(e.Message); }
@@ -114,7 +114,7 @@ namespace HashtilERP.Server.Controllers
             var k_Orders = new List<KOrder>();
             try
             {
-                var ocrd = await _context.Ocrd.Where(x => x.UIsKOrder == "1").ToListAsync();
+                var ocrd = await _context.Ocrd.Where(x => x.UIsKorder == "1").ToListAsync();
                 if (ocrd.Count() > 0)
                 {
                     foreach (var ocr in ocrd)
@@ -132,6 +132,30 @@ namespace HashtilERP.Server.Controllers
                 Console.WriteLine(e.Message);
             }
             
+            return k_Orders;
+        }
+        //Preperetion Report(MIRI)
+        [HttpGet("GetSapCxListAsString")]
+        public async Task<List<string>> GetSapCxListAsString()
+        {
+            var k_Orders = new List<string>();
+            try
+            {
+                var ocrd = await _context.Ocrd.Where(x => x.UIsKorder == "1").ToListAsync();
+                if (ocrd.Count() > 0)
+                {
+                    foreach (var ocr in ocrd)
+                    {
+                        var order = ocr.CardName;                        
+                        k_Orders.Add(order);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
             return k_Orders;
         }
 

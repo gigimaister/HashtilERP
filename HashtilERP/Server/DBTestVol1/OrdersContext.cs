@@ -22,6 +22,7 @@ namespace HashtilERP.DBTestVol1
         public virtual DbSet<KOrderPassports> KOrderPassports { get; set; }
         public virtual DbSet<KPassport> KPassport { get; set; }
         public virtual DbSet<KPassportAuditTblVer2> KPassportAuditTblVer2 { get; set; }
+        public virtual DbSet<KPassportExcelInsert> KPassportExcelInsert { get; set; }
         public virtual DbSet<KPassportInsertAudit> KPassportInsertAudit { get; set; }
         public virtual DbSet<Ocrd> Ocrd { get; set; }
         public virtual DbSet<Oitm> Oitm { get; set; }
@@ -105,7 +106,6 @@ namespace HashtilERP.DBTestVol1
 
             });
             
-
             modelBuilder.Entity<KOrderRemark>(entity =>
             {
                 entity.HasKey(e => e.K_OrderRemarkId);
@@ -180,6 +180,15 @@ namespace HashtilERP.DBTestVol1
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
             });
+
+                modelBuilder.Entity<KPassportExcelInsert>(entity =>
+                    {
+                        entity.HasKey(e => e.KPassportExcelId);
+
+                        entity.ToTable("K_Passport_Excel_Insert");
+
+                        entity.Property(e => e.KPassportExcelId).HasColumnName("K_PassportExcelId");
+                    });
 
             modelBuilder.Entity<KPassportInsertAudit>(entity =>
             {
@@ -1275,7 +1284,7 @@ namespace HashtilERP.DBTestVol1
                     .HasMaxLength(30)
                     .HasColumnName("U_status");
 
-                entity.Property(e => e.UIsKOrder)
+                entity.Property(e => e.UIsKorder)
                    .HasMaxLength(1)
                    .IsUnicode(false)
                    .IsFixedLength(true)

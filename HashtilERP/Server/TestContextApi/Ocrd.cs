@@ -291,7 +291,7 @@ namespace HashtilERP.TestContextApi
         public string CertBkeep { get; set; }
         public string WhshaamGrp { get; set; }
         public int? IndustryC { get; set; }
-        public int? DatevAcct { get; set; }
+        public string DatevAcct { get; set; }
         public string DatevFirst { get; set; }
         public string GtsregNum { get; set; }
         public string GtsbankAct { get; set; }
@@ -305,7 +305,7 @@ namespace HashtilERP.TestContextApi
         public int? CpnNo { get; set; }
         public short? NtswebSite { get; set; }
         public string DflIban { get; set; }
-        public short? Series { get; set; }
+        public int? Series { get; set; }
         public int? Number { get; set; }
         public int? EdocExpFrm { get; set; }
         public string TaxIdIdent { get; set; }
@@ -320,8 +320,8 @@ namespace HashtilERP.TestContextApi
         public string RcpntId { get; set; }
         public int? MainUsage { get; set; }
         public string SefazCheck { get; set; }
-        public string SefazReply { get; set; }
-        public DateTime? SefazDate { get; set; }
+        public string Free312 { get; set; }
+        public string Free313 { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTill { get; set; }
         public string RelCode { get; set; }
@@ -340,6 +340,50 @@ namespace HashtilERP.TestContextApi
         public string EmplymntCt { get; set; }
         public string ExcptnlEvt { get; set; }
         public decimal? ExpnPrfFnd { get; set; }
+        public string EdrsFromBp { get; set; }
+        public string EdrsToBp { get; set; }
+        public int? CreateTs { get; set; }
+        public int? UpdateTs { get; set; }
+        public string EdocGenTyp { get; set; }
+        public string EStreet { get; set; }
+        public string EStreetNum { get; set; }
+        public int? EBuildnNum { get; set; }
+        public string EZipCode { get; set; }
+        public string ECityTown { get; set; }
+        public string ECountry { get; set; }
+        public string EDistrict { get; set; }
+        public string RepFname { get; set; }
+        public string RepSname { get; set; }
+        public string RepCmpName { get; set; }
+        public string RepFisCode { get; set; }
+        public string RepAddId { get; set; }
+        public string Pecaddr { get; set; }
+        public string IpacodePa { get; set; }
+        public string PriceMode { get; set; }
+        public string EffecPrice { get; set; }
+        public string TxExMxVdTp { get; set; }
+        public string MerchantId { get; set; }
+        public string UseBilAddr { get; set; }
+        public string NaturalPer { get; set; }
+        public string Dppstatus { get; set; }
+        public string EnAddId { get; set; }
+        public string EncryptIv { get; set; }
+        public string EnDflAccnt { get; set; }
+        public string EnDflIban { get; set; }
+        public string EnErd4in { get; set; }
+        public string EnErd4out { get; set; }
+        public string DflCustomr { get; set; }
+        public int? TspEntry { get; set; }
+        public int? TspLine { get; set; }
+        public string Fcerelevnt { get; set; }
+        public string Fcevldte { get; set; }
+        public string AggregDoc { get; set; }
+        public string EffcAllSrc { get; set; }
+        public int? EbvatExCau { get; set; }
+        public int? DataVers { get; set; }
+        public string LegalText { get; set; }
+        public DateTime? VatResDate { get; set; }
+        public int? VatResCode { get; set; }
         public string UBsyTel3 { get; set; }
         public int? UBsyIcid { get; set; }
         public string UBsyUname { get; set; }
@@ -364,7 +408,6 @@ namespace HashtilERP.TestContextApi
         public string ULongname { get; set; }
         public string UHesMasEmail { get; set; }
         public string UHesOnlyEmail { get; set; }
-        public string UIsKOrder { get; set; }
-
+        public string UIsKorder { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace HashtilERP.TestContextApi
     {
         public int DocEntry { get; set; }
         public int DocNum { get; set; }
-        public short? Series { get; set; }
+        public int? Series { get; set; }
         public string ItemCode { get; set; }
         public string Status { get; set; }
         public string Type { get; set; }
@@ -30,7 +30,6 @@ namespace HashtilERP.TestContextApi
         public string Warehouse { get; set; }
         public string Uom { get; set; }
         public int? LineDirty { get; set; }
-        public int? Wor1count { get; set; }
         public string JrnlMemo { get; set; }
         public int? TransId { get; set; }
         public DateTime? CreateDate { get; set; }
@@ -52,6 +51,25 @@ namespace HashtilERP.TestContextApi
         public string SupplCode { get; set; }
         public int? UomEntry { get; set; }
         public string PickRmrk { get; set; }
+        public DateTime? SysCloseDt { get; set; }
+        public short? SysCloseTm { get; set; }
+        public string CloseVerNm { get; set; }
+        public DateTime? StartDate { get; set; }
+        public string ObjType { get; set; }
+        public string ProdName { get; set; }
+        public short? Priority { get; set; }
+        public string RouDatCalc { get; set; }
+        public string UpdAlloc { get; set; }
+        public int? CreateTs { get; set; }
+        public int? UpdateTs { get; set; }
+        public string VersionNum { get; set; }
+        public string DataSource { get; set; }
+        public string Sappassprt { get; set; }
+        public int? AtcEntry { get; set; }
+        public string Attachment { get; set; }
+        public string AsChild { get; set; }
+        public string LinkToObj { get; set; }
+        public string ProcItms { get; set; }
         public string USedrRprt { get; set; }
         public int? UPassNum { get; set; }
         public int? USlineNum { get; set; }

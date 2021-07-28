@@ -9,7 +9,7 @@ namespace HashtilERP.TestContextApi
     public partial class KPassportForTest
     {
         public int KPassportId { get; set; }
-        public int? PassportNum { get; set; }
+        public int PassportNum { get; set; }
         public string GrowingRoom { get; set; }
         public DateTime? SowDate { get; set; }
         public string Hamama { get; set; }
@@ -24,7 +24,6 @@ namespace HashtilERP.TestContextApi
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; }
-        public int? PassportStartingAVG { get; set; }
         public int? OriginalMagashAmount { get; set; }
         public string ItemCode { get; set; }
         public int SapDocEntry { get; set; }
@@ -32,6 +31,7 @@ namespace HashtilERP.TestContextApi
         public DateTime? DateEnd { get; set; }
         public int? GrowingDays { get; set; }
         public string PassportCondition { get; set; }
+        public int? PassportStartingAvg { get; set; }
         public DateTime? MetzayEnteringDate { get; set; }
         public DateTime? MetzayOutGoingDate { get; set; }
         public DateTime? AvgenteringDate { get; set; }

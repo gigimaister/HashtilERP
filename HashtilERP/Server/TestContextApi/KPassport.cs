@@ -21,6 +21,7 @@ namespace HashtilERP.TestContextApi
         public bool? IsSavedForCx { get; set; }
         public bool? IsLowAvg { get; set; }
         public bool? IsNeedToCut { get; set; }
+        public bool? HasBeenAudited { get; set; }
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; }

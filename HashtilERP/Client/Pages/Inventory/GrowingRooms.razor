@@ -170,9 +170,9 @@
 
 @code {
     public K_Passport GrowPassport = new K_Passport();
-    public K_Passport[] GrowPassports;
+    public List<K_Passport> GrowPassports;
     private HubConnection hubConnection;
-    public DateTime GrowingRoomExit;
+    public DateTime GrowingRoomExit { get; set; }
 
 
 
@@ -208,7 +208,8 @@
     {
         try
         {
-            GrowPassports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "1");
+            GrowPassports = await Http.GetFromJsonAsync<List<K_Passport>>("api/KPassports/multi/" + "1");
+            
             StateHasChanged();
         }
 

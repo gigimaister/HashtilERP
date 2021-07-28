@@ -15,5 +15,7 @@ namespace HashtilERP.TestContextApi
         public string UserName { get; set; }
         public int? SelectedAvg { get; set; }
         public int? KPassportNum { get; set; }
+        public int? KpassportHamama { get; set; }
+        public int? KpassportGamlon { get; set; }
     }
 }

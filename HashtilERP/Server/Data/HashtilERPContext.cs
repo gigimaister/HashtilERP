@@ -28,7 +28,7 @@ namespace HashtilERP.Data
         public virtual DbSet<UpdateK_PassportAudit> UpdateK_PassportAudits { get; set; }
         public virtual DbSet<K_Order> K_Order { get; set; }
         public virtual DbSet<K_OrderPassports> K_OrderPassport { get; set; }
-
+        public virtual DbSet<K_PassportExcelInsert> KPassportExcelInsert { get; set; }
         public virtual DbSet<ORDR> ORDR { get; set; }
         public virtual DbSet<OCRD> OCRD { get; set; }
 
@@ -1798,7 +1798,17 @@ namespace HashtilERP.Data
                     .HasColumnName("U_SaleNum");
             });
 
-            OnModelCreatingPartial(modelBuilder);
+            modelBuilder.Entity<K_PassportExcelInsert>(entity =>
+                {
+                    entity.HasKey(e => e.KPassportExcelId);
+
+                    entity.ToTable("K_Passport_Excel_Insert");
+
+                    entity.Property(e => e.KPassportExcelId).HasColumnName("K_PassportExcelId");
+                });
+
+
+                OnModelCreatingPartial(modelBuilder);
         }
             catch(Exception e)
             { Console.WriteLine(e.Message); }

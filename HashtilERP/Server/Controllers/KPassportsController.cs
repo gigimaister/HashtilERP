@@ -515,8 +515,9 @@ namespace HashtilERP.Server
 
             }
             //if no passport in SAP
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e.Message);
                 return StatusCode(500, "NOTFOUND");
             }
 

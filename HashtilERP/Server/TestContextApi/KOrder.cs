@@ -32,6 +32,7 @@ namespace HashtilERP.TestContextApi
         public bool? IsNeedToConfirmJob { get; set; }
         public bool? IsTakeoutJobTomorrow { get; set; }
         public bool? IsWasChangedAfterDeliveryReport { get; set; }
+        public bool? WasEditAfterAttachedPassports { get; set; }
         public int? NumOfCages { get; set; }
         public int? NumOfBarTenderStickers { get; set; }
         public string HamamaRemarks { get; set; }

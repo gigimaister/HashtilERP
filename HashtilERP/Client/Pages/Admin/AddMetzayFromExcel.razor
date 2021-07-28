@@ -51,12 +51,14 @@
                 ErrorModalHeaderContent = "שגיאה!";
                 ModalError = $"משהו השתבש! נא לבדוק {rslt.StatusCode}";
                 ErrorDialogIsVisible = true;
+                StateHasChanged();
             }
             else
             {
                 ErrorModalHeaderContent = "הצלחה!";
                 ModalError = "הכנסה בוצעה בהצלחה!";
                 ErrorDialogIsVisible = true;
+                StateHasChanged();
             }
         }
         catch (Exception e)
