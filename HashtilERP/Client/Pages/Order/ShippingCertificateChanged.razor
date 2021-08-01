@@ -419,7 +419,7 @@
     #region Page Settings
 
     //list of KOrder(Grid Rows)
-    K_Order[] K_Orders;
+    List<K_Order> K_Orders { get; set; }= new List<K_Order>();
 
     //"מחפש בין התאריכים Show Counter"
     bool ShowCorrectDate = false;
@@ -472,7 +472,7 @@
         try
         {
             ShowCorrectDate = false;
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetChangedJobsAfterDelivery");
+            K_Orders = await Http.GetFromJsonAsync<List<K_Order>>("api/WeeklyKOrder/GetChangedJobsAfterDelivery");
 
             StateHasChanged();
         }

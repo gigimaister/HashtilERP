@@ -25,6 +25,6 @@ namespace HashtilERP.DBTestVol1
         public decimal? UPqtyOpn { get; set; }
         public decimal? UQuaOpen { get; set; }
         public string UCustSeed { get; set; }
-        
+
     }
 }

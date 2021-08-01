@@ -381,7 +381,7 @@
 
 @code {
 
-    SfGrid<K_Passport> SfGrid;
+        SfGrid<K_Passport> SfGrid;
     //CAMERA SCANNER for search in datagrid
     private string isDevice { get; set; }
     private bool mobile { get; set; }
@@ -434,7 +434,7 @@
     #endregion
 
     public K_Passport K_Passport = new K_Passport();
-    public K_Passport[] K_Passports;
+    public List<K_Passport> K_Passports { get; set; } = new List<K_Passport>();
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
     private HubConnection hubConnection;
     private static string HebSaved = "נשמר!";
@@ -559,7 +559,7 @@
     {
         try
         {
-            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "4");
+            K_Passports = await Http.GetFromJsonAsync<List<K_Passport>>("api/KPassports/multi/" + "4");
             StateHasChanged();
         }
 

@@ -425,7 +425,7 @@
     SfGrid<K_Passport> SfGrid;
 
     //Objects list populate grid
-    public K_Passport[] K_Passports;
+    public List<K_Passport> K_Passports { get; set; } = new List<K_Passport>();
 
     //the Object type fot type grid and PUT calls
     public K_Passport K_Passport = new K_Passport();
@@ -468,7 +468,7 @@
     //Get list Of K_Passport Objects
     protected async Task LoadData()
     {
-        K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/savedforcx");
+        K_Passports = await Http.GetFromJsonAsync<List<K_Passport>>("api/KPassports/savedforcx");
         StateHasChanged();
     }
 

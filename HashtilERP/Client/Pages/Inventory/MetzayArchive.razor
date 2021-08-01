@@ -409,9 +409,9 @@
 
 @code {
 
-        //REGION EDIT DIALOG
-        #region Custom Edit Dialog
-        //Edit dialog spinner
+    //REGION EDIT DIALOG
+    #region Custom Edit Dialog
+    //Edit dialog spinner
     public bool EditPassBool { get; set; } = false;
     //edit dialog Visabillity
     private bool GridEditModalVisible { get; set; } = false;
@@ -484,7 +484,7 @@
     #endregion
 
     public K_Passport K_Passport = new K_Passport();
-    public K_Passport[] K_Passports;
+    public List<K_Passport> K_Passports { get; set; } = new List<K_Passport>();
     public PassportAuditForm PassportAuditForm = new PassportAuditForm();
     private HubConnection hubConnection;
     private static string HebSaved = "נשמר!";
@@ -680,7 +680,7 @@
     {
         try
         {
-            K_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/" + "7");
+            K_Passports = await Http.GetFromJsonAsync<List<K_Passport>>("api/KPassports/multi/" + "7");
             StateHasChanged();
         }
 

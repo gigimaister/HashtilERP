@@ -196,7 +196,7 @@
     <GridColumns>
         <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center"></GridColumn>
         <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.MarketingDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.MarketingDateDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -1563,7 +1563,7 @@
     #region Page Settings
 
     //list of KOrder(Grid Rows)
-    K_Order[] K_Orders;
+    List<K_Order> K_Orders { get; set; } = new List<K_Order>();
 
     //"מחפש בין התאריכים Show Counter"
     bool ShowCorrectDate = false;
@@ -1636,9 +1636,9 @@
         try
         {
             ShowCorrectDate = false;
-            K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetWeeklyKOrders");
+            K_Orders = await Http.GetFromJsonAsync<List<K_Order>>("api/WeeklyKOrder/GetWeeklyKOrders");
             //GET CX FROM SAP
-            DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetSapCxList");
+            DropDownKOrderSapCxNames = await Http.GetFromJsonAsync<List<K_Order>>("api/WeeklyKOrder/GetSapCxList");
             //GET PASSPORTS
             k_PassportsForJobs = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/ForKOrderJobs");
 
@@ -1676,7 +1676,7 @@
     K_Order NewJobK_Order { get; set; } = new K_Order();
 
     //list of korder only for dropdown sap cx list
-    K_Order[] DropDownKOrderSapCxNames;
+    List<K_Order> DropDownKOrderSapCxNames;
 
     //Passports for gidul and zan
     K_Passport[] k_PassportsForJobs;

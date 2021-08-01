@@ -307,6 +307,37 @@ namespace HashtilERP.DBTestVol1
         public decimal? Iweight2 { get; set; }
         public short? Iwght2Unit { get; set; }
         public string CompoWh { get; set; }
+        public int? CreateTs { get; set; }
+        public int? UpdateTs { get; set; }
+        public string VirtAstItm { get; set; }
+        public string SouVirAsst { get; set; }
+        public string InCostRoll { get; set; }
+        public decimal? PrdStdCst { get; set; }
+        public string EnAstSeri { get; set; }
+        public string LinkRsc { get; set; }
+        public decimal? OnHldPert { get; set; }
+        public decimal? OnHldLimt { get; set; }
+        public int? PriceUnit { get; set; }
+        public string Gstrelevnt { get; set; }
+        public int? Sacentry { get; set; }
+        public string GstTaxCtg { get; set; }
+        public decimal? AssVal4Wtr { get; set; }
+        public int? ExcImpQuoM { get; set; }
+        public decimal? ExcFixAmnt { get; set; }
+        public decimal? ExcRate { get; set; }
+        public string Soiexc { get; set; }
+        public string Tnved { get; set; }
+        public string Imported { get; set; }
+        public string AutoBatch { get; set; }
+        public string CstmActing { get; set; }
+        public int? StdItemId { get; set; }
+        public int? CommClass { get; set; }
+        public string TaxCatCode { get; set; }
+        public int? DataVers { get; set; }
+        public string Nvecode { get; set; }
+        public int? Cestcode { get; set; }
+        public decimal? CtrSealQty { get; set; }
+        public string LegalText { get; set; }
         public decimal? UZraCoef { get; set; }
         public decimal? UCelsTray { get; set; }
         public DateTime? USeedTillDate { get; set; }
