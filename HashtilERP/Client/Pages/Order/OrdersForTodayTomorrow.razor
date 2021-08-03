@@ -276,7 +276,7 @@
                         </ChildContent>
                         <ContentTemplate>
                             <br />
-                            <div class="container">
+                            <div class="container" @onmouseup="CheckGidulForEdit">
                                 <div class="form-group">
                                     <div style="text-align:right" class="alert alert-success" role="alert">
                                         <div class="row">
@@ -336,7 +336,8 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>כ.מגשים</label>
-                                                <input type="number" @bind-value="K_OrderForEdit.JobNumOfMagash" class="form-control" placeholder="מגשים" />
+                                                @*<input type="number" @bind-value="K_OrderForEdit.JobNumOfMagash" class="form-control" placeholder="מגשים" />*@
+                                                <SfNumericTextBox TValue="int?" @bind-Value="K_OrderForEdit.JobNumOfMagash" Format="n0" Placeholder="מגשים"></SfNumericTextBox>
                                             </div>
                                         </div>
                                     </div>
@@ -344,7 +345,8 @@
                                         <div class="col">
                                             <div class="form-group">
                                                 <label>ממוצע</label>
-                                                <input type="number" @bind-value="K_OrderForEdit.JobPlansAvarage" max="999" @onkeydown="EditOrderKeyDown" class="form-control" placeholder="ממוצע" />
+                                                @*<input type="number" @bind-value="K_OrderForEdit.JobPlansAvarage" max="999" @onkeydown="EditOrderKeyDown" class="form-control" placeholder="ממוצע" />*@
+                                                <SfNumericTextBox TValue="int?" @bind-Value="K_OrderForEdit.JobPlansAvarage" @onkeydown="EditOrderKeyDown" Format="n0" Placeholder="ממוצע"></SfNumericTextBox>
                                             </div>
                                         </div>
                                         <div class="col">
@@ -739,7 +741,7 @@
             </div>
         </Header>
         <Content>
-            <form>
+            <form @onmouseup="CheckGidul">
                 <div class="form-group">
                     <label>בחירת תאריך</label>
                     <SfDatePicker TValue="DateTime?" @bind-Value='@DateValue' EnableRtl="true" Placeholder='תאריך הוצאה'></SfDatePicker>
@@ -771,7 +773,8 @@
                     <div class="col">
                         <div class="form-group">
                             <label>כ.מגשים</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />
+                            @*<input type="number" @bind-value="NewJobK_Order.JobNumOfMagash" class="form-control" placeholder="מגשים" />*@
+                            <SfNumericTextBox TValue="int?" @bind-Value="NewJobK_Order.JobNumOfMagash" Format="n0" Placeholder="מגשים"></SfNumericTextBox>
                         </div>
                     </div>
                 </div>
@@ -779,7 +782,8 @@
                     <div class="col">
                         <div class="form-group">
                             <label>ממוצע</label>
-                            <input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="999" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />
+                            @*<input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="999" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />*@
+                            <SfNumericTextBox TValue="int?"  @bind-Value="NewJobK_Order.JobPlansAvarage"  @onkeydown="KeyDown" Format="n0" Placeholder="ממוצע"></SfNumericTextBox>
                         </div>
                     </div>
                     <div class="col">
@@ -1948,6 +1952,51 @@
             }
         }
     }
+    void CheckGidulForEdit(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 0 && String.IsNullOrEmpty(K_OrderForEdit.Gidul))
+        {
+            var zan = K_OrderForEdit.Zan;
+            try
+            {
+                var gidul = k_PassportsForJobs.Where(x => x.Zan == zan).Select(x => x.Gidul).FirstOrDefault();
+                if (!String.IsNullOrEmpty(gidul))
+                {
+                    K_OrderForEdit.Gidul = gidul;
+                    StateHasChanged();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+    }
+
+    //check if zan fill and gidul =null the auto fill gidul when zan finished
+    void CheckGidul(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
+    {
+        if (mouseEventArgs.Buttons == 0 && String.IsNullOrEmpty(NewJobK_Order.Gidul))
+        {
+            var zan = NewJobK_Order.Zan;
+            try
+            {
+                var gidul = k_PassportsForJobs.Where(x => x.Zan == zan).Select(x => x.Gidul).FirstOrDefault();
+                if (!String.IsNullOrEmpty(gidul))
+                {
+                    NewJobK_Order.Gidul = gidul;
+                    StateHasChanged();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+           
+    }
     //After Pick Zan MouseClick
     void ZanMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
     {
@@ -1955,19 +2004,20 @@
         {
             try
             {
-                if (NewJobK_Order.Gidul != null)
+                if (!String.IsNullOrEmpty(NewJobK_Order.Gidul))
                 {
                     Zans = k_PassportsForJobs.Where(x => x.Gidul == NewJobK_Order.Gidul).Select(x => x.Zan).Distinct().ToList();
                 }
                 else
                 {
                     NewJobK_Order.Gidul = k_PassportsForJobs.Where(x => x.Zan == NewJobK_Order.Zan).Select(x => x.Gidul).Distinct().Single();
+                    Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+
             }
         }
     }
@@ -1987,6 +2037,7 @@
                 AVGAutoCalc += args.Key;
                 var intAvg = Convert.ToInt32(AVGAutoCalc);
                 var magash = NewJobK_Order.JobPlantsNum / intAvg;
+                NewJobK_Order.JobNumOfMagash = magash;
                 AutoPlantsCalc = NewJobK_Order.JobPlantsNum.ToString();
                 AutoMagashCalc = magash.ToString();
             }
@@ -2006,6 +2057,8 @@
         }
 
     }
+
+
 
     //open new job form btn click
     void BtnOpenNewJobForm()
@@ -2185,7 +2238,7 @@
         }
         try
         {
-            //IF PRINT
+            //if print
             if (Isprint == 0)
             {
 
@@ -3543,7 +3596,7 @@
     {
         if (mouseEventArgs.Buttons == 1)
         {
-            if (K_OrderForEdit.Zan != null)
+            if (!String.IsNullOrEmpty( K_OrderForEdit.Zan))
             {
                 try
                 {
@@ -3558,6 +3611,9 @@
             }
         }
     }
+
+
+
     //After Pick Zan MouseClick
     void EditZanMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
     {
@@ -3565,7 +3621,7 @@
         {
             try
             {
-                if (K_OrderForEdit.Gidul != null)
+                if (!String.IsNullOrEmpty(K_OrderForEdit.Gidul))
                 {
                     Zans = k_PassportsForJobs.Where(x => x.Gidul == K_OrderForEdit.Gidul).Select(x => x.Zan).Distinct().ToList();
                 }
@@ -3584,53 +3640,37 @@
     //AVG Input
     void EditOrderKeyDown(KeyboardEventArgs args)
     {
-        var tempkOrderAutoPlants = new K_Order();
-        tempkOrderAutoPlants.JobPlantsNum = K_OrderForEdit.JobPlantsNum;
 
         try
         {
-            if (args.Code == "Backspace" && AVGAutoCalc.Length > 0)
+            var numList = new List<string>
+            {
+                "0","1","2","3","4","5","6","7","8","9"
+            };
+            if (numList.Contains(args.Key))
+            {
+                AVGAutoCalc += args.Key;
+                var intAvg = Convert.ToInt32(AVGAutoCalc);
+                var magash = K_OrderForEdit.JobPlantsNum / intAvg;
+                K_OrderForEdit.JobNumOfMagash = magash;
+                AutoPlantsCalc = K_OrderForEdit.JobPlantsNum.ToString();
+                AutoMagashCalc = magash.ToString();
+            }
+            if (args.Code == "Backspace")
             {
                 AVGAutoCalc = AVGAutoCalc.Remove(AVGAutoCalc.Length - 1, 1);
             }
-            else if (args.Code == "Delete")
+            if (args.Code == "Delete")
             {
                 AVGAutoCalc = "";
             }
-            else
-            {
-                AVGAutoCalc += args.Key;
-            }
-            if (AVGAutoCalc.Length > 3)
-            {
-                AVGAutoCalc = AVGAutoCalc.Remove(AVGAutoCalc.Length - 1, 1);
-                K_OrderForEdit.JobPlansAvarage = Convert.ToInt32(AVGAutoCalc);
 
-                ErrorDialogIsVisible = true;
-                ErrorModalHeaderContent = "שגיאת ממוצע!";
-                ModalError = "אורך ממוצע מקס' הינו 3 ספרות!";
-            }
-
-            var intAVG = Convert.ToInt32(AVGAutoCalc);
-            K_OrderForEdit.JobNumOfMagash = K_OrderForEdit.JobPlantsNum / intAVG;
-
-            KOrdersfunctions.SetAvgForKorder(intAVG, tempkOrderAutoPlants);
-            try
-            {
-                AutoPlantsCalc = tempkOrderAutoPlants.JobPlantsNum.ToString();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
-
     }
-
 
     #endregion
 

@@ -248,14 +248,7 @@
         try
         {
             K_Passports = await Http.GetFromJsonAsync<List<K_Passport>>("api/KPassports/AuditPassports");
-            try
-            {
-                K_Passports = K_Passports.Where(x => x.AuditAge >= 0.5).ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            
             StateHasChanged();
         }
         catch (Exception e)

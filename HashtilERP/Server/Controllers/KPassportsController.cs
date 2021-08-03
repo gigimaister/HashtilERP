@@ -413,8 +413,10 @@ namespace HashtilERP.Server
             var ChosenList = new List<K_Passport>();
             try
             {
-                ChosenList = await _context.KPassport.Where(x => (x.PassportStatus == Status.InGreenHouse) && (x.HasBeenAudited == false)).OrderBy(x => x.SowDate).ToListAsync();
+                ChosenList = await _context.KPassport.Where(x => (x.PassportStatus == Status.InGreenHouse) 
+                && (x.HasBeenAudited == false)).OrderBy(x => x.SowDate).ToListAsync();
 
+                ChosenList = ChosenList.Where(x => x.AuditAge >= 0.5).ToList(); ;
             }
             catch (Exception e)
             {

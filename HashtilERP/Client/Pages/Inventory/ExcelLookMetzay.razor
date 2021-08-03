@@ -53,8 +53,6 @@
 
 
 @*GRID SECTION START HERE*@
-
-
     <SfGrid DataSource="@metzayForOrens" FrozenRows="0" AllowExcelExport="true" Height="700" Width="100%" AllowPaging="true" 
             @ref="@SfGrid" Toolbar=@Tool AllowGrouping="false" AllowFiltering="true"
             AllowSorting="true" EnableRtl="true" AllowResizing="false">
@@ -93,8 +91,8 @@
         <GridColumns>
 
             <GridColumn Field=@nameof(MetzayForOren.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
-            <GridColumn Field=@nameof(MetzayForOren.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.HamamaInt) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
+            <GridColumn Field=@nameof(MetzayForOren.GamlonInt) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" Width="90" ></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.Gidul)  HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
             <GridColumn Field=@nameof(MetzayForOren.SowDate) HeaderText="ת.זריעה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -398,7 +396,7 @@
         }
 
         //HAMAMA STYLE
-        if (args.Column.Field == "Hamama")
+        if (args.Column.Field == "HamamaInt")
         {
             if (args.Data.Hamama.Trim() == "1")
             {

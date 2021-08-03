@@ -48,6 +48,8 @@ namespace HashtilERP.Shared.Models
         public int? AutoPlantsCalc => K_PassportFunctions.GetKPassportNumOfPlants(PassportAVG, PassportStartingAVG, MagashAmount);
         public string AutoPassportAVG => K_PassportFunctions.GetKorderAvg(PassportAVG, PassportStartingAVG);
         public double? AuditAge => (Convert.ToDouble(((TimeSpan)(DateTime.Now - SowDate)).Days) / Convert.ToDouble(GrowingDays));
+        public int HamamaInt => Convert.ToInt32(Hamama);
+        public int GamlonInt => Convert.ToInt32(Gamlon);
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
