@@ -16,6 +16,7 @@
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.SplitButtons
 @using System.Timers;
+@using HashtilERP.Shared.Models.Drivers
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -101,6 +102,21 @@
     </div>
 </div>
 
+@*ELI/Drivers Manger*@
+<AuthorizeView Roles="Administrator,Manager-Drivers">
+    <div>
+        <div class="col alert alert-success" role="alert">
+            <div class="row">
+                <div class="col">
+                    <SfDropDownList TValue="Driver" Width="200px" TItem="Driver" DataSource="@Drivers" Placeholder="">
+                        <DropDownListFieldSettings Text="FullName" Value="FullName"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                    <button class="btn btn-outline-secondary" style="margin-right:10px">שליחה</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
 
 
 @{
@@ -1708,7 +1724,7 @@
         {
             ShowCorrectDate = false;
             K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow");
-            //For Greed No.1
+            //For Grid No.1
             GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
             || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
             //GET CX FROM SAP
@@ -1721,6 +1737,9 @@
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+
+            //Get Drivers
+            Drivers = await Http.GetFromJsonAsync<List<Driver>>("api/Drivers/Drivers/GetListOfDrivers");
 
             StateHasChanged();
         }
@@ -3483,6 +3502,11 @@
 
     #endregion
 
+    #region Drivers
+    List<Driver> Drivers { get; set; } = new List<Driver>();
+    #endregion
+
+
     //Grid Edit Modal
     #region Grid Edit Modal
 
@@ -3644,7 +3668,7 @@
         try
         {
             var numList = new List<string>
-        {
+{
                 "0","1","2","3","4","5","6","7","8","9"
             };
             if (numList.Contains(args.Key))

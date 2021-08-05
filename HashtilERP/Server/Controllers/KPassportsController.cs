@@ -392,6 +392,7 @@ namespace HashtilERP.Server
                 .ThenInclude(e => e.Passprods)
                 .Include(e => e.PassportAuditForms)
                 .Include(e => e.k_PassportAuditTblVer2s)
+                .Include(e => e.KPassportInsertAudit)
                 .OrderBy(x => x.SowDate)
                 .ToListAsync();
             if(k_Passports.Count == 0)
