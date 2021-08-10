@@ -20,6 +20,8 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
 
+
+
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
     <h2 style="text-align:center">הוצאות להיום/מחר</h2>
@@ -29,16 +31,16 @@
     <br />
 </AuthorizeView>
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
-<AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
+<AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren,Sales-A,Sales-B">
     <div class="row">
         <div class="col" style="text-align:right">
             <div class="alert alert-secondary" role="alert">
-                <div class="row" style="text-align:right;">
+
+                <div class="row" style="text-align:right;">                 
                     <div class="col">
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
@@ -192,8 +194,8 @@
 
     </GridAggregates>
     <GridColumns>
-        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
-        <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50" ></GridColumn>
+        <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center"></GridColumn>
+        <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
         <GridColumn Field=@nameof(K_Order.MarketingDateDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -207,7 +209,7 @@
         <GridColumn Field=@nameof(K_Order.PassprodComments) HeaderText="הערות נוספות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
-            <GridColumn HeaderText="" TextAlign="TextAlign.Center" >
+            <GridColumn HeaderText="" TextAlign="TextAlign.Center">
                 <GridCommandColumns>
                     <GridCommandColumn Type=CommandButtonType.None
                                        ButtonOption="@(new CommandButtonOptions() { Content = "בחירת פספורט", CssClass = "e-info" })">
@@ -215,7 +217,7 @@
                 </GridCommandColumns>
             </GridColumn>
         </AuthorizeView>
-        <GridColumn Field=@nameof(K_Order.GetIsJobDeliveryOut) HeaderText="ת.משלוח" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
+        <GridColumn Field=@nameof(K_Order.GetIsJobDeliveryOut) HeaderText="ת.משלוח" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
     </GridColumns>
 </SfGrid>
 
@@ -636,12 +638,12 @@
                             <button class="btn btn-success" @onclick="SendOrderCancelForm">שליחה</button>
                         }
                     }
-                </div>              
-            <div class="col">
-                <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
-            </div>              
+                </div>
+                <div class="col">
+                    <button class="btn btn-danger" @onclick="KorderCancelHide">ביטול</button>
+                </div>
             </div>
-         
+
         </FooterTemplate>
     </DialogTemplates>
 </SfDialog>
@@ -724,7 +726,7 @@
         <GridColumn Field=@nameof(K_Order.JobPlansAvarage) HeaderText="ממוצע" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.HamamaRemarks) HeaderText="הערות מנהל עבודה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.DeliveryRemarks) HeaderText="הערות הובלה" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
-        <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
+        <GridColumn Field=@nameof(K_Order.AnotherFixedRemarks) HeaderText="הערות קבועות" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
     </GridColumns>
 </SfGrid>
 
@@ -783,7 +785,7 @@
                         <div class="form-group">
                             <label>ממוצע</label>
                             @*<input type="number" @bind-value="NewJobK_Order.JobPlansAvarage" max="999" @onkeydown="KeyDown" class="form-control" placeholder="ממוצע" />*@
-                            <SfNumericTextBox TValue="int?"  @bind-Value="NewJobK_Order.JobPlansAvarage"  @onkeydown="KeyDown" Format="n0" Placeholder="ממוצע"></SfNumericTextBox>
+                            <SfNumericTextBox TValue="int?" @bind-Value="NewJobK_Order.JobPlansAvarage" @onkeydown="KeyDown" Format="n0" Placeholder="ממוצע"></SfNumericTextBox>
                         </div>
                     </div>
                     <div class="col">
@@ -874,13 +876,13 @@
     <DialogTemplates>
         <Content>
             @*<SfTooltip ID="Tooltip" Target="#gidzanbtn" EnableRtl="true" IsSticky="true" Content="@GidZanToolContentContent"
-                       Position="Position.LeftCenter"></SfTooltip>*@
+                Position="Position.LeftCenter"></SfTooltip>*@
 
             <div class="row">
                 <div class="col" style="text-align:right">
                     @*<input type="text" class="form-control" style="width:200px"
-                           placeholder="הכנסת זן בלבד(לא חובה)"
-                           @bind=@SearchByZan />*@
+                        placeholder="הכנסת זן בלבד(לא חובה)"
+                        @bind=@SearchByZan />*@
                     <br />
                     <button id="gidzanbtn" style="text-align:left" class="btn btn-outline-secondary" @onclick="@(_ => {GetKpassportsByGidulAndZan();})">טעינת כל המצאי</button>
 
@@ -1286,16 +1288,16 @@
                                 </GridAggregates>
 
                                 <GridColumns>
-                                    <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center" ></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.K_PassportId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.Hamama) HeaderText="חמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.Gamlon) HeaderText="גמ'" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.PassportNum) HeaderText="פספורט" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" > </GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Gidul) HeaderText="גידול" FilterSettings="@(new FilterSettings{Operator = Syncfusion.Blazor.Operator.Contains})" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"> </GridColumn>
                                     <GridColumn Field=@nameof(K_Passport.DateEnd) HeaderText="ת.הוצאה" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center"></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center" ></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center" ></GridColumn>
-                                    <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" >
+                                    <GridColumn Field=@nameof(K_Passport.PassportAge) HeaderText="גיל" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.MagashAmount) HeaderText="מגשים" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" Format="N0" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field="@nameof(K_Passport.PassportAVG)" HeaderText="ממוצע" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center">
                                         <Template>
                                             @{
                                                 var value = (context as K_Passport);
@@ -1304,9 +1306,9 @@
                                             }
                                         </Template>
                                     </GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" ></GridColumn>
-                                    <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center" ></GridColumn>
-                                    <GridColumn HeaderText="בחירה" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center" >
+                                    <GridColumn Field=@nameof(K_Passport.PassportCondition) HeaderText="מצב" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn Field=@nameof(K_Passport.CelsTray) HeaderText="סוג מגש" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Format="N0" Type="ColumnType.Number" TextAlign="TextAlign.Center"></GridColumn>
+                                    <GridColumn HeaderText="בחירה" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center">
                                         <GridCommandColumns>
                                             <GridCommandColumn Type=CommandButtonType.None
                                                                ButtonOption="@(new CommandButtonOptions() {  IconCss ="e-icons e-plus-icon", CssClass = "e-round", IsPrimary = true })">
@@ -1842,7 +1844,7 @@
                     }
                 }
 
-                if(k_Order.CxName.Contains("כלובים קטנים"))
+                if (k_Order.CxName.Contains("כלובים קטנים"))
                 {
                     k_Order.IsCageSmall = true;
                 }
@@ -1995,7 +1997,7 @@
                 Console.WriteLine(e.Message);
             }
         }
-           
+
     }
     //After Pick Zan MouseClick
     void ZanMouseClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs mouseEventArgs)
@@ -2377,14 +2379,14 @@
         IsListOfCancelJobs = true;
         CancelKorderShow = true;
     }
-    async void  SencListJobsCancel()
+    async void SencListJobsCancel()
     {
         if (String.IsNullOrEmpty(TboxCancel) || String.IsNullOrEmpty(WhoCancel))
         {
             ErrorModalHeaderContent = "שגיאה!";
             ModalError = "יש למלא את שתי האופציות!";
             ErrorDialogIsVisible = true;
-            return ;
+            return;
         }
         LoadingSpinner = true;
         KorderCancelHide();
@@ -3596,7 +3598,7 @@
     {
         if (mouseEventArgs.Buttons == 1)
         {
-            if (!String.IsNullOrEmpty( K_OrderForEdit.Zan))
+            if (!String.IsNullOrEmpty(K_OrderForEdit.Zan))
             {
                 try
                 {
@@ -3644,7 +3646,7 @@
         try
         {
             var numList = new List<string>
-            {
+        {
                 "0","1","2","3","4","5","6","7","8","9"
             };
             if (numList.Contains(args.Key))
@@ -3729,7 +3731,7 @@
                 Console.WriteLine(e.Message);
             }
         }
-        if(args.Column.Field == "JobPlansAvarage")
+        if (args.Column.Field == "JobPlansAvarage")
         {
             if ((args.Data.JobPlansAvarage > 442 || args.Data.JobPlansAvarage < 150) && args.Data.JobPlansAvarage != 0)
             {
@@ -3746,6 +3748,7 @@
     .job-was-edit-after-passports {
         background-color: darksalmon;
     }
+
     .is-job-ready {
         background-color: mediumseagreen;
     }
@@ -3874,9 +3877,11 @@
     .is-printed {
         background-color: yellow;
     }
+
     .is-avg-not-good {
         background-color: tomato;
     }
+
     .is-need-to-show-kpassport-pick-selection {
         background-color: lightgoldenrodyellow;
     }
