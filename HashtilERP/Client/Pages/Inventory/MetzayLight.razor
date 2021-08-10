@@ -182,17 +182,17 @@
         <GridColumns>
             <GridColumn HeaderText="פעולות" TextAlign="TextAlign.Center" Width="240px">
                 <GridCommandColumns>
-                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter,Manager-Oren">
                         <GridCommandColumn Type=CommandButtonType.None
                                            ButtonOption="@(new CommandButtonOptions() { Content = "השמדה", CssClass = "e-danger" })">
                         </GridCommandColumn>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter,Agronomist,Viewer ">
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter,Agronomist,Viewer,Manager-Oren ">
                         <GridCommandColumn Type=CommandButtonType.None
                                            ButtonOption="@(new CommandButtonOptions() { Content = "ביקורת", CssClass = "e-success" })">
                         </GridCommandColumn>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter">
+                    <AuthorizeView Roles="Administrator,Manager-GreenHouse,AuditAvgCounter,Manager-Oren">
                         <GridCommandColumn Type=CommandButtonType.Edit
                                            ButtonOption="@(new CommandButtonOptions() { Content = "עריכה", CssClass = "e-info" })">
                         </GridCommandColumn>
