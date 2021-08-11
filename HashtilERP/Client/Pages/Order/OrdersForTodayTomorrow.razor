@@ -16,6 +16,7 @@
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.SplitButtons
 @using System.Timers;
+@using HashtilERP.Shared.Models.Drivers;
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -30,6 +31,29 @@
     <button class="btn btn-success" @onclick="BtnSemdMultiJobIsDone">מוכנה</button>
     <br />
 </AuthorizeView>
+
+@*Select Driver For Drivers-Manager*@
+<AuthorizeView Roles="Manager-Drivers">
+    <div class="row">
+        <div class="col" style="text-align:right">
+            <div class="alert alert-secondary" role="alert">
+
+                <div class="row" style="text-align:right;">
+                    <div class="col">
+                        <SfDropDownList TValue="string" Width="200px" TItem="Driver"  DataSource="@Drivers" @bind-Value="@DriverId" Placeholder="בחר נהג">
+                            <DropDownListFieldSettings Text="FullName" Value="DriverId"></DropDownListFieldSettings>
+                        </SfDropDownList>                        
+                        <button class="btn btn-outline-success" @onclick="SendDriverToOrder">שליחה</button>
+                    </div>                  
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+</AuthorizeView>
+
 @*Multi AVG for rows Auth for Admin, Green Mnagr & Oren*@
 <AuthorizeView Roles="Administrator,Manager-GreenHouse,Manager-Oren">
     <div class="row">
@@ -64,8 +88,6 @@
 
 </AuthorizeView>
 
-
-
 <AuthorizeView Roles="Sales-A, Sales-B">
     <div class="row">
         <div class="col" style="text-align:right">
@@ -95,14 +117,6 @@
 
 </AuthorizeView>
 
-
-
-
-
-
-
-
-
 @if (K_Orders == null)
 {
     <div class="col-sm">
@@ -118,7 +132,6 @@
         <SfSpinner Size="40" Label="טוען..." Type="SpinnerType.Bootstrap4" Visible="@LoadingSpinner" CssClass="e-customClass"></SfSpinner>
     </div>
 </div>
-
 
 
 @{
@@ -213,6 +226,8 @@
         <GridColumn Field=@nameof(K_Order.JobId) HeaderText="" HeaderTextAlign="TextAlign.Center" Type="ColumnType.Number" IsPrimaryKey="true" Visible="false" TextAlign="TextAlign.Center"></GridColumn>
         <GridColumn Type="ColumnType.CheckBox" HeaderTextAlign="TextAlign.Center" Width="50"></GridColumn>
         <GridColumn Field=@nameof(K_Order.MarketingDateDate) HeaderText="ת.הוצאה" HeaderTextAlign="TextAlign.Center" Format="d" Type="ColumnType.Date" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.HebrewDayName) HeaderText="יום" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
+        <GridColumn Field=@nameof(K_Order.DriverName) HeaderText="נהג" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.CxName) HeaderText="לקוח" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Gidul) HeaderText="גידול" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
         <GridColumn Field=@nameof(K_Order.Zan) HeaderText="זן" AllowEditing="false" HeaderTextAlign="TextAlign.Center" Type="ColumnType.String" TextAlign="TextAlign.Center" AutoFit="true"></GridColumn>
@@ -862,7 +877,7 @@
         </Content>
         <FooterTemplate>
             <div class="row text-center">
-                <AuthorizeView Roles="Administrator,Sales-A,Sales-B,Manager-GreenHouse,Manager-Oren">
+                <AuthorizeView Roles="Administrator,Sales-A,Sales-B,Manager-GreenHouse,Manager-Oren,Manager-Drivers">
                     <div class="col">
                         <button class="btn btn-success" @onclick="@(_ => { BtnSendNewJob(NewJobK_Order); })">שליחה</button>
                     </div>
@@ -1640,6 +1655,65 @@
     }
     #endregion
 
+    //Drivers
+    #region DRIVERS
+    List<Driver> Drivers { get; set; } = new List<Driver>();
+    Driver Driver { get; set; } = new Driver();
+    DriversToOrder _driver { get; set; } = new DriversToOrder();
+    string DriverId;
+
+    async void SendDriverToOrder()
+    {
+        if (selectedRows.Count() == 0)
+        {
+            ErrorDialogIsVisible = true;
+            ErrorModalHeaderContent = "שגיאה!";
+            ModalError = "לא נבחרו עבודות!";
+        }
+
+        else
+        {
+            Driver = Drivers.Where(x => x.DriverId == DriverId).FirstOrDefault();
+            _driver.DriverId = Driver.DriverId;
+            _driver.UserName = Driver.UserName;
+            _driver.PhoneNumber = Driver.PhoneNumber;
+            _driver.ScreenName = Driver.ScreenName;
+
+
+            LoadingSpinner = true;
+            await SendDriverToOrderToDB();
+            ToastContent = "נשמר!";
+
+            LoadingSpinner = false;
+            await ShowToast();
+            //StateHasChanged();
+            if (IsConnected) await SendMessage();
+        }
+    }
+    async Task<int> SendDriverToOrderToDB()
+    {
+
+        foreach (var row in selectedRows)
+        {
+            _driver.JobId = row.JobId;
+
+            if (row.DriversToOrders.Count == 0)
+            {
+                await Http.PostAsJsonAsync("api/Drivers/Drivers/PostDriver", _driver);
+            }
+            else if (row.DriversToOrders.Count == 1)
+            {
+                await Http.PutAsJsonAsync<DriversToOrder>("api/Drivers/Drivers/PostDriver", _driver);
+            }
+            else if (row.DriversToOrders.Count > 1)
+            {
+                continue;
+            }
+        }
+        return 0;
+    }
+    #endregion
+
     //Page settings
     #region Page Settings
 
@@ -1739,6 +1813,9 @@
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
+
+            //GET Drivers
+            Drivers = await Http.GetFromJsonAsync<List<Driver>>("api/Drivers/Drivers/GetListOfDrivers");
 
             StateHasChanged();
         }
@@ -2503,6 +2580,8 @@
         }
         return 0;
     }
+
+
     //MULTI AVG BTN CLICK
     async void BtnSendMultiAVG()
     {

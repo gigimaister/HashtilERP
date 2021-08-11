@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using HashtilERP.Shared.Models.Drivers;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HashtilERP.Shared.Models
@@ -37,15 +37,15 @@ namespace HashtilERP.Shared.Models
         public int? NumOfCages { get; set; } = 0;
         public int? NumOfBarTenderStickers { get; set; } = 0;
 
-        public string HamamaRemarks { get; set; }="";
-        public string DeliveryRemarks { get; set; }="";
-        public string JobStatus { get; set; }="";
-        public string FixedCoordinationRemark { get; set; }="";
-        public string OpenCoordinationRemark { get; set; }="";
-        public string UserName { get; set; }="";
-        public string PassprodComments { get; set; }="";
-
-        public DateTime MarketingDateDate => Convert.ToDateTime(MarketingDate);
+        public string HamamaRemarks { get; set; } = "";
+        public string DeliveryRemarks { get; set; } = "";
+        public string JobStatus { get; set; } = "";
+        public string FixedCoordinationRemark { get; set; } = "";
+        public string OpenCoordinationRemark { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string PassprodComments { get; set; } = "";
+        public string HebrewDayName => KOrderAlgorithemShared.GetHebrewDayOfTheWeek(MarketingDate);
+        public DateTime MarketingDateDate => Convert.ToDateTime(MarketingDate);                
 
         [ForeignKey("JobId")]
         public virtual List<K_OrderPassports> K_OrderPassports { get; set; }
@@ -61,9 +61,20 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("JobId")]
         public List<K_OrderAuditTable> k_OrderAuditTables { get; set; }
 
+        [ForeignKey("JobId")]
+        public List<DriversToOrder> DriversToOrders { get; set; }
+
         public string AnotherFixedRemarks => KOrdersfunctions.BoolRemarksToString(IsCageSmall, IsCxComeToPickUp, IsNeedToConfirmJob);
 
         public string GetIsJobDeliveryOut => KOrdersfunctions.GetIsKorderDeliveryBillOut(IsDeliveryNote);
+        public string DriverName => GetDriverName(DriversToOrders);
+        public string GetDriverName(List<DriversToOrder> driversToOrders)
+        {
+            var name = "טרם נקבע";
+            if (driversToOrders.Count == 1) { name = $"{driversToOrders.Select(x => x.FullName).FirstOrDefault()}"; }
+            else if (driversToOrders.Count > 1) { name = "מפוצל"; }
+            return name;
+        }
 
 
     }

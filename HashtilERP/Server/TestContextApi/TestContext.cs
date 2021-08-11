@@ -18,6 +18,7 @@ namespace HashtilERP.TestContextApi
         {
         }
 
+        public virtual DbSet<DriversToOrder> DriversToOrder { get; set; }
         public virtual DbSet<KOrder> KOrder { get; set; }
         public virtual DbSet<KOrderAuditTable> KOrderAuditTable { get; set; }
         public virtual DbSet<KOrderForBartender> KOrderForBartender { get; set; }
@@ -39,19 +40,21 @@ namespace HashtilERP.TestContextApi
         public virtual DbSet<Rdr1> Rdr1 { get; set; }
         public virtual DbSet<UpdateKPassportAudit> UpdateKPassportAudit { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Data Source=hsap;Initial Catalog=Hashtil09;Persist Security Info=True;User ID=h2;Password=H2kobiApp");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("db_datareader")
                 .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP850_CI_AS");
+
+            modelBuilder.Entity<DriversToOrder>(entity =>
+            {
+                entity.Property(e => e.DriverId).HasMaxLength(450);
+
+                entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+
+                entity.Property(e => e.ScreenName).HasMaxLength(50);
+
+                entity.Property(e => e.UserName).HasMaxLength(50);
+            });
 
             modelBuilder.Entity<KOrder>(entity =>
             {

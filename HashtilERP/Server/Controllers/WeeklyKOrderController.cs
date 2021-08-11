@@ -99,6 +99,7 @@ namespace HashtilERP.Server.Controllers
               .ThenInclude(x => x.K_Passport)
               .Include(x => x.k_OrderRemarks)
               .Include(x => x.k_OrderAuditTables)
+              .Include(x => x.DriversToOrders)
               .OrderBy(x => x.CxName)
               .ToListAsync();
             }

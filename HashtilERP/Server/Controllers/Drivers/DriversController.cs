@@ -4,6 +4,7 @@ using HashtilERP.Shared.Models.Drivers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace HashtilERP.Server.Controllers.Drivers
         }
 
         #region GET REGION
-        //weekly orders
+        //GET Drivers From Asp Net Identity!
         [HttpGet("GetListOfDrivers")]
         public async Task<List<Driver>> GetListOfDrivers()
         {
@@ -50,6 +51,53 @@ namespace HashtilERP.Server.Controllers.Drivers
             catch (Exception e) { Console.WriteLine(e.Message); }
 
             return drivers;
+        }
+        #endregion
+
+        #region PUT
+        [HttpPut("UpdateDriverForOrder")]
+        public async Task<IActionResult> UpdateDriverForOrder(DBTestVol1.DriversToOrder driver)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;       
+            
+            _context.Entry(driver).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok();
+        }
+
+        #endregion
+
+        #region POST
+
+        [HttpPost("PostDriver")]
+        public async Task<ActionResult<Driver>> PostDriver(DBTestVol1.DriversToOrder driver)
+        {                     
+            var user = await _userManager.GetUserAsync(User);
+            var screenName = user.ScreenName;
+           
+            _context.DriversToOrder.Add(driver);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(501, e.Message);
+            }
+
+            return Ok();
         }
         #endregion
 

@@ -18,6 +18,7 @@ namespace HashtilERP.DBTestVol1
         {
         }
 
+        public virtual DbSet<DriversToOrder> DriversToOrder { get; set; }
         public virtual DbSet<KOrder> KOrder { get; set; }
         public virtual DbSet<KOrderPassports> KOrderPassports { get; set; }
         public virtual DbSet<KPassport> KPassport { get; set; }
@@ -44,6 +45,17 @@ namespace HashtilERP.DBTestVol1
            
             modelBuilder.HasDefaultSchema("db_datareader")
                 .HasAnnotation("Relational:Collation", "SQL_Latin1_General_CP850_CI_AS");
+
+            modelBuilder.Entity<DriversToOrder>(entity =>
+                {
+                    entity.Property(e => e.DriverId).HasMaxLength(450);
+
+                    entity.Property(e => e.PhoneNumber).HasMaxLength(50);
+
+                    entity.Property(e => e.ScreenName).HasMaxLength(50);
+
+                    entity.Property(e => e.UserName).HasMaxLength(50);
+                });
 
             modelBuilder.Entity<KOrder>(entity =>
             {
