@@ -1,4 +1,4 @@
-﻿@page "/order/todayorderstest"
+﻿@page "/order/todaytrderstest"
 @inject IJSRuntime jsRuntime
 
 @using Microsoft.AspNetCore.Authorization
@@ -16,10 +16,11 @@
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.SplitButtons
 @using System.Timers;
-@using HashtilERP.Shared.Models.Drivers
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
+
+
 
 @attribute [Authorize(Roles = "Administrator,Viewer,Manager-GreenHouse,Agronomist,AuditAvgCounter,Manager-Oren,Sales-A,Sales-B,Manager-Drivers")]
 <div style="text-align:right" class="alert alert-primary" role="alert">
@@ -34,12 +35,12 @@
     <div class="row">
         <div class="col" style="text-align:right">
             <div class="alert alert-secondary" role="alert">
+
                 <div class="row" style="text-align:right;">
                     <div class="col">
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
                     </div>
-
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
@@ -62,18 +63,26 @@
     </div>
 
 </AuthorizeView>
-@*Multi delivery note for rows Auth for Admin && Sales A, B*@
-<AuthorizeView Roles="Administrator,Sales-A, Sales-B">
+
+
+
+<AuthorizeView Roles="Sales-A, Sales-B">
     <div class="row">
         <div class="col" style="text-align:right">
-            <div class="row" style="text-align:right;width:400px;">
-                <div class="col">
+            <div class="alert alert-secondary" role="alert">
 
-                </div>
-                <div class="col" style="text-align:right">
+                <div class="row" style="text-align:right;">
+                    <div class="col">
+                        <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
+                        <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
+                    </div>
+                    <div class="col" style="text-align:left">
+                        <button class="btn btn-outline-danger" @onclick="BtnCancelJobs">ביטול עבודה</button>
+                    </div>
                 </div>
             </div>
         </div>
+
         <div class="col" style="text-align:left">
             <SfProgressButton Content="יצאה תעודה" CssClass="e-outline e-success" @onclick="@(_ => {SetIsDeliveryNote(0);})">
                 <ProgressButtonSpinSettings Position="SpinPosition.Right"></ProgressButtonSpinSettings>
@@ -85,6 +94,14 @@
     </div>
 
 </AuthorizeView>
+
+
+
+
+
+
+
+
 
 @if (K_Orders == null)
 {
@@ -102,21 +119,6 @@
     </div>
 </div>
 
-@*ELI/Drivers Manger*@
-<AuthorizeView Roles="Administrator,Manager-Drivers">
-    <div>
-        <div class="col alert alert-success" role="alert">
-            <div class="row">
-                <div class="col">
-                    <SfDropDownList TValue="Driver" Width="200px" TItem="Driver" DataSource="@Drivers" Placeholder="">
-                        <DropDownListFieldSettings Text="FullName" Value="FullName"></DropDownListFieldSettings>
-                    </SfDropDownList>
-                    <button class="btn btn-outline-secondary" style="margin-right:10px">שליחה</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</AuthorizeView>
 
 
 @{
@@ -1724,7 +1726,7 @@
         {
             ShowCorrectDate = false;
             K_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow");
-            //For Grid No.1
+            //For Greed No.1
             GridNo1List = K_Orders.Where(x => (x.IsTakeoutJobTomorrow == false && x.IsNeedToConfirmJob == false)
             || (x.IsTakeoutJobTomorrow == null && x.IsNeedToConfirmJob == null)).ToList();
             //GET CX FROM SAP
@@ -1737,9 +1739,6 @@
 
             Giduls = k_PassportsForJobs.Select(x => x.Gidul).Distinct().ToList();
             Zans = k_PassportsForJobs.Select(x => x.Zan).Distinct().ToList();
-
-            //Get Drivers
-            Drivers = await Http.GetFromJsonAsync<List<Driver>>("api/Drivers/Drivers/GetListOfDrivers");
 
             StateHasChanged();
         }
@@ -3502,11 +3501,6 @@
 
     #endregion
 
-    #region Drivers
-    List<Driver> Drivers { get; set; } = new List<Driver>();
-    #endregion
-
-
     //Grid Edit Modal
     #region Grid Edit Modal
 
@@ -3668,7 +3662,7 @@
         try
         {
             var numList = new List<string>
-{
+    {
                 "0","1","2","3","4","5","6","7","8","9"
             };
             if (numList.Contains(args.Key))
