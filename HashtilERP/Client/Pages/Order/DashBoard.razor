@@ -87,7 +87,19 @@
             </ContentTemplate>
         </DashboardLayoutPanel>
         <DashboardLayoutPanel Column=3>
-            <ContentTemplate><div>2</div></ContentTemplate>
+            <ContentTemplate>
+            <div>
+                <SfAccumulationChart Title="תאילנדים בחממות">
+                    <AccumulationChartSeriesCollection>
+                        <AccumulationChartSeries DataSource="@thaiToGreens" XName="Hamama" YName="NumOfThai"
+                                                 Name="Hamama" InnerRadius="40%">
+                        </AccumulationChartSeries>
+                    </AccumulationChartSeriesCollection>
+
+                    <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+                </SfAccumulationChart>
+            </div>
+            </ContentTemplate>
         </DashboardLayoutPanel>
 
         <DashboardLayoutPanel Row=1>
@@ -119,17 +131,10 @@
     //KOrders Objects
     K_Order[] k_Orders;
     K_Passport[] k_Passports;
-
-    #region Green Houses Bar Chart
-    public class GreenHousesChartData
-    {
-        public string GreenHouse { get; set; }
-        public int? Magash { get; set; }
-    }
-
-    public List<GreenHousesChartData> greenHousesChartDatas { get; set; }
-
-    #endregion
+    //Thai Employees Dict
+    Dictionary<int, int> ThaiPerGreen { get; set; } = new Dictionary<int, int>();
+    //Thai Employees Obj
+    List<ThaiToGreen> thaiToGreens { get; set; } = new List<ThaiToGreen>();
 
 
     //INITIALIZED
@@ -162,6 +167,8 @@
     {
         k_Orders = await Http.GetFromJsonAsync<K_Order[]>("api/WeeklyKOrder/GetKOrdersForTodayTomorrow/");
         k_Passports = await Http.GetFromJsonAsync<K_Passport[]>("api/KPassports/multi/3");
+        ThaiPerGreen = await Http.GetFromJsonAsync<Dictionary<int,int>>("api/DashBoard/GetThaiEmployeesDict");
+
         NumOfTotalJobs = k_Orders.Count();
         greenHousesChartDatas = new List<GreenHousesChartData>();
         greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "1", Magash = k_Passports.Where(x => x.Hamama == "1").Sum(x => x.MagashAmount)});
@@ -172,6 +179,16 @@
         greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "6", Magash = k_Passports.Where(x => x.Hamama == "6").Sum(x => x.MagashAmount) });
         greenHousesChartDatas.Add(new GreenHousesChartData { GreenHouse = "7", Magash = k_Passports.Where(x => x.Hamama == "7").Sum(x => x.MagashAmount) });
 
+        foreach(var thai in ThaiPerGreen)
+        {
+            var _thaiemp = new ThaiToGreen
+            {
+                Hamama = thai.Key.ToString(),
+                NumOfThai = thai.Value
+            };
+
+            thaiToGreens.Add(_thaiemp);
+        }
         StateHasChanged();
     }
 
@@ -186,9 +203,31 @@
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     #endregion
 
+    #region Green Houses Bar Chart
+    public class GreenHousesChartData
+    {
+        public string GreenHouse { get; set; }
+        public int? Magash { get; set; }
+    }
+
+    public List<GreenHousesChartData> greenHousesChartDatas { get; set; }
+
+    #endregion
+
+
+
+    #region ThaiPerGreen
+    public class ThaiToGreen
+    {
+        public string Hamama { get; set; }
+        public int NumOfThai { get; set; }
+    }
+    #endregion
+
+    #region STYLE   
     public String[] MinTemp = new String[] { "#E84855" };
     public String[] MaxTemp = new String[] { "#24ae24" };
-
+    #endregion
 }
 
 

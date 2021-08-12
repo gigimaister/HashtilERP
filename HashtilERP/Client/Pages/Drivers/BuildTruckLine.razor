@@ -1,0 +1,112 @@
+﻿@page "/drivers/buildtruckline"
+
+@using Syncfusion.Blazor.Cards
+@using Syncfusion.Blazor.Buttons
+@using Microsoft.AspNetCore.Authorization
+
+@inject IJSRuntime jsRuntime
+
+@inject NavigationManager NavigationManager
+@inject HttpClient Http
+
+@attribute [Authorize(Roles = "Administrator,Viewer,Manager-Oren,Manager-Drivers")]
+
+@*Card*@
+<div class="control-section card-control-section tile_layout">
+    <div class='row e-card-layout' style="margin: auto">
+        <div>
+            <SfCard EnableRtl="true">
+                <CardImage Image="https://scontent.fsdv3-1.fna.fbcdn.net/v/t31.18172-8/27709683_127726301378275_5973638186966543421_o.jpg?_nc_cat=108&ccb=1-4&_nc_sid=09cbfe&_nc_ohc=SENAc-otRGIAX9NpxPU&_nc_ht=scontent.fsdv3-1.fna&oh=199f4d2bd13dc2323bd8908f52cd7831&oe=613A2F62" />
+                <CardContent>
+                    <table style="line-height: 2.75em; width: 100%">
+                        <tr>
+                            <td>
+                                <div class="card-text-value" style="text-align:right"><b>נהג:</b></div>
+                            </td>
+                            <td>
+                                <div class="card-text-value">Steve Fenton</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="card-text-value"><b>סהכ קווים להיום:</b></div>
+                            </td>
+                            <td>
+                                <div class="card-text-value">Jul 7, 2014</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="card-text-value" style="text-align:right"><b>פלאפון:</b></div>
+                            </td>
+                            <td>
+                                <div class="card-text-value">82</div>
+                            </td>
+                        </tr>
+                    </table>                            
+                </CardContent>
+                @if (ShowTable)
+                {
+                    <CardFooter>
+                        <CardFooterContent>
+                            <SfButton CssClass="e-btn e-outline e-primary" @onclick="@(()=> ShowTable = !ShowTable)">קו חדש</SfButton>
+                        </CardFooterContent>
+                    </CardFooter>
+                }
+            </SfCard>
+        </div>
+    </div>
+</div>
+
+@code{
+
+    private bool ShowTable = true;
+}
+
+<style>
+    .e-card-image {
+        height: 180px;
+        width: 240px;
+    }
+
+    .card-text-value {
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .tile_layout.card-control-section .row.filter .col-xs-6.col-sm-6.col-lg-6.col-md-6 {
+        display: inline-flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .tile_layout.card-control-section .col-xs-6.col-sm-6.col-lg-6.col-md-6 {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .card-control-section.tile_layout .e-card-layout {
+        margin: auto;
+        max-width: 250px;
+    }
+
+    .e-card-header {
+        padding-left: inherit !important;
+    }
+
+    .e-btn {
+        margin-left: 10px;
+    }
+
+    .e-card .e-card-header .e-card-header-caption .e-card-header-title {
+        font-weight: bold;
+    }
+
+    .e-collapse::before {
+        content: "\e745";
+    }
+
+    .tailwind .e-collapse::before {
+        content: "\e771";
+    }
+</style>
