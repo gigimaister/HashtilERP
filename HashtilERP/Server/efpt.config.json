@@ -62,6 +62,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[db_datareader].[NotificationSubscription]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[db_datareader].[PassportAuditForm]",
          "ObjectType": 0
       },

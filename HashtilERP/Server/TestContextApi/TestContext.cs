@@ -30,6 +30,7 @@ namespace HashtilERP.TestContextApi
         public virtual DbSet<KPassportExcelInsert> KPassportExcelInsert { get; set; }
         public virtual DbSet<KPassportForTest> KPassportForTest { get; set; }
         public virtual DbSet<KPassportInsertAudit> KPassportInsertAudit { get; set; }
+        public virtual DbSet<NotificationSubscription> NotificationSubscription { get; set; }
         public virtual DbSet<Ocrd> Ocrd { get; set; }
         public virtual DbSet<Oitm> Oitm { get; set; }
         public virtual DbSet<Ordr> Ordr { get; set; }
@@ -329,6 +330,17 @@ namespace HashtilERP.TestContextApi
                 entity.Property(e => e.Date).HasColumnType("datetime");
 
                 entity.Property(e => e.UserName).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<NotificationSubscription>(entity =>
+            {
+                entity.Property(e => e.Auth).HasMaxLength(450);
+
+                entity.Property(e => e.P256dh).HasMaxLength(450);
+
+                entity.Property(e => e.Url).HasMaxLength(450);
+
+                entity.Property(e => e.UserId).HasMaxLength(450);
             });
 
             modelBuilder.Entity<Ocrd>(entity =>

@@ -10,6 +10,7 @@ using HashtilERP.Server.Models;
 
 namespace HashtilERP.Server
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class KPassportsController : ControllerBase
@@ -605,7 +606,7 @@ namespace HashtilERP.Server
                         {
                             temp = kpassport.Passport.UQuanProd * 1000;
                             startAvg = Convert.ToInt32((kpassport.Passport.UQuanProd * 1000) / kpassport.Passport.UTraySow);
-                            MetzayForOren metzayForOren = new MetzayForOren
+                            MetzayForOren metzayForOren = new()
                             {
                                 Hamama = kpassport.Hamama,
                                 Gamlon = kpassport.Gamlon,
@@ -651,7 +652,7 @@ namespace HashtilERP.Server
                             }
                             sumofPlants += Convert.ToInt32(temp);
                             counter++;
-                            MetzayForOren metzayForOren = new MetzayForOren
+                            MetzayForOren metzayForOren = new()
                             {
                                 Hamama = kpassport.Hamama,
                                 Gamlon = kpassport.Gamlon,
@@ -692,7 +693,7 @@ namespace HashtilERP.Server
                             startAvg = Convert.ToInt32((kpassport.Passport.UQuanOrdP * 1000) / kpassport.Passport.UTraySow);
                         }
 
-                        MetzayForOren metzayForOren = new MetzayForOren
+                        MetzayForOren metzayForOren = new()
                         {
                             Hamama = kpassport.Hamama,
                             Gamlon = kpassport.Gamlon,

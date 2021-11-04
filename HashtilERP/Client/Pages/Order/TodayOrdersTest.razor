@@ -16,9 +16,11 @@
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.SplitButtons
 @using System.Timers;
+@using HashtilERP.Shared
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
+@inject PushNotHttp push
 
 
 
@@ -1680,6 +1682,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        //push
+        // In the background, ask if they want to be notified about order updates
+        _ = RequestNotificationSubscriptionAsync();
+
+
+
         await LoadDataOrder();
         hubConnection = new HubConnectionBuilder()
            .WithUrl(NavigationManager.ToAbsoluteUri("/broadcastHub"))
@@ -1706,6 +1714,24 @@
         timer.Enabled = true;
 
     }
+
+    //Add Push Sub
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        var subscription = await jsRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (subscription != null)
+        {
+            try
+            {
+                await push.SubscribeToNotifications(subscription);
+            }
+            catch (AccessTokenNotAvailableException ex)
+            {
+                ex.Redirect();
+            }
+        }
+    }
+
     private async void OnTimedEvent(Object source, ElapsedEventArgs e)
     {
         await LoadDataOrder();

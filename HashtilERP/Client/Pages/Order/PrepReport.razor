@@ -569,6 +569,9 @@
                 catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
+                    ToastContent = e.Message;
+                    await ShowToast();
+                    return 1;
                 }
             }
             if (IsConnected) await SendMessage();

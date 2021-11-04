@@ -1,7 +1,5 @@
 ﻿using HashtilERP.DBTestVol1;
 using HashtilERP.Server.Models;
-using HashtilERP.Shared.Models.Drivers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,16 +26,16 @@ namespace HashtilERP.Server.Controllers.Drivers
         #region GET REGION
         //GET Drivers From Asp Net Identity!
         [HttpGet("GetListOfDrivers")]
-        public async Task<List<Driver>> GetListOfDrivers()
+        public async Task<List<Shared.Models.Drivers.Driver>> GetListOfDrivers()
         {
-            var drivers = new List<Driver>();
+            var drivers = new List<Shared.Models.Drivers.Driver>();
             try
             {
                 var driversList = await _userManager.GetUsersInRoleAsync("Driver");
 
                 foreach (var driver in driversList)
                 {
-                    var _driver = new Driver
+                    var _driver = new Shared.Models.Drivers.Driver
                     {
                         DriverId = driver.Id,
                         UserName = driver.UserName,
@@ -56,7 +54,7 @@ namespace HashtilERP.Server.Controllers.Drivers
 
         #region PUT
         [HttpPut("UpdateDriverForOrder")]
-        public async Task<IActionResult> UpdateDriverForOrder(DBTestVol1.DriversToOrder driver)
+        public async Task<IActionResult> UpdateDriverForOrder(DriversToOrder driver)
         {
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;       
@@ -81,7 +79,7 @@ namespace HashtilERP.Server.Controllers.Drivers
         #region POST
 
         [HttpPost("PostDriver")]
-        public async Task<ActionResult<Driver>> PostDriver(DBTestVol1.DriversToOrder driver)
+        public async Task<ActionResult<Shared.Models.Drivers.Driver>> PostDriver(DriversToOrder driver)
         {                     
             var user = await _userManager.GetUserAsync(User);
             var screenName = user.ScreenName;

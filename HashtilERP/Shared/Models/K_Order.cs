@@ -71,6 +71,7 @@ namespace HashtilERP.Shared.Models
         public string GetDriverName(List<DriversToOrder> driversToOrders)
         {
             var name = "טרם נקבע";
+            if (driversToOrders == null) { return name; }
             if (driversToOrders.Count == 1) { name = $"{driversToOrders.Select(x => x.FullName).FirstOrDefault()}"; }
             else if (driversToOrders.Count > 1) { name = "מפוצל"; }
             return name;
