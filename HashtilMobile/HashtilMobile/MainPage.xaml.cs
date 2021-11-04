@@ -1,10 +1,12 @@
-﻿using System;
+﻿using HashtilMobile.Services;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using Xamarin.Essentials;
 
 namespace HashtilMobile
 {
@@ -16,7 +18,8 @@ namespace HashtilMobile
         }
         private void LoginClicked(object sender, EventArgs e)
         {
-
+            
         }
+      
     }
 }

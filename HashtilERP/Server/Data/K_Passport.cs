@@ -30,7 +30,7 @@ namespace HashtilERP.Data
         public bool? IsSavedForCx { get; set; } = false;
         public bool? IsLowAVG { get; set; } = false;
         public bool? IsNeedToCut { get; set; } = false;
-        public bool? HasBeenAudited { get; set; } = false;
+        public bool? HasBeenAudited { get; set; } 
         public string PassportStatus { get; set; }
         public int? PassportStatusCode { get; set; }
         public int? PassportAvg { get; set; } = -1;

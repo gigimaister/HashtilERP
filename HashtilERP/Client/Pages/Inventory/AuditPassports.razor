@@ -222,7 +222,7 @@
         hubConnection.State == HubConnectionState.Connected;
     Task SendMessage() => hubConnection.SendAsync("SendMessage");
     #endregion
-    //INT
+    //INIT
     #region INIT
     protected override async Task OnInitializedAsync()
     {
