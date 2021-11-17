@@ -9,6 +9,8 @@ namespace HashtilMobile
     {
         public App()
         {
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NTM1OTUyQDMxMzkyZTMzMmUzMGd2aWxLeXVEcGVtVkhxL1c5UE9MWUZ1Nm1LeHRab1dhZGw2SEdDUU1OYkk9");
+
             InitializeComponent();
             DependencyService.Register<IRestService, RestService>();
 

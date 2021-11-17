@@ -3,6 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HashtilMobile.App">
     <Application.Resources>
-
+        <ResourceDictionary>
+            <Color x:Key="HashtilBackGColor">#C9E5C9</Color>
+            <Color x:Key="SowingBtnSelction">#6a993c</Color>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -11,13 +11,13 @@ using Xamarin.Essentials;
 namespace HashtilMobile
 {
     public partial class MainPage : ContentPage
-    {
+    {   
         public MainPage()
         {
-            InitializeComponent();
+            InitializeComponent();          
         }
-        private void LoginClicked(object sender, EventArgs e)
-        {
+        private  void LoginClicked(object sender, EventArgs e)
+        {          
             
         }
       

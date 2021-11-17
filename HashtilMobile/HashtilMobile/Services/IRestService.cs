@@ -8,6 +8,12 @@ namespace HashtilMobile.Services
 {
     public interface IRestService
     {
-        Task<MobileUser> Login(string usr, string pwd);
+        // Depriciated
+        Task<MobileUser> LoginAsync(MobileUser mobileUser);
+        // Depriciated
+        Task<MobileUser> PostAsync(MobileUser mobileUser);
+
+        //Post Any Object
+        Task<T> PostJsonAsync<T>(string url, T obj);
     }
 }
