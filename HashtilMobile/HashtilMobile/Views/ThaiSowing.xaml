@@ -4,8 +4,11 @@
              x:Class="HashtilMobile.Views.ThaiSowing"
              NavigationPage.HasNavigationBar="False"
              xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
-             xmlns:sys="clr-namespace:System.Collections.Generic;assembly=netstandard">
-
+             xmlns:sys="clr-namespace:System.Collections.Generic;assembly=netstandard"
+             xmlns:viewmodels="clr-namespace:HashtilMobile.ViewModels">
+    <ContentPage.BindingContext>
+        <viewmodels:ThaiSowingViewModel/>
+    </ContentPage.BindingContext>
     <StackLayout BackgroundColor="{StaticResource HashtilBackGColor}">
         <Image Source="hashtilimage.png"
               Margin="0,35,0,0" 
@@ -21,24 +24,21 @@
         Margin="25,55,25,0"
         CornerRadius="20"
         SelectionTextColor="White"
-                BackgroundColor="White">
+                BackgroundColor="White"
+                ItemsSource="{Binding SegmentItems}">
+                <buttons:SfSegmentedControl.BindingContext>
+                    <viewmodels:ThaiSowingViewModel/>
+                </buttons:SfSegmentedControl.BindingContext>
                 <buttons:SfSegmentedControl.SelectionIndicatorSettings>
                     <buttons:SelectionIndicatorSettings 
                         Color="{StaticResource SowingBtnSelction}">
                     </buttons:SelectionIndicatorSettings>
                 </buttons:SfSegmentedControl.SelectionIndicatorSettings>
-                <sys:List x:TypeArguments="x:String">
-                    <x:String>1</x:String>
-                    <x:String>2</x:String>
-                    <x:String>3</x:String>
-                    <x:String>4</x:String>
-                    <x:String>5</x:String>
-                    <x:String>6</x:String>
-                </sys:List>
+               
             </buttons:SfSegmentedControl>
             <Button Text="Scan" Margin="95,120,95,0"
                     CornerRadius="15" BackgroundColor="{StaticResource SowingBtnSelction}"
-                    
+                    Command="{Binding ScanCommand}"
                     TextTransform="None"/>
         </StackLayout>
 

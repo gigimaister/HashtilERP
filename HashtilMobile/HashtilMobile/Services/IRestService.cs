@@ -15,5 +15,9 @@ namespace HashtilMobile.Services
 
         //Post Any Object
         Task<T> PostJsonAsync<T>(string url, T obj);
+
+        #region Passport
+        Task PostPassportAsync<T>(string url, MobileUser mobileUser, T obj);
+        #endregion
     }
 }

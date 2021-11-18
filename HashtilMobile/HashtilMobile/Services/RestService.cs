@@ -81,6 +81,27 @@ namespace HashtilMobile.Services
             return obj;
         }
         #endregion
+
+        #region Passport
+        public async Task PostPassportAsync<T>(string url, MobileUser mobileUser, T obj)
+        {
+            //For Https req
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback =
+            (message, cert, chain, errors) => { return true; };
+
+            HttpClient client = new HttpClient(httpClientHandler);
+
+            string jsonData = JsonConvert.SerializeObject(obj);
+            StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await client.PostAsync($"{url}", content);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                
+            }
+            
+        }
+        #endregion
     }
 
 }
