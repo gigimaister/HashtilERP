@@ -49,7 +49,7 @@ namespace HashtilMobile
 
                 // Thai Green
                 case Constants.Roles.ThaiGreenHouse:
-
+                    await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(new ThaiGreenHouse()));
                     break;
 
                 // Thai Sowing

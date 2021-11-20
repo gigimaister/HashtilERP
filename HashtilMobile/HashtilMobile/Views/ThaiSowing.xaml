@@ -5,7 +5,7 @@
              NavigationPage.HasNavigationBar="False"
              xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
              xmlns:sys="clr-namespace:System.Collections.Generic;assembly=netstandard"
-             xmlns:viewmodels="clr-namespace:HashtilMobile.ViewModels">
+             xmlns:viewmodels="clr-namespace:HashtilMobile.ViewModels" xmlns:local="http://xamarin.com/schemas/2020/toolkit">
     <ContentPage.BindingContext>
         <viewmodels:ThaiSowingViewModel/>
     </ContentPage.BindingContext>
@@ -18,7 +18,7 @@
         <StackLayout>
             <buttons:SfSegmentedControl
                  VisibleSegmentsCount="6"
-        SelectedIndex="2"
+        SelectedIndex="{Binding }"
         BorderColor="#3F3F3F"
         FontColor="Black"
         Margin="25,55,25,0"
@@ -34,7 +34,9 @@
                         Color="{StaticResource SowingBtnSelction}">
                     </buttons:SelectionIndicatorSettings>
                 </buttons:SfSegmentedControl.SelectionIndicatorSettings>
-               
+                <buttons:SfSegmentedControl.Behaviors>
+                    <local:EventToCommandBehavior Command="{Binding SelectionChangedCommand}" EventName="SelectionChanged"/>
+                </buttons:SfSegmentedControl.Behaviors>
             </buttons:SfSegmentedControl>
             <Button Text="Scan" Margin="95,120,95,0"
                     CornerRadius="15" BackgroundColor="{StaticResource SowingBtnSelction}"

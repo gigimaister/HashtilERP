@@ -5,14 +5,23 @@ using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Xamarin.Forms;
+using Xamarin.Essentials;
+using System.Linq;
 
 namespace HashtilMobile.ViewModels
 {
     public class ThaiSowingViewModel
     {
         public ObservableCollection<SfSegmentItem> SegmentItems { get; set; }
-        //Command
+        // For Init Growing Room Segment Index
+        public string SegmentItem { get; set; }
+
+        // Command
         public ICommand ScanCommand { private set; get; }
+
+        // Select Change Command
+        public Command SelectionChangedCommand { get; set; }
+      
 
         //For Http Req
         IRestService _rest = DependencyService.Get<IRestService>();
@@ -27,11 +36,19 @@ namespace HashtilMobile.ViewModels
             new SfSegmentItem(){Text="5",FontColor=Color.FromHex("#6a993c")},
             new SfSegmentItem(){Text="6",FontColor=Color.FromHex("#6a993c")},
         };
+            // Getting First Obj If No Prep Was Found
+            SegmentItem = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
+
             ScanCommand = new Command(Scan);
+            
+            SelectionChangedCommand = new Command<Syncfusion.XForms.Buttons.SelectionChangedEventArgs>(SelectionChanged);
         }
 
         private async void Scan()
         {
+
+            // Set GrowingRoom Selected Index
+            
             var scanner = new ZXing.Mobile.MobileBarcodeScanner();
 
             var result = await scanner.Scan();
@@ -46,5 +63,11 @@ namespace HashtilMobile.ViewModels
             }
                 
         }
+        public void SelectionChanged(Syncfusion.XForms.Buttons.SelectionChangedEventArgs obj)
+        {
+            Preferences.Set("GrowingRoomSelectedIndex", obj.Index);
+        }
+
+       
     }
 }

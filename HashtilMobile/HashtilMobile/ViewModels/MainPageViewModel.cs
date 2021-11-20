@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace HashtilMobile.ViewModels
@@ -84,9 +85,20 @@ namespace HashtilMobile.ViewModels
                 try
                 {
                     mobileUser.UserName = UserName;
-                    mobileUser.Password = Password;
+                    mobileUser.Password = Password;                   
+
+                    // Spinner
                     IsBusy = true;
+
+                    // Send Login
                     var user = await _rest.PostAsync(mobileUser);
+
+                    // Save Login Settings For Auto Login
+                    Preferences.Set("UserName", UserName);
+                    Preferences.Set("Password", Password);
+                    Preferences.Set("Role", user.Role);
+
+                    // If Succsess Login Move To Page By Role
                     await Functions.MoveToPageAsync(user.Role);
                     IsBusy = false;
                 }

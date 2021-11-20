@@ -11,15 +11,15 @@ using Xamarin.Forms.Xaml;
 namespace HashtilMobile.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ThaiSowing : ContentPage
+    public partial class ThaiGreenHouse : ContentPage
     {
-        public ThaiSowing()
+        public ThaiGreenHouse()
         {
             InitializeComponent();
         }
         protected override bool OnBackButtonPressed()
         {
-            var vm = (ThaiSowingViewModel)BindingContext;
+            var vm = (ThaiGreenHouseViewModel)BindingContext;
             return true;
         }
     }
