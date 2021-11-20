@@ -83,7 +83,7 @@ namespace HashtilMobile.Services
         #endregion
 
         #region Passport
-        public async Task PostPassportAsync<T>(string url, MobileUser mobileUser, T obj)
+        public async Task PostPassportAsync<T>(string url, MobileUser mobileUser, K_Passport k_Passport)
         {
             //For Https req
             var httpClientHandler = new HttpClientHandler();
@@ -92,7 +92,7 @@ namespace HashtilMobile.Services
 
             HttpClient client = new HttpClient(httpClientHandler);
 
-            string jsonData = JsonConvert.SerializeObject(obj);
+            string jsonData = JsonConvert.SerializeObject(k_Passport);
             StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync($"{url}", content);
             if (response.StatusCode == HttpStatusCode.OK)
