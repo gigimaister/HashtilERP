@@ -18,6 +18,7 @@ namespace HashtilMobile.ViewModels
 
         // Command
         public ICommand ScanCommand { private set; get; }
+        public ICommand LogoutCommand { private set; get; }
 
         // Select Change Command
         public Command SelectionChangedCommand { get; set; }
@@ -40,7 +41,8 @@ namespace HashtilMobile.ViewModels
             SegmentItem = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
 
             ScanCommand = new Command(Scan);
-            
+            LogoutCommand = new Command(Logout);
+
             SelectionChangedCommand = new Command<Syncfusion.XForms.Buttons.SelectionChangedEventArgs>(SelectionChanged);
         }
 
@@ -67,7 +69,10 @@ namespace HashtilMobile.ViewModels
         {
             Preferences.Set("GrowingRoomSelectedIndex", obj.Index);
         }
+        private async void Logout()
+        {
+            await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(new MainPage()));
+        }
 
-       
     }
 }

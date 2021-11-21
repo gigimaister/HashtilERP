@@ -1,4 +1,5 @@
 ﻿using HashtilMobile.Services;
+using HashtilMobile.Views;
 using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -15,7 +16,7 @@ namespace HashtilMobile
             DependencyService.Register<IRestService, RestService>();
 
             Device.SetFlags(new string[] { "Shapes_Experimental", "MediaElement_Experimental" });
-            MainPage = new MainPage();
+            MainPage = new CheckLoginSplash();
         }
 
         protected override void OnStart()

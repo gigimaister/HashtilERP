@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:xct="http://xamarin.com/schemas/2020/toolkit" 
-             xmlns:viewmodels="clr-namespace:HashtilMobile.ViewModels" x:DataType="viewmodels:MainPageViewModel"
+             xmlns:viewmodels="clr-namespace:HashtilMobile.ViewModels" 
+             x:DataType="viewmodels:MainPageViewModel"
+             NavigationPage.HasNavigationBar="False"
              x:Class="HashtilMobile.MainPage">
     <ContentPage.BindingContext>
         <viewmodels:MainPageViewModel/>

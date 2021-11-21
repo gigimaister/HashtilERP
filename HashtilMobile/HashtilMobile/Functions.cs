@@ -1,8 +1,10 @@
-﻿using HashtilMobile.Views;
+﻿using HashtilMobile.Models;
+using HashtilMobile.Views;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace HashtilMobile
@@ -38,7 +40,9 @@ namespace HashtilMobile
             }
             return pages;
         }
-        public static async Task MoveToPageAsync(string role)
+
+        // Move To Page Based On Role
+        public static async Task MoveToPageAsync(string role, bool blockAlert = false)
         {
             switch (role)
             {
@@ -63,11 +67,28 @@ namespace HashtilMobile
                     break;
 
                 //If We Got Untill Here, Wrong Pass Or UsrName
-                default:                   
-                    await Application.Current.MainPage.DisplayAlert(Constants.Heb_Error, Constants.Heb_WrongUserPwd, Constants.Heb_Close);
+                default:
+                    if (!blockAlert)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(Constants.Heb_Error, Constants.Heb_WrongUserPwd, Constants.Heb_Close);
+                    }
                     break;
             }
 
         }
+
+        // Return MobileUser Object From Prep Settings
+        public static MobileUser GetMobileUser()
+        {
+            MobileUser mobileUser = new MobileUser();
+            mobileUser.UserName = Preferences.Get("UserName","");
+            mobileUser.Password = Preferences.Get("Password", "");
+            mobileUser.Role = Preferences.Get("Role", "");
+
+            return mobileUser;
+        }
+
+        
+        
     }
 }

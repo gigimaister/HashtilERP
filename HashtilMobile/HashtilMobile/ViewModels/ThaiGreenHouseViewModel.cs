@@ -10,9 +10,11 @@ namespace HashtilMobile.ViewModels
     {
         // Command
         public ICommand ScanCommand { private set; get; }
+        public ICommand LogoutCommand { private set; get; }
         public ThaiGreenHouseViewModel()
         {
             ScanCommand = new Command(Scan);
+            LogoutCommand = new Command(Logout);
         }
         private async void Scan()
         {         
@@ -22,6 +24,11 @@ namespace HashtilMobile.ViewModels
             {
                
             }
+        }
+
+        private async void Logout()
+        {
+            await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(new MainPage()));
         }
     }   
 }

@@ -83,7 +83,7 @@ namespace HashtilMobile.Services
         #endregion
 
         #region Passport
-        public async Task PostPassportAsync<T>(string url, MobileUser mobileUser, K_Passport k_Passport)
+        public async Task PostPassportAsync(string url, MobileUser mobileUser, K_Passport k_Passport)
         {
             //For Https req
             var httpClientHandler = new HttpClientHandler();
