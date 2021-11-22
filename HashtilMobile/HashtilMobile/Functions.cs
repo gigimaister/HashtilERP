@@ -70,7 +70,11 @@ namespace HashtilMobile
                 default:
                     if (!blockAlert)
                     {
-                        await Application.Current.MainPage.DisplayAlert(Constants.Heb_Error, Constants.Heb_WrongUserPwd, Constants.Heb_Close);
+                        await Application.Current.MainPage.DisplayAlert(Constants.Heb_Error, Constants.Heb_WrongUserPwd, Constants.Heb_Close);                       
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(new MainPage()));
                     }
                     break;
             }
