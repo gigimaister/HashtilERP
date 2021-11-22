@@ -99,7 +99,22 @@ namespace HashtilMobile.Services
             {
                 
             }
-            
+            // If No Valid User
+            else if(response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+
+            }
+            // If No Passport Was Found
+            else if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+
+            }
+            // If Duplicate
+            else if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+
+            }
+
         }
         #endregion
     }

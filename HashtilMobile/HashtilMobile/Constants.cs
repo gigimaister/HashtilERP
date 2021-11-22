@@ -12,11 +12,15 @@ namespace HashtilMobile
         public const string Heb_Ok = "בסדר";
         public const string Heb_WrongUserPwd = "שם משתמש ו/או סיסמא לא נכונים";
         public const string Heb_Close = "סגירה";
+        public const string Thai_PassportScanError = "เลขหมายไม่ถูกต้อง! กรุณาสแกนหมายเลขอีกครั้ง";
+        public const string Thai_Error = "ข้อผิดพลาด!";
+        public const string OK = "OK";
 
         public static class Urls
         {
             public const string BaseUrl = "https://192.168.254.6/api/Android";
             public const string LoginController = "Login/PostLogin";
+            public const string PostKPassport = "KPassport/PostKPassport";
         }
 
         public static class Roles

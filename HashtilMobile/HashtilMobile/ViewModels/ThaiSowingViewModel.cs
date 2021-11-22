@@ -16,6 +16,9 @@ namespace HashtilMobile.ViewModels
         // For Init Growing Room Segment Index
         public string SegmentItem { get; set; }
 
+        // MobileUser
+        MobileUser mobileuser { get; set; } = Functions.GetMobileUser();
+
         // Command
         public ICommand ScanCommand { private set; get; }
         public ICommand LogoutCommand { private set; get; }
@@ -57,17 +60,30 @@ namespace HashtilMobile.ViewModels
 
             if (result != null)
             {
-                var url = "";
+                
                 Console.WriteLine("Scanned Barcode: " + result.Text);
-                MobileUser mobileuser = new MobileUser();
+                
                 K_Passport passport = new K_Passport();
-                await _rest.PostPassportAsync(url, mobileuser,  passport);
+                try
+                {                  
+                    passport.PassportNum = Convert.ToInt32(result.ToString());
+                    passport.GrowingRoom = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
+                    passport.UserName = mobileuser.UserName;
+                }
+                catch(Exception)
+                {
+                    await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
+
+                }
+                await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", mobileuser,  passport);
             }
                 
         }
         public void SelectionChanged(Syncfusion.XForms.Buttons.SelectionChangedEventArgs obj)
         {
             Preferences.Set("GrowingRoomSelectedIndex", obj.Index);
+            
+
         }
         private async void Logout()
         {
