@@ -20,22 +20,22 @@ namespace HashtilMobile
             // Page Sowing
             if(user.Role == Constants.Roles.ThaiGuy)
             {
-                MainPage = new ThaiSowing();
+                MainPage = new NavigationPage(new ThaiSowing());
             }
             // Page Thai Green House
             else if(user.Role == Constants.Roles.ThaiGreenHouse)
             {
-                MainPage = new ThaiGreenHouse();
+                MainPage = new NavigationPage(new ThaiGreenHouse());
             }
             // Page Admin
             else if (user.Role == Constants.Roles.Administrator)
             {
-                MainPage = new ThaiGreenHouse();
+                MainPage = new NavigationPage(new ThaiGreenHouse());
             }
             // Page Counter
             else if (user.Role == Constants.Roles.AuditAvgCounter)
             {
-                MainPage = new ThaiGreenHouse();
+                MainPage = new NavigationPage(new ThaiGreenHouse());
             }
             // Else - Login
             else
