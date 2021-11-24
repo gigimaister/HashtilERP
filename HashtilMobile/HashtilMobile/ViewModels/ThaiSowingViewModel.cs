@@ -47,37 +47,56 @@ namespace HashtilMobile.ViewModels
             LogoutCommand = new Command(Logout);
 
             SelectionChangedCommand = new Command<Syncfusion.XForms.Buttons.SelectionChangedEventArgs>(SelectionChanged);
+
         }
 
         private async void Scan()
         {
 
-            // Set GrowingRoom Selected Index
-            
-            var scanner = new ZXing.Mobile.MobileBarcodeScanner();
-
-            var result = await scanner.Scan();
-
-            if (result != null)
+            K_Passport passport = new K_Passport();
+            try
             {
-                
-                Console.WriteLine("Scanned Barcode: " + result.Text);
-                
-                K_Passport passport = new K_Passport();
-                try
-                {                  
-                    passport.PassportNum = Convert.ToInt32(result.ToString());
-                    passport.GrowingRoom = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
-                    passport.UserName = mobileuser.UserName;
-                }
-                catch(Exception)
-                {
-                    await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
-
-                }
-                await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", passport);
+                passport.PassportNum = 73488;
+                passport.GrowingRoom = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
+                passport.UserName = mobileuser.UserName;
             }
-                
+            catch (Exception)
+            {
+                await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
+
+            }
+            await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", passport);
+
+
+
+
+
+            // Set GrowingRoom Selected Index
+
+            //var scanner = new ZXing.Mobile.MobileBarcodeScanner();
+
+            //var result = await scanner.Scan();
+
+            //if (result != null)
+            //{
+
+            //    Console.WriteLine("Scanned Barcode: " + result.Text);
+
+            //    K_Passport passport = new K_Passport();
+            //    try
+            //    {                  
+            //        passport.PassportNum = Convert.ToInt32(result.ToString());
+            //        passport.GrowingRoom = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
+            //        passport.UserName = mobileuser.UserName;
+            //    }
+            //    catch(Exception)
+            //    {
+            //        await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
+
+            //    }
+            //    await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", passport);
+            //}
+
         }
         public void SelectionChanged(Syncfusion.XForms.Buttons.SelectionChangedEventArgs obj)
         {

@@ -21,7 +21,7 @@
         <StackLayout>
             <buttons:SfSegmentedControl
                  VisibleSegmentsCount="6"
-        SelectedIndex="{Binding }"
+        SelectedIndex="{Binding SegmentItem}"
         BorderColor="#3F3F3F"
         FontColor="Black"
         Margin="25,55,25,0"

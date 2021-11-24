@@ -1415,7 +1415,13 @@
     List<K_Order> k_OrdersCxManyJobs { get; set; } = new List<K_Order>();
     K_Order K_OrderCxManyJobs { get; set; }
 
-    K_Passport jsjsjsj { get; set;}  = new K_Passport();
+    K_Passport k_Passport = new K_Passport
+    {
+        UserName = "boontan",
+        PassportNum = 73122,
+
+
+    };
     #endregion
 
     //KOrder Cnacel Dialog
@@ -2719,10 +2725,8 @@
     {
 
 
-        jsjsjsj.PassportNum = 73012;
-        jsjsjsj.MobileUser.UserName = "boontan";
-        jsjsjsj.MobileUser.Password = "Uma12#";
-        await Http.PostAsJsonAsync($"api/Android/KPassport/PostKPassport", jsjsjsj);
+       
+        await Http.PostAsJsonAsync($"api/Android/KPassport/PostKPassport", k_Passport);
     }
 
     public IEditorSettings CustomerEditParams = new StringEditCellParams
