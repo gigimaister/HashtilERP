@@ -25,15 +25,15 @@ namespace HashtilERP.Server.Controllers.Android
         }
 
         [HttpPost("PostKPassport")]
-        public async Task<ActionResult<K_Passport>> PostKPassport(MobileUser mobileUser, K_Passport kPassport)
+        public async Task<ActionResult<K_Passport>> PostKPassport(K_Passport kPassport)
         {
             // Check If Valid User
-            ApplicationUser userTest = await _userManager.FindByNameAsync(mobileUser.UserName);
-            bool isValidUser = await _userManager.CheckPasswordAsync(userTest, mobileUser.Password);
+            ApplicationUser userTest = await _userManager.FindByNameAsync(kPassport.MobileUser.UserName);
+            bool isValidUser = await _userManager.CheckPasswordAsync(userTest, kPassport.MobileUser.Password);
 
             if (!isValidUser)
             {
-                return Unauthorized();              
+                //return Unauthorized();              
             }
             // Init
             Passport sap;

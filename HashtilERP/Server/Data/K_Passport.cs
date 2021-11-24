@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using HashtilERP.Shared.Models;
+using HashtilERP.Shared.Models.Mobile;
 
 #nullable disable
 
@@ -66,5 +67,7 @@ namespace HashtilERP.Data
         [ForeignKey("K_PassportId")]
         public virtual List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
 
+
+        public virtual MobileUser MobileUser { get; set; }
     }
 }

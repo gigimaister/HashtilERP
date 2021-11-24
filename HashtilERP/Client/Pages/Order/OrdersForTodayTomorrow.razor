@@ -17,6 +17,7 @@
 @using Syncfusion.Blazor.SplitButtons
 @using System.Timers;
 @using HashtilERP.Shared.Models.Drivers;
+@using HashtilERP.Shared.Models.Mobile;
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -40,16 +41,16 @@
 
                 <div class="row" style="text-align:right;">
                     <div class="col">
-                        <SfDropDownList TValue="string" Width="200px" TItem="Driver"  DataSource="@Drivers" @bind-Value="@DriverId" Placeholder="בחר נהג">
+                        <SfDropDownList TValue="string" Width="200px" TItem="Driver" DataSource="@Drivers" @bind-Value="@DriverId" Placeholder="בחר נהג">
                             <DropDownListFieldSettings Text="FullName" Value="DriverId"></DropDownListFieldSettings>
-                        </SfDropDownList>                        
+                        </SfDropDownList>
                         <button class="btn btn-outline-success" @onclick="SendDriverToOrder">שליחה</button>
-                    </div>                  
+                    </div>
                 </div>
             </div>
         </div>
 
-        
+
     </div>
 
 </AuthorizeView>
@@ -60,7 +61,7 @@
         <div class="col" style="text-align:right">
             <div class="alert alert-secondary" role="alert">
 
-                <div class="row" style="text-align:right;">                 
+                <div class="row" style="text-align:right;">
                     <div class="col">
                         <input type="number" style="width:150px" @bind-value="@MultiAVGInput" placeholder="ממוצע" />
                         <button class="btn btn-outline-success" @onclick="BtnSendMultiAVG">שליחה</button>
@@ -93,7 +94,7 @@
         <div class="col" style="text-align:right">
             <div class="alert alert-secondary" role="alert">
 
-                <div class="row" style="text-align:right;">                   
+                <div class="row" style="text-align:right;">
                     <div class="col">
                         <SfDatePicker TValue="DateTime?" @bind-Value="@MultiDate" EnableRtl="true" Width="200px" Placeholder='שינוי ת.הוצאה'></SfDatePicker>
                         <button class="btn btn-outline-warning" @onclick="BtnSendMultiDate">שליחה</button>
@@ -153,6 +154,11 @@
                 type="button"
                 @onclick="ClearGridSearch">
             ניקוי חיפוש
+        </button>
+        <button class="btn btn-warning"
+                type="button"
+                @onclick="SendPassportPost">
+            dd
         </button>
     </div>
 
@@ -1409,7 +1415,7 @@
     List<K_Order> k_OrdersCxManyJobs { get; set; } = new List<K_Order>();
     K_Order K_OrderCxManyJobs { get; set; }
 
-
+    K_Passport jsjsjsj { get; set;}  = new K_Passport();
     #endregion
 
     //KOrder Cnacel Dialog
@@ -2709,6 +2715,15 @@
         }
 
     }
+    public async void SendPassportPost()
+    {
+
+
+        jsjsjsj.PassportNum = 73012;
+        jsjsjsj.MobileUser.UserName = "boontan";
+        jsjsjsj.MobileUser.Password = "Uma12#";
+        await Http.PostAsJsonAsync($"api/Android/KPassport/PostKPassport", jsjsjsj);
+    }
 
     public IEditorSettings CustomerEditParams = new StringEditCellParams
     {
@@ -3741,7 +3756,7 @@
         try
         {
             var numList = new List<string>
-        {
+    {
                 "0","1","2","3","4","5","6","7","8","9"
             };
             if (numList.Contains(args.Key))

@@ -51,5 +51,8 @@ namespace HashtilMobile.Models
 
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
+
+        public virtual MobileUser MobileUser { get; set; }
+
     }
 }

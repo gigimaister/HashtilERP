@@ -72,10 +72,10 @@ namespace HashtilMobile.ViewModels
                 }
                 catch(Exception)
                 {
-                    await Application.Current.MainPage.DisplayAlert( Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
+                    await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
 
                 }
-                await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", mobileuser,  passport);
+                await _rest.PostPassportAsync($"{Constants.Urls.BaseUrl}/{Constants.Urls.PostKPassport}", passport);
             }
                 
         }

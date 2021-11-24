@@ -1,4 +1,5 @@
 ﻿using HashtilERP.Shared.Models;
+using HashtilERP.Shared.Models.Mobile;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -66,6 +67,8 @@ namespace HashtilERP.Shared.Models
 
         [ForeignKey("K_PassportId")]
         public virtual List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
+
+        public virtual MobileUser MobileUser { get; set; } = new MobileUser();
     }
 
    
