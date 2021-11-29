@@ -45,6 +45,7 @@ namespace HashtilMobile.Services
             (message, cert, chain, errors) => { return true; };
 
             HttpClient client = new HttpClient(httpClientHandler);
+            //client.BaseAddress = new Uri(Constants.Urls.BaseUrl);
             string jsonData = JsonConvert.SerializeObject(mobileUser);
             StringContent content = new StringContent(jsonData, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync($"{Constants.Urls.BaseUrl}/{controllerUrl}", content);
@@ -98,6 +99,11 @@ namespace HashtilMobile.Services
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 
+            }
+            // If Post Was Ok
+            else if (response.StatusCode == HttpStatusCode.Created)
+            {
+
             }
             // If No Valid User
             else if(response.StatusCode == HttpStatusCode.Unauthorized)

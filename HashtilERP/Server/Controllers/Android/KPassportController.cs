@@ -28,13 +28,14 @@ namespace HashtilERP.Server.Controllers.Android
         public async Task<ActionResult<K_Passport>> PostKPassport(K_Passport kPassport)
         {
             // Check If Valid User
-            ApplicationUser userTest = await _userManager.FindByNameAsync(kPassport.MobileUser.UserName);
-            bool isValidUser = await _userManager.CheckPasswordAsync(userTest, kPassport.MobileUser.Password);
+            ApplicationUser mobileUser = await _userManager.FindByNameAsync(kPassport.MobileUser.UserName);
+            bool isValidUser = await _userManager.CheckPasswordAsync(mobileUser, kPassport.MobileUser.Password);
 
             if (!isValidUser)
             {
-                //return Unauthorized();              
+                return Unauthorized();              
             }
+
             // Init
             Passport sap;
             Oitm sapOitm;
@@ -49,12 +50,11 @@ namespace HashtilERP.Server.Controllers.Android
             {
                 return Accepted();
             }
-
-
-            var user = await _userManager.GetUserAsync(User);
-            var screenName = user.ScreenName;
+            // Getting Sceen Name
+            var screenName = mobileUser.ScreenName;
 
             var dup = await _context.KPassport.Where(X => X.PassportNum == kPassport.PassportNum).FirstOrDefaultAsync();
+
             //if duplicate in K_Passport
             if (dup != null)
             {
@@ -82,7 +82,9 @@ namespace HashtilERP.Server.Controllers.Android
             kPassport.Gidul = sapOitm.UHebGidul ?? sapOitm.ItemName.Split(new char[] { ' ' })[0];
             kPassport.IsSavedForCx = false;
             kPassport.IsNeedToCut = true && sapOitm.ItemName.Contains("מפוצל");
+
             _context.KPassport.Add(kPassport);
+
             try
             {
                 await _context.SaveChangesAsync();

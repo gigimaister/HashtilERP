@@ -67,7 +67,7 @@ namespace HashtilERP.Data
         [ForeignKey("K_PassportId")]
         public virtual List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
 
-
+        [NotMapped]
         public virtual MobileUser MobileUser { get; set; }
     }
 }

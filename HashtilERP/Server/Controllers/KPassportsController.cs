@@ -116,7 +116,14 @@ namespace HashtilERP.Server
         public async Task<List<K_Passport>> GetGrowingPassForSowing()
         {
             var passports = new List<K_Passport>();
-            passports = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom).OrderByDescending(x=>x.PassportNum).ToListAsync();
+            try
+            {
+                passports = await _context.KPassport.Where(x => x.PassportStatus == Status.GrowingRoom).OrderByDescending(x => x.PassportNum).ToListAsync();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             return passports;
         }
 

@@ -59,8 +59,11 @@ namespace HashtilMobile.ViewModels
                 passport.PassportNum = 73488;
                 passport.GrowingRoom = SegmentItems[Preferences.Get("GrowingRoomSelectedIndex", 0)].Text;
                 passport.UserName = mobileuser.UserName;
+                passport.MobileUser.UserName = mobileuser.UserName;
+                passport.MobileUser.Password = mobileuser.Password;
+                passport.MobileUser.Role = mobileuser.Role;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert(Constants.Thai_Error, Constants.Thai_PassportScanError, Constants.OK);
 

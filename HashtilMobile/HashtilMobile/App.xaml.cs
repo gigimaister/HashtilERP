@@ -1,6 +1,7 @@
 ﻿using HashtilMobile.Services;
 using HashtilMobile.Views;
 using System;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -16,24 +17,30 @@ namespace HashtilMobile
             DependencyService.Register<IRestService, RestService>();
 
             Device.SetFlags(new string[] { "Shapes_Experimental", "MediaElement_Experimental" });
+
+            //For Http Req
+            IRestService _rest = DependencyService.Get<IRestService>();
+
             var user = Functions.GetMobileUser();
+            var validUser = Task.Run(() => _rest.PostAsync(user));
+           
             // Page Sowing
-            if(user.Role == Constants.Roles.ThaiGuy)
+            if(validUser.Result.Role == Constants.Roles.ThaiGuy)
             {
                 MainPage = new NavigationPage(new ThaiSowing());
             }
             // Page Thai Green House
-            else if(user.Role == Constants.Roles.ThaiGreenHouse)
+            else if(validUser.Result.Role == Constants.Roles.ThaiGreenHouse)
             {
                 MainPage = new NavigationPage(new ThaiGreenHouse());
             }
             // Page Admin
-            else if (user.Role == Constants.Roles.Administrator)
+            else if (validUser.Result.Role == Constants.Roles.Administrator)
             {
                 MainPage = new NavigationPage(new ThaiGreenHouse());
             }
             // Page Counter
-            else if (user.Role == Constants.Roles.AuditAvgCounter)
+            else if (validUser.Result.Role == Constants.Roles.AuditAvgCounter)
             {
                 MainPage = new NavigationPage(new ThaiGreenHouse());
             }

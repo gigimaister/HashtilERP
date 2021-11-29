@@ -52,6 +52,9 @@ namespace HashtilERP.Shared.Models
         public int HamamaInt => Convert.ToInt32(Hamama);
         public int GamlonInt => Convert.ToInt32(Gamlon);
 
+        [NotMapped]
+        public MobileUser MobileUser { get; set; } = new MobileUser();
+
         [ForeignKey("SapDocEntry")]
         public virtual Passport Passport { get; set; }
 
@@ -68,7 +71,7 @@ namespace HashtilERP.Shared.Models
         [ForeignKey("K_PassportId")]
         public virtual List<K_PassportAuditTblVer2> k_PassportAuditTblVer2s { get; set; }
 
-        public virtual MobileUser MobileUser { get; set; } 
+       
     }
 
    

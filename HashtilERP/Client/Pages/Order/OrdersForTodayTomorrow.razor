@@ -18,6 +18,7 @@
 @using System.Timers;
 @using HashtilERP.Shared.Models.Drivers;
 @using HashtilERP.Shared.Models.Mobile;
+@using System.Net.Http.Formatting;
 
 @inject NavigationManager NavigationManager
 @inject HttpClient Http
@@ -1415,13 +1416,9 @@
     List<K_Order> k_OrdersCxManyJobs { get; set; } = new List<K_Order>();
     K_Order K_OrderCxManyJobs { get; set; }
 
-    K_Passport k_Passport = new K_Passport
-    {
-        UserName = "boontan",
-        PassportNum = 73122,
 
 
-    };
+
     #endregion
 
     //KOrder Cnacel Dialog
@@ -2724,9 +2721,21 @@
     public async void SendPassportPost()
     {
 
+        try
+        {
+            K_Passport k_Passport = new K_Passport();
+            k_Passport.MobileUser.UserName = "boontan@hashtil";
+            k_Passport.MobileUser.Password = "Uma12#";
+            k_Passport.UserName = "boontan";
+            k_Passport.PassportNum = 73104;
+            await Http.PostAsJsonAsync($"api/Android/KPassport/PostKPassport", k_Passport );
 
-       
-        await Http.PostAsJsonAsync($"api/Android/KPassport/PostKPassport", k_Passport);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
     }
 
     public IEditorSettings CustomerEditParams = new StringEditCellParams

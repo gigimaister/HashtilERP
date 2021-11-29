@@ -21,6 +21,7 @@ namespace HashtilMobile
             public const string BaseUrl = "https://192.168.254.6/api/Android";
             public const string LoginController = "Login/PostLogin";
             public const string PostKPassport = "KPassport/PostKPassport";
+            public const string Local = "https://localhost:44308/api/Android/KPassport/PostKPassport";
         }
 
         public static class Roles
